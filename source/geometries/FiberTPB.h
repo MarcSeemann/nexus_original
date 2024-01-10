@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------------
-// nexus | FiberTPB.h
+// nexus | CsI.h
 //
 
 #ifndef FIBERTPB_H
@@ -13,13 +13,13 @@ class G4GenericMessenger;
 
 namespace nexus {
 
-  class CsI: public GeometryBase {
+  class FiberTPB: public GeometryBase {
   public:
     /// Constructor
-    CsI();
+    FiberTPB();
 
     /// Destructor
-    ~CsI();
+    ~FiberTPB();
 
     void Construct();
     G4ThreeVector GenerateVertex(const G4String& region) const;

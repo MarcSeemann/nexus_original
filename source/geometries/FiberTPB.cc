@@ -1,9 +1,9 @@
 // ----------------------------------------------------------------------------
-// nexus | FiberTPB.cc
+// nexus | CsI.cc
 //
-// This class describes a pair of FiberTPB with a radioactive source in the middle
+// This class describes a pair of CsI crystals with a radioactive source in the middle
 //
-// ----------------------------------------------------------------------------
+// -----CsI-----------------------------------------------------------------------
 
 #include "FiberTPB.h"
 #include "MaterialsList.h"
@@ -35,15 +35,15 @@
 
 using namespace nexus;
 
-REGISTER_CLASS(CsI, GeometryBase)
+REGISTER_CLASS(FiberTPB, GeometryBase)
 
 namespace nexus {
 
   using namespace CLHEP;
 
-  CsI::CsI():
+  FiberTPB::FiberTPB():
     GeometryBase(),
-    crystal_width_(6*mm),
+    crystal_width_(3*mm),
     crystal_length_(20*mm)
   {
     /// Messenger
@@ -53,13 +53,13 @@ namespace nexus {
     msg_->DeclareProperty("crystal_length", crystal_length_, "Crystal length");
   }
 
-  CsI::~CsI()
+  FiberTPB::~FiberTPB()
   {
     delete msg_;
   }
 
 
-  void CsI::Construct()
+  void FiberTPB::Construct()
   {
     inside_source_ = new CylinderPointSampler2020(0, 0.5*mm / 2,  2.5 * mm / 2,  0, twopi, nullptr, G4ThreeVector(0, 0, 0));
     box_source_ = new BoxPointSampler(crystal_width_, crystal_width_, crystal_length_, 0.1*mm, G4ThreeVector(-1 * cm, 0, crystal_length_/2+2.5/2*cm));
@@ -218,7 +218,7 @@ namespace nexus {
 
   }
 
-  G4ThreeVector CsI::GenerateVertex(const G4String& region) const
+  G4ThreeVector FiberTPB::GenerateVertex(const G4String& region) const
   {
     return inside_source_->GenerateVertex("VOLUME");
     // return box_source_->GenerateVertex("INSIDE");
