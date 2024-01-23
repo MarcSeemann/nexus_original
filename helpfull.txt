@@ -1,0 +1,1 @@
+./bin/nexus -i /home/investigator/Documents/simulation_software/nexus_original/macros/MarcTest.init.mac
