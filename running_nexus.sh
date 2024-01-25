@@ -51,6 +51,7 @@ export PATH=$PATH:/home/$USER/Documents/simulation_software/nexus_original/bin;
 
 #cmake compilation
 cmake_compile () {
+cmake --build build --target install
 cd build;
 cmake ..;
 cmake --build . -j 32;

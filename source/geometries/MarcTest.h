@@ -1,9 +1,9 @@
 // ----------------------------------------------------------------------------
-// nexus | CsI.h
+// nexus | MarcTest.h
 //
 
-#ifndef CSI_H
-#define CSI_H
+#ifndef MARCTEST_H
+#define MARCTEST_H
 
 #include "GeometryBase.h"
 #include "CylinderPointSampler2020.h"
@@ -13,13 +13,13 @@ class G4GenericMessenger;
 
 namespace nexus {
 
-  class CsI: public GeometryBase {
+  class MarcTest: public GeometryBase {
   public:
     /// Constructor
-    CsI();
+    MarcTest();
 
     /// Destructor
-    ~CsI();
+    ~MarcTest();
 
     void Construct();
     G4ThreeVector GenerateVertex(const G4String& region) const;
@@ -30,12 +30,9 @@ namespace nexus {
     // Messenger for the definition of control commands
     G4GenericMessenger* msg_;
     CylinderPointSampler2020* inside_source_;
-    BoxPointSampler* box_source_;
 
     // Dimension of the crystals
-    G4double crystal_width_;
-    G4double crystal_length_;
-
+    G4double epoxy_layers;
 
   };
 }
