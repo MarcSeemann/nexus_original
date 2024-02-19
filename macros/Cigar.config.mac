@@ -1,0 +1,31 @@
+#/Generator/SingleParticle/particle opticalphoton
+#/Generator/SingleParticle/min_energy 7 eV
+#/Generator/SingleParticle/max_energy 7 eV
+#/Generator/SingleParticle/region INSIDE_CIGAR
+#/Generator/Kr83mGenerator/region INSIDE_CIGAR
+
+/Generator/SingleParticle/particle alpha
+/Generator/SingleParticle/min_energy 5400 keV
+/Generator/SingleParticle/max_energy 5490 keV
+#/Generator/SingleParticle/min_energy 2 keV
+#/Generator/SingleParticle/max_energy 2 keV
+/Generator/SingleParticle/momentum 0 0 0
+/Generator/SingleParticle/min_costheta -1
+/Generator/SingleParticle/max_costheta 1
+/Generator/SingleParticle/region INSIDE_CIGAR
+
+/Geometry/Cigar/pressure 1 bar
+/Geometry/Cigar/fiber_diameter 1 mm
+/Geometry/Cigar/coating TPB
+/Geometry/Cigar/fiber_type Y11
+/Geometry/Cigar/gas Xe
+
+/run/verbose 0
+/event/verbose 0
+/tracking/verbose 0
+/process/em/verbose 0
+
+### JOB CONTROL
+/nexus/random_seed            1
+/nexus/persistency/start_id   0
+/nexus/persistency/output_file Cigar

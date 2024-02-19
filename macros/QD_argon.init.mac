@@ -1,6 +1,6 @@
 
 /control/execute macros/physics/DefaultPhysicsList.mac
-/nexus/RegisterGeometry MarcTest
+/nexus/RegisterGeometry QD_argon
 /nexus/RegisterGenerator SingleParticleGenerator
 /nexus/RegisterPersistencyManager PersistencyManager
 
@@ -12,7 +12,7 @@
 /nexus/RegisterSteppingAction AnalysisSteppingAction
 /nexus/RegisterTrackingAction OpticalTrackingAction
 
-/nexus/RegisterMacro macros/MarcTest.config.mac
+/nexus/RegisterMacro macros/QD_argon.config.mac
 
 /tracking/verbose 1
 /control/verbose 1

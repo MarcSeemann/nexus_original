@@ -1,10 +1,10 @@
-/Generator/SingleParticle/particle opticalphoton
-/Generator/SingleParticle/min_energy 2.88 eV
-/Generator/SingleParticle/max_energy 2.88 eV
+/Generator/SingleParticle/particle alpha
+/Generator/SingleParticle/min_energy 5400 keV
+/Generator/SingleParticle/max_energy 5490 keV
 /Generator/SingleParticle/momentum 0 -1 0
 /Generator/SingleParticle/min_costheta -1
 /Generator/SingleParticle/max_costheta 1
-/Geometry/MarcTest/epoxy_layers 2
+/Geometry/QD_argon/epoxy_layers 2
 
 
 /run/verbose 1
@@ -29,4 +29,4 @@
 ### JOB CONTROL
 /nexus/random_seed            1
 /nexus/persistency/start_id   0
-/nexus/persistency/output_file MarcTest3
+/nexus/persistency/output_file QD_argon
