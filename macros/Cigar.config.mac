@@ -5,6 +5,7 @@
 #/Generator/Kr83mGenerator/region INSIDE_CIGAR
 
 /Generator/SingleParticle/particle alpha
+#/Generator/SingleParticle/particle e-
 /Generator/SingleParticle/min_energy 5400 keV
 /Generator/SingleParticle/max_energy 5490 keV
 #/Generator/SingleParticle/min_energy 2 keV
@@ -20,11 +21,16 @@
 /Geometry/Cigar/fiber_type Y11
 /Geometry/Cigar/gas Xe
 
-/run/verbose 0
+/process/optical/processActivation Cerenkov true
+/process/optical/scintillation/setTrackSecondariesFirst true
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
+
+
+/run/verbose 1                                                                                                                                                                                                                      
 /event/verbose 0
 /tracking/verbose 0
 /process/em/verbose 0
-
+                                                                                                
 ### JOB CONTROL
 /nexus/random_seed            1
 /nexus/persistency/start_id   0

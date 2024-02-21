@@ -942,14 +942,14 @@ namespace opticalprops {
       optPhotMinE_,  2.8 * eV,  3.5 * eV,  4. * eV,
       6. * eV,       7.2 * eV,  optPhotMaxE_
     };
-    // std::vector<G4double> REFLECTIVITY = {
-    //   .9875,  .9875,  .9875,  .9875,
-    //   .9875,  .9875,  .9875
-    // };
     std::vector<G4double> REFLECTIVITY = {
-      1., 1., 1., 1.,
-      1., 1., 1.
+      .9875,  .9875,  .9875,  .9875,
+      .9875,  .9875,  .9875
     };
+    // std::vector<G4double> REFLECTIVITY = {
+    //   1., 1., 1., 1.,
+    //   1., 1., 1.
+    // };
     mpt->AddProperty("REFLECTIVITY", ENERGIES, REFLECTIVITY);
 
     // REFLEXION BEHAVIOR
@@ -1618,6 +1618,11 @@ namespace opticalprops {
       3.5 * m,       3.5 * m,
       noAbsLength_,  noAbsLength_
     };
+    // std::vector<G4double> absLength = {
+    //   0,  0,
+    //   0,  0,
+    //   0,  0
+    // };
     mpt->AddProperty("ABSLENGTH", abs_energy, absLength);
 
     // WLS ABSORPTION LENGTH
@@ -1639,6 +1644,15 @@ namespace opticalprops {
       4.81  * mm,    noAbsLength_,    // 350 , 345 nm
       noAbsLength_
     };
+    // std::vector<G4double> WLS_absLength = {
+    //   0,  0,    //     , 490 nm
+    //   0,   0,       // 485 , 475 nm
+    //   0,    0,      // 454 , 443 nm
+    //   0,    0,      // 430 , 410 nm
+    //   0,    0,       // 405 , 359 nm
+    //   0,    0,    // 350 , 345 nm
+    //   0
+    // };
     mpt->AddProperty("WLSABSLENGTH", WLS_abs_energy, WLS_absLength);
     //for (int i=0; i<WLS_abs_entries; i++)
     //  G4cout << "* Y11 WLS absLength:  " << std::setw(8) << WLS_abs_energy[i] / eV
@@ -1673,13 +1687,28 @@ namespace opticalprops {
       0.100,    0.050,   // 455 , 450 nm
       0.000,    0.000    // 445 ,     nm
     };
+    // std::vector<G4double> WLS_emiSpectrum = {
+    //   0.000,    0.000,   //     , 580 nm
+    //   0.000,    0.000,   // 550 , 530 nm
+    //   0.000,    0.000,   // 525 , 520 nm
+    //   0.000,    0.000,   // 515 , 510 nm
+    //   0.000,    0.000,   // 505 , 500 nm
+    //   0.000,    0.000,   // 495 , 490 nm
+    //   0.000,    0.000,   // 485 , 480 nm
+    //   0.000,    0.000,   // 475 , 470 nm
+    //   0.000,    0.000,   // 465 , 460 nm
+    //   0.000,    0.000,   // 455 , 450 nm
+    //   0.000,    0.000    // 445 ,     nm
+    // };
     mpt->AddProperty("WLSCOMPONENT",  WLS_emi_energy, WLS_emiSpectrum);
 
     // WLS Delay
     mpt->AddConstProperty("WLSTIMECONSTANT", 8.5 * ns);
+    // mpt->AddConstProperty("WLSTIMECONSTANT", 0.1 * ns);
 
     // WLS Quantum Efficiency
     mpt->AddConstProperty("WLSMEANNUMBERPHOTONS", 0.87);
+    // mpt->AddConstProperty("WLSMEANNUMBERPHOTONS", 0);
 
     return mpt;
   }
@@ -1930,4 +1959,6 @@ namespace opticalprops {
 
     return mpt;
   }
+
+
 }

@@ -15,6 +15,7 @@
 #include <G4GenericMessenger.hh>
 #include <G4OpticalSurface.hh>
 #include <G4LogicalSkinSurface.hh>
+#include <G4LogicalBorderSurface.hh>
 #include <G4LogicalVolume.hh>
 #include <G4PVPlacement.hh>
 #include <G4NistManager.hh>
@@ -90,7 +91,6 @@ namespace nexus {
       G4cout << " with " << coating_ << " coating";
     G4cout << G4endl;
 
-
     G4RotationMatrix *temp_rot = new G4RotationMatrix();
     temp_rot->rotateY(0 * deg);
     // inside_cigar_ = new BoxPointSampler(cigar_width_, cigar_width_, cigar_length_, 0, G4ThreeVector(0, 0, 0));
@@ -138,7 +138,7 @@ namespace nexus {
 
     } else if (gas_ == "Xe") {
       world_mat = materials::GXe(pressure_);
-      world_mat->SetMaterialPropertiesTable(opticalprops::GXe(pressure_));
+      world_mat->SetMaterialPropertiesTable(opticalprops::GXe(pressure_, 273.15, 250, (1.0E9)));
     } else {
       G4Exception("[Cigar]", "Construct()",
             FatalException, "Invalid gas, must be Ar or Xe");
@@ -173,17 +173,21 @@ namespace nexus {
     teflon_logic_side->SetVisAttributes(nexus::White());
     teflon_logic_close->SetVisAttributes(nexus::White());
 
+
+
+
+
     G4OpticalSurface* opsur_teflon =
       new G4OpticalSurface("TEFLON_OPSURF", unified, groundteflonair, dielectric_metal);
     opsur_teflon->SetMaterialPropertiesTable(opticalprops::PTFE());
 
     new G4LogicalSkinSurface("TEFLON_OPSURF", teflon_logic_top, opsur_teflon);
 
-    new G4PVPlacement(0, G4ThreeVector(0, cigar_width_/2+panel_width/2+fiber_diameter_+extra_width/2+panel_width/2+fiber_diameter_/4,0),
+    G4VPhysicalVolume *teflon_top = new G4PVPlacement(0, G4ThreeVector(0, cigar_width_/2+panel_width/2+fiber_diameter_+extra_width/2+panel_width/2+fiber_diameter_/4,0),
                       teflon_logic_top, "TEFLON1", world_logic_vol,
                       true, 0, false);
 
-    new G4PVPlacement(0, G4ThreeVector(0, -cigar_width_/2-panel_width/2-fiber_diameter_-(+extra_width/2+panel_width/2+fiber_diameter_/4), 0),
+    G4VPhysicalVolume *teflon_bottom = new G4PVPlacement(0, G4ThreeVector(0, -cigar_width_/2-panel_width/2-fiber_diameter_-(+extra_width/2+panel_width/2+fiber_diameter_/4), 0),
                       teflon_logic_top, "TEFLON2", world_logic_vol,
                       true, 1, false);
 
@@ -455,6 +459,16 @@ namespace nexus {
     //               LED_logic, "CYLINDER", world_logic_vol,
     //               true, 1, true);
 
+
+
+    // G4OpticalSurface* ptfe_surface = new G4OpticalSurface("PTFE_SURFACE");
+    // ptfe_surface->SetType(dielectric_LUT);
+    // ptfe_surface->SetFinish(polishedteflonair);
+    // ptfe_surface->SetModel(LUT);
+    // ptfe_surface->SetMaterialPropertiesTable(opticalprops::PTFE());
+
+    // new G4LogicalBorderSurface(
+    //   "XE_PTFE", world_logic_vol, teflon_top, ptfe_surface);
   }
 
 
