@@ -138,7 +138,8 @@ namespace nexus {
 
     } else if (gas_ == "Xe") {
       world_mat = materials::GXe(pressure_);
-      world_mat->SetMaterialPropertiesTable(opticalprops::GXe(pressure_, 273.15, 250, (1.0E9)));
+      // world_mat->SetMaterialPropertiesTable(opticalprops::GXe(pressure_, 273.15, 250, (1.0E9)));
+      world_mat->SetMaterialPropertiesTable(opticalprops::GXe());
     } else {
       G4Exception("[Cigar]", "Construct()",
             FatalException, "Invalid gas, must be Ar or Xe");
@@ -155,6 +156,8 @@ namespace nexus {
     // TEFLON PANELS ////////////////////////////////////////////
     G4double panel_width = 2.5 * mm;
     G4double extra_width = (5) * mm;
+    // G4Box* teflon_panel_top =
+    //   new G4Box("TEFLON_PANEL_TOP", cigar_width_ / 2 + extra_width + panel_width, panel_width / 2, cigar_length_ / 2);
     G4Box* teflon_panel_top =
       new G4Box("TEFLON_PANEL_TOP", cigar_width_ / 2 + extra_width + panel_width, panel_width / 2, cigar_length_ / 2);
     G4Box* teflon_panel_side =
