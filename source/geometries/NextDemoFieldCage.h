@@ -21,7 +21,7 @@ class G4GenericMessenger;
 
 namespace nexus {
 
-  class CylinderPointSampler2020;
+  class CylinderPointSampler;
 
   class NextDemoFieldCage: public GeometryBase
   {
@@ -66,6 +66,7 @@ namespace nexus {
     G4LogicalVolume* mother_logic_;
     G4VPhysicalVolume* mother_phys_;
     G4double pressure_, temperature_;
+    G4double sc_yield_, e_lifetime_;
 
 
     // Pointers to materials definition
@@ -114,8 +115,8 @@ namespace nexus {
     G4double ELelectric_field_;
 
     // Vertex generators
-    CylinderPointSampler2020* active_gen_;
-    CylinderPointSampler2020* el_gap_gen_;
+    CylinderPointSampler* active_gen_;
+    CylinderPointSampler* el_gap_gen_;
 
     // Messenger for the definition of control commands
     G4GenericMessenger* msg_;

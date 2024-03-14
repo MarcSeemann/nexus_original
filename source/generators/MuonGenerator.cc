@@ -9,7 +9,6 @@
 #include "MuonGenerator.h"
 #include "DetectorConstruction.h"
 #include "GeometryBase.h"
-#include "MuonsPointSampler.h"
 #include "AddUserInfoToPV.h"
 #include "FactoryBase.h"
 #include "RandomUtils.h"
@@ -33,26 +32,27 @@ REGISTER_CLASS(MuonGenerator, G4VPrimaryGenerator)
 
 MuonGenerator::MuonGenerator():
   G4VPrimaryGenerator(), msg_(0), particle_definition_(0),
-  use_lsc_dist_(true), axis_rotation_(150), rPhi_(NULL), user_dir_{}, energy_min_(0.),
-  energy_max_(0.), dist_name_("za"), bInitialize_(false), geom_(0), geom_solid_(0)
+  use_lsc_dist_(true), axis_rotation_(150), rPhi_(NULL), user_dir_{},
+  energy_min_(0.), energy_max_(0.), dist_name_("za"), bInitialize_(false),
+  geom_(0), geom_solid_(0), gen_rad_(223.33*cm)
 {
   msg_ = new G4GenericMessenger(this, "/Generator/MuonGenerator/",
 				"Control commands of muongenerator.");
 
   G4GenericMessenger::Command& min_energy =
-    msg_->DeclareProperty("min_energy", energy_min_, "Set minimum kinetic energy of the particle.");
+    msg_->DeclareProperty("min_energy", energy_min_, "Minimum kinetic energy of the particle.");
   min_energy.SetUnitCategory("Energy");
   min_energy.SetParameterName("min_energy", false);
   min_energy.SetRange("min_energy>0.");
 
   G4GenericMessenger::Command& max_energy =
-    msg_->DeclareProperty("max_energy", energy_max_, "Set maximum kinetic energy of the particle");
+    msg_->DeclareProperty("max_energy", energy_max_, "Maximum kinetic energy of the particle");
   max_energy.SetUnitCategory("Energy");
   max_energy.SetParameterName("max_energy", false);
   max_energy.SetRange("max_energy>0.");
 
   msg_->DeclareProperty("region", region_,
-			"Set the region of the geometry where the vertex will be generated.");
+                        "Region of the geometry where the vertex will be generated.");
 
   msg_->DeclareProperty("use_lsc_dist", use_lsc_dist_,
 			"Distribute muon directions according to file?");
@@ -71,7 +71,15 @@ MuonGenerator::MuonGenerator():
   rotation.SetParameterName("azimuth", false);
   rotation.SetRange("azimuth>0.");
 
-  DetectorConstruction* detconst = (DetectorConstruction*) G4RunManager::GetRunManager()->GetUserDetectorConstruction();
+  // defaults to length of the NEXT100 shielding diagonal if not present.
+  G4GenericMessenger::Command& generation_radius =
+    msg_->DeclareProperty("gen_rad", gen_rad_, "Set radius for generation disc");
+  generation_radius.SetUnitCategory("Length");
+  generation_radius.SetParameterName("gen_rad", false);
+  generation_radius.SetRange("gen_rad>0.");
+
+  DetectorConstruction* detconst =
+    (DetectorConstruction*) G4RunManager::GetRunManager()->GetUserDetectorConstruction();
   geom_ = detconst->GetGeometry();
 
 }
@@ -93,13 +101,15 @@ void MuonGenerator::LoadMuonDistribution()
     // Only angle option, but energy specified
     if (dist_name_ == "za")
       G4Exception("[MuonGenerator]", "LoadMuonDistribution()",
-                FatalException, " Angular + Energy file specified with angle_dist=za option selected, use angle_dist=zae ");
+                  FatalException, " Angular + Energy file specified "
+                  "with angle_dist=za option selected, use angle_dist=zae ");
   }
   // File name does not contain the word Energy
   else {
     if (dist_name_ == "zae")
       G4Exception("[MuonGenerator]", "LoadMuonDistribution()",
-                FatalException, " Angular file specified with angle_dist=zae option selected, use angle_dist=za ");
+                  FatalException, " Angular file specified "
+                  "with angle_dist=zae option selected, use angle_dist=za ");
   }
 
   // Load in the data from csv file depending on 2D histogram sampling or 3D
@@ -107,9 +117,11 @@ void MuonGenerator::LoadMuonDistribution()
     LoadHistData2D(ang_file_, flux_, azimuths_, zeniths_, azimuth_smear_, zenith_smear_);
 
   if (dist_name_ == "zae"){
-    LoadHistData3D(ang_file_, flux_, azimuths_, zeniths_, energies_, azimuth_smear_, zenith_smear_, energy_smear_);
+    LoadHistData3D(ang_file_, flux_, azimuths_, zeniths_, energies_,
+                   azimuth_smear_, zenith_smear_, energy_smear_);
     
-    // Check if the energy is in the desired range permitted by the binning range in the data file
+    // Check if the energy is in the desired range permitted
+    // by the binning range in the data file
     CheckVarBounds(ang_file_, energy_min_/GeV, energy_max_/GeV, "energy"); 
 
   }
@@ -117,7 +129,8 @@ void MuonGenerator::LoadMuonDistribution()
   // Convert flux vector to arr
   auto arr_flux = flux_.data();
 
-  // Initialise the Random Number Generator based on the flux distribution (in bin index)
+  // Initialise the Random Number Generator based on the flux distribution
+  // (in bin index)
   fRandomGeneral_ = new G4RandGeneral( arr_flux, flux_.size() );
 
 }
@@ -161,22 +174,27 @@ void MuonGenerator::GeneratePrimaryVertex(G4Event* event)
       std::cout << "[MuonGenerator]: Generating muons using lsc distribution loaded from file" << std::endl;
       LoadMuonDistribution();
 
-      // Throw exception if a user dir given and also the use_lsc_dist_ is set to true
+      // Throw exception if a user dir given
+      // and also the use_lsc_dist_ is set to true
       if (user_dir_ != G4ThreeVector{})
         G4Exception("[MuonGenerator]", "GeneratePrimaryVertex()",
-                FatalException, " Fixed user direction specified with use_lsc_dist set to true. Set use_lsc_dist to false or remove user_dir in the config");
+                    FatalException, " Fixed user direction specified with "
+                    "use_lsc_dist set to true. Set use_lsc_dist to "
+                    "false or remove user_dir in the config");
 
     }
     
     // Initalise a cos^2 distribution to sample the zenith
     if (!use_lsc_dist_ && (user_dir_ == G4ThreeVector{})){
-      std::cout << "[MuonGenerator]: Generating muons with uniform azimuth and cos^2 distribution for zenith " << std::endl;
+      std::cout << "[MuonGenerator]: Generating muons with uniform azimuth "
+                   "and cos^2 distribution for zenith " << std::endl;
       InitMuonZenithDist();
     }
 
     // User specified muon direction
     if (!use_lsc_dist_ && (user_dir_ != G4ThreeVector{})){
-      std::cout << "[MuonGenerator]: Generating muons with user specified direction " << std::endl;
+      std::cout << "[MuonGenerator]: Generating muons with user specified "
+                   "direction " << std::endl;
     }
 
     // Set Initialisation
@@ -201,7 +219,7 @@ void MuonGenerator::GeneratePrimaryVertex(G4Event* event)
   // Particle properties
   G4double mass          = particle_definition_->GetPDGMass();
   G4double energy        = kinetic_energy + mass;
-  G4ThreeVector position = geom_->GenerateVertex(region_);
+  //G4ThreeVector position = geom_->GenerateVertex(region_);
 
   // Set default momentum and angular variables
   G4ThreeVector p_dir;
@@ -211,7 +229,7 @@ void MuonGenerator::GeneratePrimaryVertex(G4Event* event)
   // Momentum, zenith, azimuth (and energy) from angular distribution file
   if (use_lsc_dist_){
     GetDirection(p_dir, zenith, azimuth, energy, kinetic_energy, mass);
-    position = geom_->GenerateVertex(region_);
+    //    position = geom_->GenerateVertex(region_);
   }
   else {
 
@@ -236,7 +254,13 @@ void MuonGenerator::GeneratePrimaryVertex(G4Event* event)
       p_dir *= *rPhi_;
 
     }
+  }
 
+  G4ThreeVector position;
+  if ((region_ == "HALLA_INNER") || (region_ == "HALLA_OUTER")) {
+    position = ProjectToVertex(p_dir);
+  } else {
+    position = geom_->GenerateVertex(region_);
   }
 
   G4double pmod   = std::sqrt(energy*energy - mass*mass);
@@ -254,7 +278,8 @@ void MuonGenerator::GeneratePrimaryVertex(G4Event* event)
   G4PrimaryParticle* particle =
     new G4PrimaryParticle(particle_definition_, px, py, pz);
 
-  // Add info to PrimaryVertex to be accessed from EventAction type class to make histos of variables generated here.
+  // Add info to PrimaryVertex to be accessed from EventAction type class
+  // to make histos of variables generated here.
   AddUserInfoToPV *info = new AddUserInfoToPV(zenith, azimuth);
 
   vertex->SetUserInformation(info);
@@ -282,8 +307,9 @@ G4String MuonGenerator::MuonCharge() const
 }
 
 
-void MuonGenerator::GetDirection(G4ThreeVector& dir, G4double& zenith, G4double& azimuth,
-                      G4double& energy, G4double& kinetic_energy, G4double mass)
+void MuonGenerator::GetDirection(G4ThreeVector& dir, G4double& zenith,
+                                 G4double& azimuth, G4double& energy,
+                                 G4double& kinetic_energy, G4double mass)
 {
 
   // Bool to check if zenith has a valid value. If not then resample
@@ -324,6 +350,36 @@ void MuonGenerator::GetDirection(G4ThreeVector& dir, G4double& zenith, G4double&
 
   }
 
+}
+
+
+G4ThreeVector MuonGenerator::ProjectToVertex(const G4ThreeVector& dir)
+{
+  /////////////////////////////////////////////////////////////////////////
+  // This method of vertex generation decides the starting vertex
+  // of the primary particle in three steps:
+  // 1) A random point is generated on a disc centred on the main
+  //    volumes.
+  // 2) This disc is rotated so that it is perpendicular to the
+  //    direction vector which is the only argument of the function.
+  //    The new point is a point through which the vector passes.
+  // 3) The vertex is found by projecting backwards along the direction
+  //    vector from that point to find the point where the ray
+  //    (point - t*dir) intersects with the region configured as the
+  //    starting point for all vertices.
+  /////////////////////////////////////////////////////////////////////////
+  // Postion in disc
+  G4double radius = gen_rad_ * std::sqrt(G4UniformRand());
+  G4double ang = 2 * G4UniformRand() * pi;
+
+  // Continue assuming that Y is vertical and z drift,
+  // valid for NEW and NEXT-100 (at least).
+  // Rotate the disc (origin-point vector) to be perpendicular to dir.
+  G4ThreeVector point(radius * std::cos(ang), 0., radius * std::sin(ang));
+  point.rotate(pi / 2 - dir.angle(point), dir.cross(point));
+
+  // Now project back to the requested region intersection.
+  return geom_->ProjectToRegion(region_, point, -dir);
 }
 
 

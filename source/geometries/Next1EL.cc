@@ -16,8 +16,8 @@
 #include "UniformElectricDriftField.h"
 #include "XenonProperties.h"
 #include "NextElDB.h"
-#include "CylinderPointSampler.h"
-#include "MuonsPointSampler.h"
+#include "CylinderPointSamplerLegacy.h"
+#include "BoxPointSamplerLegacy.h"
 #include "Visibilities.h"
 #include "FactoryBase.h"
 
@@ -293,7 +293,6 @@ void Next1EL::BuildLab()
 
   lab_logic_ = new G4LogicalVolume(lab_solid, air_, "LAB");
   lab_logic_->SetVisAttributes(G4VisAttributes::GetInvisible());
-  this->SetDrift(true);
 
   // Set this volume as the wrapper for the whole geometry
   // (i.e., this is the volume that will be placed in the world)
@@ -311,7 +310,9 @@ void Next1EL::BuildMuons()
   G4double yMuonsOrigin = 400.;
 
   //sampling position in a surface above the detector
-  muons_sampling_ = new MuonsPointSampler(xMuons, yMuonsOrigin, zMuons);
+  muons_sampling_ =
+    new BoxPointSamplerLegacy(xMuons*2., 0, zMuons*2., 0,
+                              G4ThreeVector(0, yMuonsOrigin, 0));
 
 
   // To visualize the muon generation surface
@@ -378,7 +379,7 @@ void Next1EL::BuildExtScintillator()
    rot2->rotateZ(sideport_angle_);
 
    cps_ =
-     new CylinderPointSampler(source_diam/2., source_thick, 0., 0., pos_source, rot2);
+     new CylinderPointSamplerLegacy(source_diam/2., source_thick, 0., 0., pos_source, rot2);
 
 
   ///Plastic support
@@ -741,10 +742,12 @@ void Next1EL::BuildFieldCage()
 
   G4Material* fgrid = materials::FakeDielectric(gxe_, "grid_mat");
   fgrid->SetMaterialPropertiesTable(opticalprops::FakeGrid(pressure_, 303,
-									elgrid_transparency_, diel_thickn, sc_yield_, e_lifetime_));
+                                                           elgrid_transparency_,
+                                                           diel_thickn, sc_yield_));
   G4Material* fgrid_gate = materials::FakeDielectric(gxe_, "grid_mat");
   fgrid_gate->SetMaterialPropertiesTable(opticalprops::FakeGrid(pressure_, 303,
-									gate_transparency_, diel_thickn, sc_yield_, e_lifetime_));
+                                                                gate_transparency_,
+                                                                diel_thickn, sc_yield_));
 
   G4Tubs* diel_grid =
     new G4Tubs("GRID", 0., elgap_ring_diam_/2., diel_thickn/2., 0, twopi);
@@ -820,7 +823,7 @@ void Next1EL::BuildFieldCage()
   field->SetDriftVelocity(1.*mm/microsecond);
   field->SetTransverseDiffusion(1.*mm/sqrt(cm));
   field->SetLongitudinalDiffusion(.3*mm/sqrt(cm));
-
+  field->SetLifetime(e_lifetime_);
   G4Region* drift_region = new G4Region("DRIFT");
   drift_region->SetUserInformation(field);
   drift_region->AddRootLogicalVolume(active_logic);
@@ -1372,7 +1375,7 @@ G4ThreeVector Next1EL::GenerateVertex(const G4String& region) const
       }
   } else if (region == "MUONS") {
     //generate muons sampling the plane
-    vertex = muons_sampling_->GenerateVertex();
+    vertex = muons_sampling_->GenerateVertex("INSIDE");
 
   } else {
       G4Exception("[Next1EL]", "GenerateVertex()", FatalException,

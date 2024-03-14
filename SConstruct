@@ -154,6 +154,12 @@ vars.AddVariables(
                  'Path to hdf5 installation directory.',
                  NULL_PATH),
 
+    ## Qt
+
+    PathVariable('QT_DIR',
+                 'Path to Qt installation directory.',
+                 NULL_PATH),
+
     ## installation directory
 
     PathVariable('PREFIX',
@@ -270,6 +276,15 @@ if not env['LIBPATH']:
 
     if not conf.CheckLib(library='hdf5', language='CXX', autoadd=0):
         Abort('HDF5 library not found.')
+
+    ## Qt configuration ----------------------------------
+    if env['QT_DIR'] == NULL_PATH:
+        try:
+            env['QT_DIR'] = os.environ['QT_DIR']
+            env.Append(CPPPATH = [env['QT_DIR']+'/include'])
+        except KeyError:
+            print('Env variable for QT installation directory could not be found.'
+                  'The compilation usually succeeds anyway, except for some MacOS versions.')
 
 ## ##################################################################
 

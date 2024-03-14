@@ -14,6 +14,8 @@
 #include <globals.hh>
 #include <memory>
 
+#include <memory>
+
 class G4VPrimaryGenerator;
 
 namespace nexus {

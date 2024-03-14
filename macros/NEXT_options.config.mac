@@ -32,6 +32,10 @@
 /Geometry/Next100/energy_plane_vis   false
 /Geometry/Next100/tracking_plane_vis false
 /Geometry/Next100/sipm_board_vis     false
+/Geometry/Next100/grid_vis           false
+
+# For changing the EL grid from mesh to fake dielectric grid
+/Geometry/Next100/use_dielectric_grid false
 
 
 ##### GENERATOR #####
@@ -102,3 +106,4 @@
 /nexus/persistency/start_id 1000
 /nexus/persistency/output_file Next100.next
 /nexus/persistency/event_type background # bb0nu, bb2nu...
+/nexus/persistency/save_strings true

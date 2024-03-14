@@ -18,7 +18,7 @@
 #include "MaterialsList.h"
 #include "OpticalMaterialProperties.h"
 #include "XenonProperties.h"
-#include "CylinderPointSampler2020.h"
+#include "CylinderPointSampler.h"
 #include "Visibilities.h"
 #include "FactoryBase.h"
 
@@ -58,7 +58,8 @@ NextFlex::NextFlex():
                                 "Control commands of the NextFlex geometry.");
 
   // Hard-wired dimensions
-  lightTube_ICS_gap_ = 55. * mm;  // (Set as in NEXT100. To be checked)
+  // Set as in NEXT100: ICS inner rad - active diam/2. - teflon thickness
+  lightTube_ICS_gap_ = 57.65 * mm;
 
   // Parametrized dimensions
   DefineConfigurationParameters();
@@ -277,7 +278,7 @@ void NextFlex::BuildICS(G4LogicalVolume* mother_logic) {
   else                 ics_logic->SetVisAttributes(G4VisAttributes::GetInvisible());
 
   // Vertex generator
-  copper_gen_ = new CylinderPointSampler2020(ics_phys);
+  copper_gen_ = new CylinderPointSampler(ics_phys);
 
   // Verbosity
   if (verbosity_) {
@@ -299,7 +300,7 @@ G4ThreeVector NextFlex::GenerateVertex(const G4String& region) const
 
   // ICS region
   else if (region == "ICS") {
-    vertex = copper_gen_->GenerateVertex("VOLUME");
+    vertex = copper_gen_->GenerateVertex(VOLUME);
   }
 
   // Field Cage regions

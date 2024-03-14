@@ -25,12 +25,12 @@ using namespace CLHEP;
 namespace nexus {
 
 
-  Next100InnerElements::Next100InnerElements():
+  Next100InnerElements::Next100InnerElements(G4double grid_thickn):
     GeometryBase(),
     mother_logic_(nullptr),
     mother_phys_ (nullptr),
     gas_(nullptr),
-    field_cage_    (new Next100FieldCage()),
+    field_cage_    (new Next100FieldCage(grid_thickn)),
     energy_plane_  (new Next100EnergyPlane()),
     tracking_plane_(new Next100TrackingPlane()),
     msg_(nullptr)
@@ -55,8 +55,7 @@ namespace nexus {
 
   void Next100InnerElements::Construct()
   {
-    // Position in Z of the beginning of the drift region
-    G4double gate_zpos = GetELzCoord();
+    G4ThreeVector coord_origin = GetCoordOrigin();
     // Reading mother material
     gas_ = mother_logic_->GetMaterial();
     pressure_ =    gas_->GetPressure();
@@ -65,21 +64,25 @@ namespace nexus {
     // Field Cage
     field_cage_->SetMotherLogicalVolume(mother_logic_);
     field_cage_->SetMotherPhysicalVolume(mother_phys_);
-    field_cage_->SetELzCoord(gate_zpos);
+    field_cage_->SetCoordOrigin(coord_origin);
     field_cage_->SetELtoSapphireWDWdistance(gate_sapphire_wdw_distance_);
     field_cage_->Construct();
 
     // Energy Plane
     energy_plane_->SetMotherLogicalVolume(mother_logic_);
-    energy_plane_->SetELzCoord(gate_zpos);
+    energy_plane_->SetCoordOrigin(coord_origin);
     energy_plane_->SetELtoSapphireWDWdistance(gate_sapphire_wdw_distance_);
     energy_plane_->Construct();
 
+    pmt_pos_ = energy_plane_->GetPMTPosInGas();
+
     // Tracking plane
     tracking_plane_->SetMotherPhysicalVolume(mother_phys_);
-    tracking_plane_->SetELzCoord(gate_zpos);
+    tracking_plane_->SetCoordOrigin(coord_origin);
     tracking_plane_->SetELtoTPdistance(gate_tracking_plane_distance_);
     tracking_plane_->Construct();
+
+    tracking_plane_->GetSiPMPosInGas(sipm_pos_);
   }
 
 

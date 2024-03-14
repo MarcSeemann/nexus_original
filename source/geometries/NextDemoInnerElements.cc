@@ -13,7 +13,6 @@
 #include "NextDemoTrackingPlane.h"
 #include "NextDemoEnergyPlane.h"
 #include "MaterialsList.h"
-#include "CylinderPointSampler2020.h"
 
 #include <G4SystemOfUnits.hh>
 #include <G4PhysicalConstants.hh>
@@ -55,10 +54,10 @@ void NextDemoInnerElements::Construct()
   if (config_ == "")
     G4Exception("[NextDemoInnerElements]", "Construct()",
                 FatalException, "NextDemo configuration has not been set.");
-  else if ((config_ != "run5") &
-           (config_ != "run7") &
-           (config_ != "run8") &
-           (config_ != "run9") &
+  else if ((config_ != "run5") &&
+           (config_ != "run7") &&
+           (config_ != "run8") &&
+           (config_ != "run9") &&
            (config_ != "run10"))
     G4Exception("[NextDemoInnerElements]", "Construct()",
                 FatalException, "Wrong NextDemo configuration.");

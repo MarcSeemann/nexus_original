@@ -11,6 +11,8 @@
 #include <G4VUserDetectorConstruction.hh>
 #include <memory>
 
+#include <memory>
+
 class G4GenericMessenger;
 
 namespace nexus {

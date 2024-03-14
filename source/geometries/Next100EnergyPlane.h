@@ -24,7 +24,7 @@ namespace nexus {
 
   /// This is a class to place all the components of the energy plane
 
-  class CylinderPointSampler2020;
+  class CylinderPointSampler;
 
   class Next100EnergyPlane: public GeometryBase
   {
@@ -47,6 +47,9 @@ namespace nexus {
 
     // Builder
     void Construct();
+
+    // Return the position of PMTs in xenon gas
+    std::vector<G4ThreeVector> GetPMTPosInGas() const;
 
 
   private:
@@ -95,18 +98,18 @@ namespace nexus {
     G4double rot_angle_;
 
     // Vertex generators
-    CylinderPointSampler2020* copper_gen_;
-    CylinderPointSampler2020* sapphire_window_gen_;
-    CylinderPointSampler2020* optical_pad_gen_;
-    CylinderPointSampler2020* pmt_base_gen_;
+    CylinderPointSampler* copper_gen_;
+    CylinderPointSampler* sapphire_window_gen_;
+    CylinderPointSampler* optical_pad_gen_;
+    CylinderPointSampler* pmt_base_gen_;
 
   };
 
-  inline void Next100EnergyPlane::SetELtoSapphireWDWdistance(G4double z) {
-    gate_sapphire_wdw_dist_ = z;}
+  inline void Next100EnergyPlane::SetELtoSapphireWDWdistance(G4double z) { gate_sapphire_wdw_dist_ = z;}
 
-  inline void Next100EnergyPlane::SetMotherLogicalVolume(G4LogicalVolume* mother_logic) {
-      mother_logic_ = mother_logic;}
+  inline void Next100EnergyPlane::SetMotherLogicalVolume(G4LogicalVolume* mother_logic) { mother_logic_ = mother_logic;}
+
+  inline std::vector<G4ThreeVector> Next100EnergyPlane::GetPMTPosInGas() const { return pmt_positions_;}
 
 } //end namespace nexus
 #endif

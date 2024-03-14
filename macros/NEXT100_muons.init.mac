@@ -1,5 +1,5 @@
 ## ----------------------------------------------------------------------------
-## nexus | NEXT100_muons_lsc.init.mac
+## nexus | NEXT100_muons.init.mac
 ##
 ## Initialization macro to simulate muons in the NEXT-100 geometry.
 ##
@@ -30,9 +30,9 @@
 ### ACTIONS
 /nexus/RegisterTrackingAction DefaultTrackingAction
 /nexus/RegisterRunAction DefaultRunAction
+/nexus/RegisterEventAction DefaultEventAction
 
 # Use muon event action for debugging
-/nexus/RegisterEventAction DefaultEventAction
 # /nexus/RegisterEventAction MuonsEventAction
 
 /physics_lists/em/MuonNuclear true

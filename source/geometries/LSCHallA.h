@@ -11,7 +11,7 @@
 
 #include "GeometryBase.h"
 
-namespace nexus {class CylinderPointSampler2020;}
+namespace nexus {class CylinderPointSampler;}
 
 class G4LogicalVolume;
 class G4GenericMessenger;
@@ -29,6 +29,12 @@ namespace nexus {
 
     /// Generate a vertex within a given region of the geometry
     G4ThreeVector GenerateVertex(const G4String& region) const;
+
+    /// Returns a point within a region projecting from a
+    /// given point backwards along a line.
+    G4ThreeVector ProjectToRegion(const G4String& region,
+				  const G4ThreeVector& point,
+				  const G4ThreeVector& dir) const;
 
     /// Builder
     void Construct();
@@ -56,8 +62,8 @@ namespace nexus {
     G4double castle_centre_z_, castle_centre_y_;
 
     // Cylinder point samplers for vertexing
-    CylinderPointSampler2020* hallA_vertex_gen_;
-    CylinderPointSampler2020* hallA_outer_gen_;
+    CylinderPointSampler* hallA_vertex_gen_;
+    CylinderPointSampler* hallA_outer_gen_;
 
   };
 

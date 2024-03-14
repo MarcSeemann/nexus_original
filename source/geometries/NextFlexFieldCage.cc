@@ -13,7 +13,7 @@
 #include "XenonProperties.h"
 #include "IonizationSD.h"
 #include "UniformElectricDriftField.h"
-#include "CylinderPointSampler2020.h"
+#include "CylinderPointSampler.h"
 #include "GenericPhotosensor.h"
 #include "SensorSD.h"
 #include "Visibilities.h"
@@ -315,30 +315,30 @@ void NextFlexFieldCage::DefineMaterials()
   cathode_mat_ = materials::FakeDielectric(xenon_gas_, "cathode_mat");
   cathode_mat_->SetMaterialPropertiesTable(opticalprops::FakeGrid(gas_pressure_,
                 gas_temperature_, cathode_transparency_, cathode_thickness_,
-                gas_sc_yield_, gas_e_lifetime_, photoe_prob_));
+                gas_sc_yield_, gas_e_lifetime_));
 
   gate_mat_ = materials::FakeDielectric(xenon_gas_, "gate_mat");
   gate_mat_->SetMaterialPropertiesTable(opticalprops::FakeGrid(gas_pressure_,
              gas_temperature_, gate_transparency_, gate_thickness_,
-             gas_sc_yield_, gas_e_lifetime_, photoe_prob_));
+             gas_sc_yield_, 1000*ms, photoe_prob_));
 
   anode_mat_ = materials::FakeDielectric(xenon_gas_, "anode_mat");
   anode_mat_->SetMaterialPropertiesTable(opticalprops::FakeGrid(gas_pressure_,
               gas_temperature_, anode_transparency_, anode_thickness_,
-              gas_sc_yield_, gas_e_lifetime_, photoe_prob_));
+              gas_sc_yield_, 1000*ms, photoe_prob_));
 
 
   // Fiber core material
   if (fiber_mat_name_ == "EJ280") {
-    fiber_mat_ = materials::EJ280();
+    fiber_mat_ = materials::PVT();
     fiber_mat_->SetMaterialPropertiesTable(opticalprops::EJ280());
   }
   else if (fiber_mat_name_ == "EJ286") {
-    fiber_mat_ = materials::EJ280();   // Same base material than EJ280
+    fiber_mat_ = materials::PVT();   // Same base material than EJ280
     fiber_mat_->SetMaterialPropertiesTable(opticalprops::EJ286());
   }
   else if (fiber_mat_name_ == "Y11") {
-    fiber_mat_ = materials::Y11();
+    fiber_mat_ = materials::PS();
     fiber_mat_->SetMaterialPropertiesTable(opticalprops::Y11());
   }
   else {
@@ -420,6 +420,7 @@ void NextFlexFieldCage::BuildActive()
   field->SetDriftVelocity(1. * mm/microsecond);
   field->SetTransverseDiffusion(drift_transv_diff_);
   field->SetLongitudinalDiffusion(drift_long_diff_);
+  field->SetLifetime(gas_e_lifetime_);
   G4Region* drift_region = new G4Region("DRIFT");
   drift_region->SetUserInformation(field);
   drift_region->AddRootLogicalVolume(active_logic);
@@ -428,7 +429,7 @@ void NextFlexFieldCage::BuildActive()
   active_logic->SetVisAttributes(G4VisAttributes::GetInvisible());
 
   // Vertex generator
-  active_gen_ = new CylinderPointSampler2020(active_phys_);
+  active_gen_ = new CylinderPointSampler(active_phys_);
 
   // Limit the step size in this volume for better tracking precision
   active_logic->SetUserLimits(new G4UserLimits(1.*mm));
@@ -497,7 +498,7 @@ void NextFlexFieldCage::BuildBuffer()
   buffer_logic->SetVisAttributes(G4VisAttributes::GetInvisible());
 
   // Vertex generator
-  buffer_gen_ = new CylinderPointSampler2020(buffer_phys_);
+  buffer_gen_ = new CylinderPointSampler(buffer_phys_);
 
   // Set the BUFFER volume as an ionization sensitive detector
   IonizationSD* buffer_sd = new IonizationSD("/NEXT_FLEX/BUFFER");
@@ -554,7 +555,7 @@ void NextFlexFieldCage::BuildELgap()
 
 
   // Vertex generator
-  //el_gap_gen_ = new CylinderPointSampler2020(el_gap_phys);
+  //el_gap_gen_ = new CylinderPointSampler(el_gap_phys);
 
   G4double el_gap_gen_disk_thickn =
     el_gap_length_ * (el_gap_gen_disk_zmax_ - el_gap_gen_disk_zmin_);
@@ -566,9 +567,9 @@ void NextFlexFieldCage::BuildELgap()
                                el_gap_gen_disk_y_,
                                el_gap_gen_disk_z);
 
-  el_gap_gen_ = new CylinderPointSampler2020(0., el_gap_gen_disk_diam_/2.,
-                                             el_gap_gen_disk_thickn/2., 0., twopi,
-                                             nullptr, el_gap_gen_pos);
+  el_gap_gen_ = new CylinderPointSampler(0., el_gap_gen_disk_diam_/2.,
+                                         el_gap_gen_disk_thickn/2., 0., twopi,
+                                         nullptr, el_gap_gen_pos);
 
 
 
@@ -678,7 +679,7 @@ void NextFlexFieldCage::BuildLightTube()
   else light_tube_logic->SetVisAttributes(G4VisAttributes::GetInvisible());
 
   // Vertex generator
-  light_tube_gen_ = new CylinderPointSampler2020(light_tube_phys);
+  light_tube_gen_ = new CylinderPointSampler(light_tube_phys);
 
 
   /// The UV wavelength Shifter in LIGHT_TUBE ///
@@ -831,8 +832,9 @@ void NextFlexFieldCage::BuildFibers()
   if (fiber_claddings_ == 0) out_logic_volume = core_logic;
 
   // Vertex generator
-  fiber_gen_ = new CylinderPointSampler2020(inner_rad, outer_rad, fiber_length/2., 0., twopi, nullptr,
-                                            G4ThreeVector(0., 0., fiber_iniZ_ + fiber_length/2.));
+  fiber_gen_ =
+    new CylinderPointSampler(inner_rad, outer_rad, fiber_length/2., 0., twopi,
+                             nullptr, G4ThreeVector(0., 0., fiber_iniZ_ + fiber_length/2.));
 
 
   /// The UV wavelength Shifter in FIBERS ///
@@ -1010,19 +1012,19 @@ G4ThreeVector NextFlexFieldCage::GenerateVertex(const G4String& region) const
   G4ThreeVector vertex;
 
   if (region == "ACTIVE") {
-    vertex = active_gen_->GenerateVertex("VOLUME");
+    vertex = active_gen_->GenerateVertex(VOLUME);
   }
   else if (region == "BUFFER") {
-    vertex = buffer_gen_->GenerateVertex("VOLUME");
+    vertex = buffer_gen_->GenerateVertex(VOLUME);
   }
   else if (region == "EL_GAP") {
-    vertex = el_gap_gen_->GenerateVertex("VOLUME");
+    vertex = el_gap_gen_->GenerateVertex(VOLUME);
   }
   else if (region == "LIGHT_TUBE") {
-    vertex = light_tube_gen_->GenerateVertex("VOLUME");
+    vertex = light_tube_gen_->GenerateVertex(VOLUME);
   }
   else if (region == "FIBER_CORE") {
-    if (fc_with_fibers_) vertex = fiber_gen_->GenerateVertex("VOLUME");
+    if (fc_with_fibers_) vertex = fiber_gen_->GenerateVertex(VOLUME);
     else
       G4Exception("[NextFlexFieldCage]", "GenerateVertex()", FatalException,
               "Trying to generate Vertices in NON-existing fibers");

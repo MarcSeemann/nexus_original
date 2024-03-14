@@ -13,7 +13,7 @@
 #include "IonizationSD.h"
 #include "UniformElectricDriftField.h"
 #include "XenonProperties.h"
-#include "CylinderPointSampler2020.h"
+#include "CylinderPointSampler.h"
 #include "Visibilities.h"
 
 #include <G4GenericMessenger.hh>
@@ -223,6 +223,8 @@ namespace nexus {
     gas_         = mother_logic_->GetMaterial();
     pressure_    = gas_->GetPressure();
     temperature_ = gas_->GetTemperature();
+    sc_yield_    = gas_->GetMaterialPropertiesTable()->GetConstProperty("SCINTILLATIONYIELD");
+    e_lifetime_  = gas_->GetMaterialPropertiesTable()->GetConstProperty("ATTACHMENT");
 
     aluminum_ = G4NistManager::Instance()->FindOrBuildMaterial("G4_Al");
     aluminum_->SetMaterialPropertiesTable(new G4MaterialPropertiesTable());
@@ -278,14 +280,15 @@ namespace nexus {
     field->SetDriftVelocity(1.*mm/microsecond);
     field->SetTransverseDiffusion(drift_transv_diff_);
     field->SetLongitudinalDiffusion(drift_long_diff_);
+    field->SetLifetime(e_lifetime_);
     G4Region* drift_region = new G4Region("DRIFT");
     drift_region->SetUserInformation(field);
     drift_region->AddRootLogicalVolume(active_logic);
 
     active_gen_ =
-      new CylinderPointSampler2020(0., active_diam_/2., active_length_/2.,
-                                   0., twopi, nullptr,
-                                   G4ThreeVector(0., 0., active_zpos_));
+      new CylinderPointSampler(0., active_diam_/2., active_length_/2.,
+                               0., twopi, nullptr,
+                               G4ThreeVector(0., 0., active_zpos_));
 
     active_logic->SetVisAttributes(G4VisAttributes::GetInvisible());
   }
@@ -296,9 +299,9 @@ namespace nexus {
     G4Material* cathode_mat =
       materials::FakeDielectric(gas_, "cathode_mat");
     cathode_mat->SetMaterialPropertiesTable(opticalprops::FakeGrid(pressure_,
-                                                                                temperature_,
-                                                                                cathode_transparency_,
-                                                                                grid_thickn_));
+                                                                   temperature_,
+                                                                   cathode_transparency_,
+                                                                   grid_thickn_));
 
     G4double cath_zplane[2] = {-grid_thickn_/2., grid_thickn_/2.};
     G4double rinner[2]      = {0., 0.};
@@ -394,9 +397,11 @@ namespace nexus {
     // Building the GATE
     G4Material* gate_mat = materials::FakeDielectric(gas_, "gate_mat");
     gate_mat->SetMaterialPropertiesTable(opticalprops::FakeGrid(pressure_,
-                                                                             temperature_,
-                                                                             gate_transparency_,
-                                                                             grid_thickn_));
+                                                                temperature_,
+                                                                gate_transparency_,
+                                                                grid_thickn_,
+                                                                sc_yield_,
+                                                                1000*ms));
 
     G4Tubs* gate_grid_solid =
       new G4Tubs("GATE_GRID", 0., elgap_ring_diam_/2., grid_thickn_/2.,
@@ -467,7 +472,9 @@ namespace nexus {
       anode_mat->SetMaterialPropertiesTable(opticalprops::FakeGrid(pressure_,
                                                                    temperature_,
                                                                    anode_transparency_,
-                                                                   grid_thickn_));
+                                                                   grid_thickn_,
+                                                                   sc_yield_,
+                                                                   1000*ms));
       G4Tubs* anode_grid_solid =
         new G4Tubs("ANODE_GRID", 0., elgap_ring_diam_/2., grid_thickn_/2., 0, twopi);
 
@@ -497,9 +504,9 @@ namespace nexus {
                                  el_gap_gen_disk_y_,
                                  el_gap_gen_disk_z);
 
-    el_gap_gen_ = new CylinderPointSampler2020(0., el_gap_gen_disk_diam_/2.,
-                                               el_gap_gen_disk_thickn/2., 0., twopi,
-                                               nullptr, el_gap_gen_pos);
+    el_gap_gen_ = new CylinderPointSampler(0., el_gap_gen_disk_diam_/2.,
+                                           el_gap_gen_disk_thickn/2., 0., twopi,
+                                           nullptr, el_gap_gen_pos);
   }
 
 
@@ -681,7 +688,7 @@ namespace nexus {
      if (region == "ACTIVE") {
        G4VPhysicalVolume *VertexVolume;
        do {
-         vertex = active_gen_->GenerateVertex("VOLUME");
+         vertex = active_gen_->GenerateVertex(VOLUME);
          G4ThreeVector glob_vtx(vertex);
          glob_vtx = glob_vtx + G4ThreeVector(0, 0, -GetELzCoord());
          VertexVolume =
@@ -689,7 +696,7 @@ namespace nexus {
        } while (VertexVolume->GetName() != region);
      }
      else if (region == "EL_GAP") {
-       vertex = el_gap_gen_->GenerateVertex("VOLUME");
+       vertex = el_gap_gen_->GenerateVertex(VOLUME);
      }
      else {
       G4Exception("[NextDemoFieldCage]", "GenerateVertex()", FatalException,

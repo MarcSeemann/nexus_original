@@ -10,7 +10,7 @@
 
 #include "Next100SiPMBoard.h"
 #include "MaterialsList.h"
-#include "CylinderPointSampler2020.h"
+#include "CylinderPointSampler.h"
 #include "BoxPointSampler.h"
 #include "Visibilities.h"
 
@@ -32,7 +32,7 @@ Next100TrackingPlane::Next100TrackingPlane():
   GeometryBase(),
   copper_plate_diameter_  (1340.*mm),
   copper_plate_thickness_ ( 145.*mm),
-  distance_board_board_   (   2.*mm),
+  distance_board_board_   (   1.*mm),
 
   visibility_(true),
   sipm_board_geom_(new Next100SiPMBoard),
@@ -71,27 +71,28 @@ void Next100TrackingPlane::Construct()
 
   G4String copper_plate_name = "TP_COPPER_PLATE";
 
-  G4Tubs* copper_plate_solid = new G4Tubs(copper_plate_name,
-                                          0., copper_plate_diameter_/2.,
-                                          copper_plate_thickness_/2.,
-                                          0., 360.*deg);
+  G4Tubs* copper_plate_solid =
+    new G4Tubs(copper_plate_name, 0., copper_plate_diameter_/2.,
+               copper_plate_thickness_/2., 0., 360.*deg);
 
   G4Material* copper = G4NistManager::Instance()->FindOrBuildMaterial("G4_Cu");
-  // In Geant4 11.0.0, a bug in treating the OpBoundaryProcess produced in the surface makes the code fail.
-  // This is avoided by setting an empty G4MaterialPropertiesTable of the G4Material.
+  // In Geant4 11.0.0, a bug in treating the OpBoundaryProcess produced in the
+  // surface makes the code fail. This is avoided by setting an empty
+  // G4MaterialPropertiesTable of the G4Material.
   copper->SetMaterialPropertiesTable(new G4MaterialPropertiesTable());
-  
+
   G4LogicalVolume* copper_plate_logic =
     new G4LogicalVolume(copper_plate_solid, copper, copper_plate_name);
 
-  G4double copper_plate_zpos = GetELzCoord() - gate_tp_dist_ - copper_plate_thickness_/2.;
+  G4double copper_plate_zpos =
+    GetCoordOrigin().z() - gate_tp_dist_ - copper_plate_thickness_/2.;
 
   G4VPhysicalVolume* copper_plate_phys =
     new G4PVPlacement(nullptr, G4ThreeVector(0.,0.,copper_plate_zpos),
-                      copper_plate_logic, copper_plate_name, mpv_->GetLogicalVolume(),
-                      false, 0, false);
+                      copper_plate_logic, copper_plate_name,
+                      mpv_->GetLogicalVolume(), false, 0, false);
 
-  copper_plate_gen_ = new CylinderPointSampler2020(copper_plate_phys);
+  copper_plate_gen_ = new CylinderPointSampler(copper_plate_phys);
 
 
   // SIPM BOARDS /////////////////////////////////////////////////////
@@ -100,7 +101,7 @@ void Next100TrackingPlane::Construct()
   sipm_board_geom_->Construct();
   G4LogicalVolume* sipm_board_logic = sipm_board_geom_->GetLogicalVolume();
 
-  G4double zpos = GetELzCoord() - gate_tp_dist_ + sipm_board_geom_->GetThickness()/2.;
+  G4double zpos = GetCoordOrigin().z() - gate_tp_dist_ + sipm_board_geom_->GetThickness()/2.;
 
   // SiPM boards are positioned bottom (negative Y) to top (positive Y)
   // and left (negative X) to right (positive X).
@@ -135,7 +136,8 @@ void Next100TrackingPlane::Construct()
   G4double plug_y_displacement = 90.5 * mm;
 
   G4Box* plug_solid = new G4Box("DB_PLUG", plug_x/2., plug_y/2., plug_z/2.);
-  G4LogicalVolume* plug_logic = new G4LogicalVolume(plug_solid,  materials::PEEK(), "DB_PLUG");
+  G4LogicalVolume* plug_logic =
+    new G4LogicalVolume(plug_solid,  materials::PEEK(), "DB_PLUG");
   G4double plug_posz = copper_plate_zpos - copper_plate_thickness_/2. - plug_z/2.;
 
   G4ThreeVector pos;
@@ -147,7 +149,7 @@ void Next100TrackingPlane::Construct()
     new G4PVPlacement(0, pos, plug_logic, "DB_PLUG", mpv_->GetLogicalVolume(), false, i, false);
   }
 
-  plug_gen_ = new BoxPointSampler(plug_x, plug_y, plug_z, 0.);
+  plug_gen_ = new BoxPointSampler(plug_x/2., plug_y/2., plug_z/2., 0.);
 
 
   // VISIBILITIES //////////////////////////////////////////
@@ -179,14 +181,14 @@ void Next100TrackingPlane::PlaceSiPMBoardColumns(G4int num_boards,
     G4ThreeVector position(xpos, ypos, zpos);
     board_pos_.push_back(position);
 
-    new G4PVPlacement(nullptr, position, logic_vol, logic_vol->GetName(), mpv_->GetLogicalVolume(),
-                      false, board_index, false);
+    new G4PVPlacement(nullptr, position, logic_vol, logic_vol->GetName(),
+                      mpv_->GetLogicalVolume(), false, board_index, false);
     board_index++;
   }
 }
 
 
-void Next100TrackingPlane::PrintSiPMPositions() const
+void Next100TrackingPlane::PrintSiPMPosInGas() const
 {
   auto sipm_positions = sipm_board_geom_->GetSiPMPositions();
 
@@ -198,6 +200,18 @@ void Next100TrackingPlane::PrintSiPMPositions() const
     }
   }
 }
+
+void Next100TrackingPlane::GetSiPMPosInGas(std::vector<G4ThreeVector>& sipm_pos) const
+{
+  auto sipm_positions = sipm_board_geom_->GetSiPMPositions();
+  for (unsigned int i=0; i<board_pos_.size(); ++i) {
+    for (unsigned int j=0; j<sipm_positions.size(); ++j) {
+      G4ThreeVector pos = sipm_positions[j] + board_pos_[i];
+      sipm_pos.push_back(pos);
+    }
+  }
+}
+
 
 
 G4ThreeVector Next100TrackingPlane::GenerateVertex(const G4String& region) const
@@ -211,7 +225,7 @@ G4ThreeVector Next100TrackingPlane::GenerateVertex(const G4String& region) const
         G4int board_num = G4RandFlat::shootInt((long) 0, board_pos_.size());
         vertex += board_pos_[board_num];
         G4ThreeVector glob_vtx(vertex);
-        glob_vtx = glob_vtx + G4ThreeVector(0, 0, -GetELzCoord());
+        glob_vtx = glob_vtx - GetCoordOrigin();
         VertexVolume =
           geom_navigator_->LocateGlobalPointAndSetup(glob_vtx, 0, false);
 
@@ -220,12 +234,12 @@ G4ThreeVector Next100TrackingPlane::GenerateVertex(const G4String& region) const
 
   }
   else if (region == "DB_PLUG") {
-    vertex = plug_gen_->GenerateVertex("INSIDE");
+    vertex = plug_gen_->GenerateVertex(INSIDE);
     G4int plug_num = G4RandFlat::shootInt((long) 0, plug_pos_.size());
     vertex += plug_pos_[plug_num];
   }
   else if (region == "TP_COPPER_PLATE") {
-    vertex = copper_plate_gen_->GenerateVertex("VOLUME");
+    vertex = copper_plate_gen_->GenerateVertex(VOLUME);
   }
 
   return vertex;

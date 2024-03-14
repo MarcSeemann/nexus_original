@@ -1,8 +1,29 @@
-tag v7_05_00 - 26 Apr 2022
+tag v7_07_01 - 8 Mar 2024
+	- Use mainly specular component for metal reflectivities
+
+tag v7_07_00 - 4 Mar 2024
+	- Add simulation of stainless steel hexagonal grids instead of dielectrics (default now)
+	- Assign lifetime property to the electric field
+	- Rewrite point samplers to follow G4 constructor style and make them more uniform
+	- Add reflection on metals
+	- Add new Th source to be used in NEXT-100
+
+tag v7_06_00 - 30 Jan 2024
+	- Major changes in the NEXT-100 geometry according to current drawings and actual installation
+	- Optimization of the code for cosmogenic simulations: output file size reduction, increased efficiency in primary particle production
+	- Fix bug in some optical properties
+	- Add generic wavelength shifting fiber geometry
+	- Avoid generating permanent output files in tests
+	- Update scintillation time constants and yield for gaseous argon
+	- Update code following style conventions
+	- Add Qt to docker image used in github action
+	- Add automatic overlap tests for main geometries
+
+tag v7_05_00 - 26 Apr 2023
 	- Add features to the actions that saves all steps
 	- Fix electroluminescence generation to work properly with Geant4.11.1
 
-tag v7_04_00 - 15 Mar 2022
+tag v7_04_00 - 15 Mar 2023
 	- Fix bug in TPB optical properties
 	- Add double electron capture generator
 	- Add polished Al material
@@ -10,7 +31,7 @@ tag v7_04_00 - 15 Mar 2022
 	- Modify validation tracking action to use different file format than .root
         - Adapt code to Geant4.11.1
 
-tag v7_03_01 - 21 Feb 2022
+tag v7_03_01 - 21 Feb 2023
 	- Add a new class for the LSC shielding to be used with NEW
 	- Fix bug in materials.
 

@@ -18,7 +18,7 @@
 #include "SiPMSensl.h"
 #include "Next100SiPM.h"
 #include "OpticalMaterialProperties.h"
-#include "BoxPointSampler.h"
+#include "BoxPointSamplerLegacy.h"
 #include "Visibilities.h"
 
 #include <G4GenericMessenger.hh>
@@ -347,7 +347,7 @@ void NextDemoSiPMBoard::Construct()
 
 
   /// VERTEX GENERATOR
-  kapton_gen_ = new BoxPointSampler(board_size_x, board_size_y, kapton_thickn_, 0.,
+  kapton_gen_ = new BoxPointSamplerLegacy(board_size_x, board_size_y, kapton_thickn_, 0.,
                                     G4ThreeVector(0., 0., -board_size_z/2. + kapton_thickn_/2.),
                                     nullptr);
 
@@ -356,25 +356,25 @@ void NextDemoSiPMBoard::Construct()
   if (verbosity_)
     G4cout << "* SiPM board size:    " << board_size_      << G4endl;
 
-    if (sipm_verbosity_) {
-      for (G4int sipm_num=0; sipm_num<num_sipms_; sipm_num++)
-        G4cout << "* SiPM " << sipm_num << " position: " << sipm_positions_[sipm_num] << G4endl;
-    }
+  if (sipm_verbosity_) {
+    for (G4int sipm_num=0; sipm_num<num_sipms_; sipm_num++)
+      G4cout << "* SiPM " << sipm_num << " position: " << sipm_positions_[sipm_num] << G4endl;
+  }
 
-    G4cout << "* Kapton thickness:   " << kapton_thickn_   << G4endl;
-    G4cout << "* Mask thickness:     " << mask_thickn_     << G4endl;
-    G4cout << "* Membrane thickness: " << membrane_thickn_ << G4endl;
-    G4cout << "* Coating thickness:  " << coating_thickn_  << G4endl;
-    G4cout << "* SiPM type:          " << sipm_type_       << G4endl;
-    G4cout << "* Hole type:          " << hole_type_       << G4endl;
+  G4cout << "* Kapton thickness:   " << kapton_thickn_   << G4endl;
+  G4cout << "* Mask thickness:     " << mask_thickn_     << G4endl;
+  G4cout << "* Membrane thickness: " << membrane_thickn_ << G4endl;
+  G4cout << "* Coating thickness:  " << coating_thickn_  << G4endl;
+  G4cout << "* SiPM type:          " << sipm_type_       << G4endl;
+  G4cout << "* Hole type:          " << hole_type_       << G4endl;
 
-    if (hole_type_ == "rectangular"){
+  if (hole_type_ == "rectangular"){
     G4cout << "* Mask hole X size:   " << hole_x_          << G4endl;
     G4cout << "* Mask hole Y size:   " << hole_y_          << G4endl;
-    }
-    else if (hole_type_ == "rounded"){
+  }
+  else if (hole_type_ == "rounded"){
     G4cout << "* Mask hole diameter: " << hole_diam_       << G4endl;
-    }
+  }
 
 
   /// VISIBILITIES
