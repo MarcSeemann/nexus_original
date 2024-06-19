@@ -59,5 +59,6 @@ cd ..;
 }
 
 echo "Setup Nexus is complete!"
+echo "To compile run cmake_compile"
 
 

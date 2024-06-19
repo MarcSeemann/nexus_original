@@ -5,8 +5,8 @@
 
 /tracking/verbose 1
 /nexus/RegisterGeometry Cigar
-/nexus/RegisterGenerator SingleParticleGenerator
-#/nexus/RegisterGenerator Kr83mGenerator
+#/nexus/RegisterGenerator SingleParticleGenerator
+/nexus/RegisterGenerator Kr83mGenerator
 /nexus/RegisterPersistencyManager PersistencyManager
 
 #/PhysicsList/RegisterPhysics G4EmStandardPhysics_option4
@@ -15,7 +15,6 @@
 #/PhysicsList/RegisterPhysics G4OpticalPhysics
 #/PhysicsList/RegisterPhysics NexusPhysics
 #/PhysicsList/RegisterPhysics G4StepLimiterPhysics
-
 
 
 /PhysicsList/RegisterPhysics G4DecayPhysics

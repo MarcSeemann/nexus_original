@@ -6,8 +6,8 @@
 // The NEXT Collaboration
 // ----------------------------------------------------------------------------
 
-#ifndef CIGAR_H
-#define CIGAR_H
+#ifndef Cigar_H
+#define Cigar_H
 
 #include "GeometryBase.h"
 #include "GenericWLSFiber.h"

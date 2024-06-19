@@ -12,6 +12,7 @@
 #include "OpticalMaterialProperties.h"
 #include "Visibilities.h"
 #include "GenericSquarePhotosensor.h"
+
 #include <G4GenericMessenger.hh>
 #include <G4OpticalSurface.hh>
 #include <G4LogicalSkinSurface.hh>
@@ -476,19 +477,33 @@ namespace nexus {
 
 
 
+  // G4ThreeVector Cigar::GenerateVertex(const G4String& region) const
+  // {
+  //   G4ThreeVector vertex(0., 0., 0.);
+
+  //   // WORLD
+  //   if (region == "INSIDE_CIGAR") {
+  //     // return vertex;
+  //     return inside_cigar_->GenerateVertex(nexus::INSIDE);
+  //     // return inside_cigar_->GenerateVertex(nexus::VOLUME);
+  //   } else {
+  //     G4Exception("[Cigar]", "GenerateVertex()", FatalException,
+  //                 "Unknown vertex generation region!");
+  //   }
+  //   return vertex;
+  // }
   G4ThreeVector Cigar::GenerateVertex(const G4String& region) const
   {
-    G4ThreeVector vertex(0.,0.,0.);
+    G4ThreeVector vertex(0., 0., 0.);
 
     // WORLD
     if (region == "INSIDE_CIGAR") {
       // return vertex;
-      return inside_cigar_->GenerateVertex("INSIDE");
-      // return inside_cigar_->GenerateVertex("VOLUME");
-    }
-    else {
+      return inside_cigar_->GenerateVertex(nexus::INSIDE);
+      // return inside_cigar_->GenerateVertex(nexus::VOLUME);
+    } else {
       G4Exception("[Cigar]", "GenerateVertex()", FatalException,
-		  "Unknown vertex generation region!");
+                  "Unknown vertex generation region!");
     }
     return vertex;
   }
