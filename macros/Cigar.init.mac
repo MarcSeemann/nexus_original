@@ -4,7 +4,7 @@
 ### --------------------------------------------------------
 
 /control/execute macros/physics/DefaultPhysicsList.mac
-/tracking/verbose 1
+/tracking/verbose 0
 /nexus/RegisterGeometry Cigar
 #/nexus/RegisterGenerator SingleParticleGenerator
 /nexus/RegisterGenerator Kr83mGenerator
@@ -20,7 +20,7 @@
 
 /nexus/RegisterRunAction DefaultRunAction
 /nexus/RegisterTrackingAction DefaultTrackingAction
-/nexus/RegisterTrackingAction OpticalTrackingAction
+#/nexus/RegisterTrackingAction OpticalTrackingAction
 /nexus/RegisterSteppingAction AnalysisSteppingAction
 
 /nexus/RegisterMacro macros/Cigar.config.mac
