@@ -141,6 +141,9 @@ namespace nexus {
       world_mat = materials::GXe(pressure_);
       // world_mat->SetMaterialPropertiesTable(opticalprops::GXe(pressure_, 273.15, 250, (1.0E9)));
       world_mat->SetMaterialPropertiesTable(opticalprops::GXe());
+    // } else if (gas_ == "ArXe") {
+    //   world_mat = materials::GXeAr(pressure_, 273.15, 0.01);
+    //   world_mat->SetMaterialPropertiesTable(opticalprops::GXeAr());
     } else {
       G4Exception("[Cigar]", "Construct()",
             FatalException, "Invalid gas, must be Ar or Xe");
@@ -199,7 +202,7 @@ namespace nexus {
     //                   teflon_logic_close, "TEFLON_FRONT", world_logic_vol,
     //                   true, 1, false);
 
-    new G4PVPlacement(0, G4ThreeVector(0, 0, -cigar_length_/2-panel_width/2),
+    new G4PVPlacement(0, G4ThreeVector(0, 0, -cigar_length_/2-panel_width/2-1*mm),
                       teflon_logic_close, "TEFLON_BACK", world_logic_vol,
                       true, 1, false);
 
@@ -392,7 +395,7 @@ namespace nexus {
     G4VSolid* teflon_closing_panel_temp =
       new G4Box("TEFLON_PANEL_FRONT_TEMP", cigar_width_ / 2 + extra_width+panel_width, cigar_width_ / 2 + extra_width+panel_width, panel_width / 2);
     G4VSolid* fiber_space =
-      new G4Box("TEFLON_PANEL_FRONT_TEMP", fiber_diameter_, cigar_width_ / 2, panel_width / 2);
+      new G4Box("TEFLON_PANEL_FRONT_TEMP", fiber_diameter_+0.03*cm, cigar_width_ / 2, panel_width / 2);
     G4SubtractionSolid* subtracted_solid_test = new G4SubtractionSolid("SUBTRACTED_SOLID", teflon_closing_panel_temp, fiber_space, rot_z, G4ThreeVector(0,cigar_width_ / 2 + fiber_diameter_ / 2+extra_width/2+panel_width/2+fiber_diameter_/4,0));
     subtracted_solid_test = new G4SubtractionSolid("SUBTRACTED_SOLID", subtracted_solid_test, fiber_space, rot_z, G4ThreeVector(0,-cigar_width_ / 2 - fiber_diameter_ / 2-(extra_width/2+panel_width/2+fiber_diameter_/4),0));
     rot_y->rotateY(90 * deg);
