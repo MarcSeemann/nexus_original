@@ -141,9 +141,6 @@ namespace nexus {
       world_mat = materials::GXe(pressure_);
       // world_mat->SetMaterialPropertiesTable(opticalprops::GXe(pressure_, 273.15, 250, (1.0E9)));
       world_mat->SetMaterialPropertiesTable(opticalprops::GXe());
-    // } else if (gas_ == "ArXe") {
-    //   world_mat = materials::GXeAr(pressure_, 273.15, 0.01);
-    //   world_mat->SetMaterialPropertiesTable(opticalprops::GXeAr());
     } else {
       G4Exception("[Cigar]", "Construct()",
             FatalException, "Invalid gas, must be Ar or Xe");
