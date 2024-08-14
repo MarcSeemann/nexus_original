@@ -38,7 +38,7 @@ namespace nexus {
     cigar_width_ (30 * mm),
     fiber_diameter_(1 * mm),
     gas_("Ar"),
-    pressure_(0. * bar),
+    pressure_(1. * bar),
     coating_ ("TPB"),
     fiber_type_ ("Y11"),
     coated_(true)
@@ -127,7 +127,7 @@ namespace nexus {
       }
     }
 
-    fiber_ = new GenericWLSFiber(fiber_type_, true, true, fiber_diameter_, cigar_length_ + 7 * cm, true, coated_, this_coating, this_fiber, true);
+    fiber_ = new GenericWLSFiber(fiber_type_, true, true, fiber_diameter_, cigar_length_ + 7 * cm, true, coated_, this_fiber, this_coating, true);
 
     // WORLD /////////////////////////////////////////////////
 
@@ -139,8 +139,7 @@ namespace nexus {
 
     } else if (gas_ == "Xe") {
       world_mat = materials::GXe(pressure_);
-      // world_mat->SetMaterialPropertiesTable(opticalprops::GXe(pressure_, 273.15, 250, (1.0E9)));
-      world_mat->SetMaterialPropertiesTable(opticalprops::GXe());
+      world_mat->SetMaterialPropertiesTable(opticalprops::GXe(pressure_));
     // } else if (gas_ == "ArXe") {
     //   world_mat = materials::GXeAr(pressure_, 273.15, 0.01);
     //   world_mat->SetMaterialPropertiesTable(opticalprops::GXeAr());
