@@ -156,7 +156,6 @@ namespace nexus {
     GeometryBase::SetLogicalVolume(world_logic_vol);
 
 
-
     // TEFLON PANELS ////////////////////////////////////////////
     G4double panel_width = 2.5 * mm;
     G4double extra_width = (5) * mm;
