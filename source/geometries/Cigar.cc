@@ -12,11 +12,9 @@
 #include "OpticalMaterialProperties.h"
 #include "Visibilities.h"
 #include "GenericSquarePhotosensor.h"
-
 #include <G4GenericMessenger.hh>
 #include <G4OpticalSurface.hh>
 #include <G4LogicalSkinSurface.hh>
-#include <G4LogicalBorderSurface.hh>
 #include <G4LogicalVolume.hh>
 #include <G4PVPlacement.hh>
 #include <G4NistManager.hh>
@@ -24,7 +22,7 @@
 #include <G4Tubs.hh>
 #include <G4VisAttributes.hh>
 #include <G4SubtractionSolid.hh>
-
+#include <G4LogicalBorderSurface.hh>
 
 using namespace nexus;
 
@@ -94,8 +92,8 @@ namespace nexus {
 
     G4RotationMatrix *temp_rot = new G4RotationMatrix();
     temp_rot->rotateY(0 * deg);
-    // inside_cigar_ = new BoxPointSampler(cigar_width_, cigar_width_, cigar_length_, 0, G4ThreeVector(0, 0, 0));
-    inside_cigar_ = new BoxPointSampler(1*mm, 1*mm, 1*mm, 1*mm, G4ThreeVector(0.,0.,0.));
+    inside_cigar_ = new BoxPointSampler(cigar_width_, cigar_width_, cigar_length_, 0, G4ThreeVector(0, 0, 0));
+    // inside_cigar_ = new BoxPointSampler(10*mm, 10*mm, 10*mm, 10*mm, G4ThreeVector(0.,0.,0.));
 
     world_z_ = cigar_length_ * 2;
     world_xy_ = cigar_width_ * 2;
@@ -110,7 +108,6 @@ namespace nexus {
       G4Exception("[Cigar]", "Construct()",
                   FatalException, "Invalid fiber type, must be Y11 or B2");
     }
-
 
     G4Material *this_coating = nullptr;
     G4MaterialPropertiesTable *this_coating_optical = nullptr;
@@ -136,7 +133,6 @@ namespace nexus {
     if (gas_ == "Ar") {
       world_mat = materials::GAr(pressure_);
       world_mat->SetMaterialPropertiesTable(opticalprops::GAr(1. / (68 * eV)));
-
     } else if (gas_ == "Xe") {
       world_mat = materials::GXe(pressure_);
       world_mat->SetMaterialPropertiesTable(opticalprops::GXe(pressure_));
@@ -178,10 +174,6 @@ namespace nexus {
     teflon_logic_top->SetVisAttributes(nexus::White());
     teflon_logic_side->SetVisAttributes(nexus::White());
     teflon_logic_close->SetVisAttributes(nexus::White());
-
-
-
-
 
     G4OpticalSurface* opsur_teflon =
       new G4OpticalSurface("TEFLON_OPSURF", unified, groundteflonair, dielectric_metal);
@@ -316,8 +308,6 @@ namespace nexus {
                       sipm_logic, "SIPM4", world_logic_vol,
                       false, 4, false);
 
-
-
     // Teflon special closing panel
     G4Box* teflon_closing_panel =
       new G4Box("TEFLON_PANEL_FRONT_TEMP", cigar_width_ / 2 + extra_width+panel_width, cigar_width_ / 2 + extra_width+panel_width, panel_width / 2);
@@ -368,10 +358,6 @@ namespace nexus {
                         fiber_end_logic_vol, "ALUMINUM4-" + label, world_logic_vol,
                         true, ifiber, false);
 
-     
-
-
-
       // Create a cylinder solid to represent the fiber
 
       subtracted_solid = new G4SubtractionSolid("SUBTRACTED_SOLID", temp_solid, fiber_solid, rot_z, G4ThreeVector(cigar_width_ / 2 + fiber_diameter_ / 2+extra_width/2+panel_width/2+fiber_diameter_/4, -cigar_width_ / 2 + ifiber * fiber_diameter_ + fiber_diameter_ / 2, 3.5 * cm));
@@ -382,9 +368,6 @@ namespace nexus {
       temp_solid = subtracted_solid;
       subtracted_solid = new G4SubtractionSolid("SUBTRACTED_SOLID", temp_solid, fiber_solid, 0, G4ThreeVector(-cigar_width_ / 2 + ifiber * fiber_diameter_ + fiber_diameter_ / 2, cigar_width_ / 2 + fiber_diameter_ / 2+(extra_width/2+panel_width/2+fiber_diameter_/4),  3.5 * cm));
       temp_solid = subtracted_solid;
-      
-      
-
     }
 
 
@@ -502,8 +485,8 @@ namespace nexus {
     if (region == "INSIDE_CIGAR") {
       // return vertex;
       return inside_cigar_->GenerateVertex("INSIDE");
-      // return inside_cigar_->GenerateVertex(nexus::VOLUME);
-    } else {
+    } 
+    else {
       G4Exception("[Cigar]", "GenerateVertex()", FatalException,
                   "Unknown vertex generation region!");
     }
