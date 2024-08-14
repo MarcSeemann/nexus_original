@@ -92,8 +92,11 @@ namespace nexus {
 
     G4RotationMatrix *temp_rot = new G4RotationMatrix();
     temp_rot->rotateY(0 * deg);
-    inside_cigar_ = new BoxPointSampler(cigar_width_, cigar_width_, cigar_length_, 0, G4ThreeVector(0, 0, 0));
-    // inside_cigar_ = new BoxPointSampler(10*mm, 10*mm, 10*mm, 10*mm, G4ThreeVector(0.,0.,0.));
+    // inside_cigar_ = new BoxPointSampler(cigar_width_, cigar_width_, cigar_length_, 0, G4ThreeVector(0, 0, 0));
+    inside_cigar_ = new BoxPointSampler(cigar_width_/2 + 2.5 * mm, cigar_width_/2 + 2.5 * mm, cigar_length_/2, 0, G4ThreeVector(0.,0.,0.));
+
+
+
 
     world_z_ = cigar_length_ * 2;
     world_xy_ = cigar_width_ * 2;
@@ -151,6 +154,8 @@ namespace nexus {
       new G4LogicalVolume(world_solid_vol, world_mat, "WORLD");
     world_logic_vol->SetVisAttributes(G4VisAttributes::GetInvisible());
     GeometryBase::SetLogicalVolume(world_logic_vol);
+
+
 
     // TEFLON PANELS ////////////////////////////////////////////
     G4double panel_width = 2.5 * mm;
