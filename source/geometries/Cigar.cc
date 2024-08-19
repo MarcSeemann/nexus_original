@@ -23,6 +23,7 @@
 #include <G4VisAttributes.hh>
 #include <G4SubtractionSolid.hh>
 #include <G4LogicalBorderSurface.hh>
+#include "G4Sphere.hh"
 
 using namespace nexus;
 
@@ -92,14 +93,21 @@ namespace nexus {
 
     G4RotationMatrix *temp_rot = new G4RotationMatrix();
     temp_rot->rotateY(0 * deg);
-    // inside_cigar_ = new BoxPointSampler(cigar_width_, cigar_width_, cigar_length_, 0, G4ThreeVector(0, 0, 0));
-    inside_cigar_ = new BoxPointSampler(cigar_width_/2 + 2.5 * mm, cigar_width_/2 + 2.5 * mm, cigar_length_/2, 0, G4ThreeVector(0.,0.,0.));
 
+    // Choose source position
 
+    double chamber_diameter = 105 * mm;
 
+    // Na22 source pòsition
+    inside_cigar_ = new BoxPointSampler(1*cm, 1*mm, 1*cm, 0, G4ThreeVector(0, chamber_diameter+3*mm, 0));
 
-    world_z_ = cigar_length_ * 2;
-    world_xy_ = cigar_width_ * 2;
+    // // Kr position
+    // inside_cigar_ = new BoxPointSampler(cigar_width_/2 + 2.5 * mm, cigar_width_/2 + 2.5 * mm, cigar_length_/2, 0, G4ThreeVector(0.,0.,0.));
+
+    world_z_ = cigar_length_ * 20;
+    world_xy_ = cigar_width_ * 20;
+    
+
 
     G4Material *this_fiber = materials::PS();
     G4MaterialPropertiesTable *this_fiber_optical = nullptr;
@@ -141,7 +149,7 @@ namespace nexus {
       world_mat->SetMaterialPropertiesTable(opticalprops::GXe(pressure_));
     // } else if (gas_ == "ArXe") {
     //   world_mat = materials::GXeAr(pressure_, 273.15, 0.01);
-    //   world_mat->SetMaterialPropertiesTable(opticalprops::GXeAr());
+    //   world_mat->SetMaterialPropertiesTable(opticalprops::GXeA r());
     } else {
       G4Exception("[Cigar]", "Construct()",
             FatalException, "Invalid gas, must be Ar or Xe");
@@ -154,7 +162,6 @@ namespace nexus {
       new G4LogicalVolume(world_solid_vol, world_mat, "WORLD");
     world_logic_vol->SetVisAttributes(G4VisAttributes::GetInvisible());
     GeometryBase::SetLogicalVolume(world_logic_vol);
-
 
     // TEFLON PANELS ////////////////////////////////////////////
     G4double panel_width = 2.5 * mm;
@@ -394,108 +401,96 @@ namespace nexus {
     new G4PVPlacement(rot_x, G4ThreeVector(0, 0, cigar_length_/2+panel_width/2), teflon_closing_panel_logic_temp, "TEFLON_FRONT", world_logic_vol, true, 1, false);
 
 
-    // Create logical volume for the modified box after subtracting fibers
-    // G4LogicalVolume* teflon_closing_panel_logic = new G4LogicalVolume(temp_solid, teflon, "TEFLON_PANEL");
-    // teflon_closing_panel_logic->SetVisAttributes(nexus::White());
-    // rot_x->rotateZ(90 * deg);
-    // new G4PVPlacement(rot_x, G4ThreeVector(0, 0, cigar_length_/2+panel_width/2), teflon_closing_panel_logic, "TEFLON_FRONT", world_logic_vol, true, 1, false);
+    // // Na22 position check
 
+    // G4Box* na_position =
+    //   new G4Box("NA_SOURCE", 1*cm, 1*mm, 1*cm);
+    // G4Material* steel = materials::Steel();
 
+    // G4LogicalVolume* na_position_logic =
+    //   new G4LogicalVolume(na_position, steel, "NA_SOURCE_LOGIC");
 
-
+    // na_position_logic->SetVisAttributes(nexus::Blue());
+    
+    // new G4PVPlacement(0, G4ThreeVector(0, chamber_diameter+3*mm, 0),
+    //                   na_position_logic, "NA_SOURCE_LOGIC", world_logic_vol,
+    //                   true, 0, false);
 
 
 
     // // Vacuum chamber
 
-    // G4Tubs* vacuum_chamber =
-    //   new G4Tubs("VACUUM_CHAMBER", cigar_width_+3*cm, cigar_width_+5*cm, cigar_length_, 0,2*pi);
-    // G4Material* steel = materials::Steel();
+    G4Tubs* vacuum_chamber =
+      new G4Tubs("VACUUM_CHAMBER_CYLINDER", chamber_diameter - 4*cm, chamber_diameter, cigar_length_*3/4, 0,2*pi);
+    G4Material* steel = materials::Steel();
 
-    // G4LogicalVolume* vacuum_chamber_logic =
-    //   new G4LogicalVolume(vacuum_chamber, steel, "CHAMBER");
+    G4LogicalVolume* vacuum_chamber_logic =
+      new G4LogicalVolume(vacuum_chamber, steel, "CHAMBER");
 
 
-    // vacuum_chamber_logic->SetVisAttributes(nexus::DarkGrey());
+    vacuum_chamber_logic->SetVisAttributes(nexus::DarkGrey());
 
-    // new G4PVPlacement(0, G4ThreeVector(0, 0, 0),
-    //                   vacuum_chamber_logic, "VAC_CHAMBER", world_logic_vol,
-    //                   true, 0, false);
+    new G4PVPlacement(0, G4ThreeVector(0, 0, 0),
+                      vacuum_chamber_logic, "VAC_CHAMBER", world_logic_vol,
+                      true, 0, false);
     
+    // Create a disk object to close the ends of the cylinder
 
+    G4Tubs* vacuum_chamber_end =
+      new G4Tubs("VACUUM_CHAMBER_END", 0, chamber_diameter+5*cm, 2*cm, 0, 2*pi);
+    G4LogicalVolume* vacuum_chamber_end_logic =
+      new G4LogicalVolume(vacuum_chamber_end, steel, "CHAMBER_END");
 
-
-
-    // G4OpticalSurface* opsur_teflon =
-    //   new G4OpticalSurface("TEFLON_OPSURF", unified, groundteflonair, dielectric_metal);
-    // opsur_teflon->SetMaterialPropertiesTable(opticalprops::PTFE());
-
-    // new G4LogicalSkinSurface("TEFLON_OPSURF", teflon_logic_top, opsur_teflon);
-
-    // new G4PVPlacement(0, G4ThreeVector(0, 0, cigar_length_/2+panel_width/2),
-    //                   teflon_logic_close, "TEFLON_FRONT", world_logic_vol,
-    //                   true, 1, false);
+    vacuum_chamber_end_logic->SetVisAttributes(nexus::DarkGrey());
+  
+    new G4PVPlacement(0, G4ThreeVector(0, 0, cigar_length_*3/4+2.0*cm),
+                      vacuum_chamber_end_logic, "VAC_CHAMBER_END_FRONT", world_logic_vol,
+                      true, 0, false);
     
-
-    // // Check source position inside CIGAR
-
-    // G4Material * cylinder_material = materials::OpticalSilicone();
-    // cylinder_material->SetMaterialPropertiesTable(opticalprops::PTFE());
-
-    // G4Tubs* LED_cylinder = new G4Tubs("CYLINDER", 10*mm, 15*mm, 20*mm, 0, 2*pi );
-    // G4LogicalVolume* LED_logic =
-    //   new G4LogicalVolume(LED_cylinder,
-    //                       cylinder_material,
-    //                       "CYLINDER");
-    // LED_logic->SetVisAttributes(nexus::BloodRed());
-    // new G4PVPlacement(0, G4ThreeVector(0, 0, 0),
-    //               LED_logic, "CYLINDER", world_logic_vol,
-    //               true, 1, true);
+    new G4PVPlacement(0, G4ThreeVector(0, 0, -cigar_length_*3/4-2.0*cm),
+                      vacuum_chamber_end_logic, "VAC_CHAMBER_END_BACK", world_logic_vol,
+                      true, 0, false);
 
 
 
-    // G4OpticalSurface* ptfe_surface = new G4OpticalSurface("PTFE_SURFACE");
-    // ptfe_surface->SetType(dielectric_LUT);
-    // ptfe_surface->SetFinish(polishedteflonair);
-    // ptfe_surface->SetModel(LUT);
-    // ptfe_surface->SetMaterialPropertiesTable(opticalprops::PTFE());
+    // Create gas material for inside Cigar
 
-    // new G4LogicalBorderSurface(
-    //   "XE_PTFE", world_logic_vol, teflon_top, ptfe_surface);
+    G4Material* cigar_mat = nullptr;
+    if (gas_ == "Ar") {
+      cigar_mat = materials::GAr(pressure_);
+      cigar_mat->SetMaterialPropertiesTable(opticalprops::GAr(1. / (68 * eV)));
+    } else if (gas_ == "Xe") {
+      cigar_mat = materials::GXe(pressure_);
+      cigar_mat->SetMaterialPropertiesTable(opticalprops::GXe(pressure_));
+    // } else if (gas_ == "ArXe") {
+    //   world_mat = materials::GXeAr(pressure_, 273.15, 0.01);
+    //   world_mat->SetMaterialPropertiesTable(opticalprops::GXeA r());
+    } else {
+      G4Exception("[Cigar]", "Construct()",
+            FatalException, "Invalid gas, must be Ar or Xe");
+    }
+
+    G4Box* cigar_mat_solid = new G4Box("CigarGasBox", cigar_width_/2 + 2.5 * mm, cigar_width_/2 + 2.5 * mm, cigar_length_/2);
+    G4LogicalVolume* cigar_mat_logic = new G4LogicalVolume(cigar_mat_solid, cigar_mat, "CigarGasLogic");
+    cigar_mat_logic->SetVisAttributes(G4VisAttributes::GetInvisible());
+    new G4PVPlacement(0, G4ThreeVector(0, 0, 0), cigar_mat_logic, "CigarGas", world_logic_vol, false, 0, true);
+
   }
 
 
-
-  // G4ThreeVector Cigar::GenerateVertex(const G4String& region) const
-  // {
-  //   G4ThreeVector vertex(0., 0., 0.);
-
-  //   // WORLD
-  //   if (region == "INSIDE_CIGAR") {
-  //     // return vertex;
-  //     return inside_cigar_->GenerateVertex(nexus::INSIDE);
-  //     // return inside_cigar_->GenerateVertex(nexus::VOLUME);
-  //   } else {
-  //     G4Exception("[Cigar]", "GenerateVertex()", FatalException,
-  //                 "Unknown vertex generation region!");
-  //   }
-  //   return vertex;
-  // }
   G4ThreeVector Cigar::GenerateVertex(const G4String& region) const
   {
     G4ThreeVector vertex(0., 0., 0.);
 
     // WORLD
     if (region == "INSIDE_CIGAR") {
-      // return vertex;
-      return inside_cigar_->GenerateVertex("INSIDE");
-    } 
+        return inside_cigar_->GenerateVertex("INSIDE");
+    }
     else {
       G4Exception("[Cigar]", "GenerateVertex()", FatalException,
                   "Unknown vertex generation region!");
     }
     return vertex;
   }
-
 
 } // end namespace nexus

@@ -49,6 +49,7 @@ namespace nexus {
     G4String fiber_type_;
     G4bool coated_;
 
+
     GenericWLSFiber* fiber_;
     BoxPointSampler* inside_cigar_;
     /// Messenger for the definition of control commands

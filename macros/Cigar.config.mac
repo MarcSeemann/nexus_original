@@ -2,7 +2,9 @@
 #/Generator/SingleParticle/min_energy 7 eV
 #/Generator/SingleParticle/max_energy 7 eV
 #/Generator/SingleParticle/region INSIDE_CIGAR
-/Generator/Kr83mGenerator/region INSIDE_CIGAR
+#/Generator/Kr83mGenerator/region INSIDE_CIGAR
+/Generator/Na22Generator/region INSIDE_CIGAR
+
 
 /Geometry/Cigar/pressure 1 bar
 /Geometry/Cigar/fiber_diameter 1 mm
