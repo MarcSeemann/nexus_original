@@ -426,7 +426,6 @@ namespace nexus {
     //                   true, 0, false);
 
 
-
     // // Vacuum chamber
 
     G4Tubs* vacuum_chamber =
