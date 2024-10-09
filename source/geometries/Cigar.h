@@ -14,6 +14,9 @@
 #include "PmtR11410.h"
 #include "BoxPointSampler.h"
 #include "MaterialsList.h"
+#include "G4VSensitiveDetector.hh"
+#include "G4Step.hh"
+#include "G4TouchableHistory.hh"
 
 class G4Material;
 class G4GenericMessenger;
@@ -35,6 +38,8 @@ namespace nexus {
     /// Return vertex within region <region> of the chamber
     G4ThreeVector GenerateVertex(const G4String& region) const;
 
+    
+
     void Construct();
 
   private:
@@ -54,6 +59,13 @@ namespace nexus {
     BoxPointSampler* inside_cigar_;
     /// Messenger for the definition of control commands
     G4GenericMessenger* msg_;
+
+    // Sensitive detector class inside the Cigar header
+    class MySensitiveDetector : public G4VSensitiveDetector {
+    public:
+        MySensitiveDetector(G4String name);
+        virtual G4bool ProcessHits(G4Step* step, G4TouchableHistory* history) override;
+    };
   };
 
 } // end namespace nexus

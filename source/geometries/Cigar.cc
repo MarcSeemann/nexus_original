@@ -24,6 +24,9 @@
 #include <G4SubtractionSolid.hh>
 #include <G4LogicalBorderSurface.hh>
 #include "G4Sphere.hh"
+#include "IonizationSD.h"
+#include <G4SDManager.hh>
+
 
 using namespace nexus;
 
@@ -99,10 +102,12 @@ namespace nexus {
     double chamber_diameter = 105 * mm;
 
     // Na22 source pòsition
-    inside_cigar_ = new BoxPointSampler(1*cm, 1*mm, 1*cm, 0, G4ThreeVector(0, chamber_diameter+3*mm, 0));
+    // inside_cigar_ = new BoxPointSampler(1*cm, 1*mm, 1*cm, 0, G4ThreeVector(0, chamber_diameter+3*mm, 0));
 
     // // Kr position
     // inside_cigar_ = new BoxPointSampler(cigar_width_/2 + 2.5 * mm, cigar_width_/2 + 2.5 * mm, cigar_length_/2, 0, G4ThreeVector(0.,0.,0.));
+
+    inside_cigar_ = new BoxPointSampler(1*mm, 1*mm, 1*mm, 0, G4ThreeVector(0.,0.,0.));
 
     world_z_ = cigar_length_ * 20;
     world_xy_ = cigar_width_ * 20;
@@ -331,6 +336,10 @@ namespace nexus {
     G4VSolid* fiber_solid = new G4Tubs("FIBER_SOLID", 0, fiber_radius / 2, fiber_length / 2, 0, 2 * pi);
     G4SubtractionSolid* subtracted_solid = nullptr;
 
+    IonizationSD* ionization_sd_fibers = new IonizationSD("/Cigar/FiberIonization");
+    fiber_logic->SetSensitiveDetector(ionization_sd_fibers);
+    G4SDManager::GetSDMpointer()->AddNewDetector(ionization_sd_fibers);
+
 
     for (G4int ifiber = 0; ifiber < n_fibers; ifiber++)
     {
@@ -472,8 +481,13 @@ namespace nexus {
 
     G4Box* cigar_mat_solid = new G4Box("CigarGasBox", cigar_width_/2 + 2.5 * mm, cigar_width_/2 + 2.5 * mm, cigar_length_/2);
     G4LogicalVolume* cigar_mat_logic = new G4LogicalVolume(cigar_mat_solid, cigar_mat, "CigarGasLogic");
+    IonizationSD* ionization_sd_gas = new IonizationSD("/Cigar/GasIonInside");
     cigar_mat_logic->SetVisAttributes(G4VisAttributes::GetInvisible());
+    cigar_mat_logic->SetSensitiveDetector(ionization_sd_gas);
+    G4SDManager::GetSDMpointer()->AddNewDetector(ionization_sd_gas);
     new G4PVPlacement(0, G4ThreeVector(0, 0, 0), cigar_mat_logic, "CigarGas", world_logic_vol, false, 0, true);
+
+
 
   }
 
