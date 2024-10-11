@@ -3,8 +3,12 @@
 /Generator/SingleParticle/max_energy 511 keV
 /Generator/SingleParticle/region INSIDE_CIGAR
 #/Generator/SingleParticle/momentum 0 -1 0
-/Generator/SingleParticle/min_costheta 1
-/Generator/SingleParticle/max_costheta -1
+/Generator/SingleParticle/min_costheta -1
+/Generator/SingleParticle/max_costheta 1
+#/Generator/SingleParticle/min_phi 0
+#/Generator/SingleParticle/max_phi 3.14
+/Generator/SingleParticle/min_phi 3.14
+/Generator/SingleParticle/max_phi 6.27
 
 
 #/Generator/SingleParticle/particle alpha   
@@ -19,7 +23,7 @@
 
 
 
-/Geometry/Cigar/pressure 8.5 bar
+/Geometry/Cigar/pressure 1 bar
 /Geometry/Cigar/fiber_diameter 1 mm
 /Geometry/Cigar/coating TPB
 /Geometry/Cigar/fiber_type Y11

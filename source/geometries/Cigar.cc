@@ -107,7 +107,10 @@ namespace nexus {
     // // Kr position
     // inside_cigar_ = new BoxPointSampler(cigar_width_/2 + 2.5 * mm, cigar_width_/2 + 2.5 * mm, cigar_length_/2, 0, G4ThreeVector(0.,0.,0.));
 
-    inside_cigar_ = new BoxPointSampler(1*mm, 1*mm, 1*mm, 0, G4ThreeVector(0.,0.,0.));
+    // inside_cigar_ = new BoxPointSampler(1*mm, 1*mm, 1*mm, 0, G4ThreeVector(0.,0.,0.));
+    G4RotationMatrix *y_rot_180 = new G4RotationMatrix();
+    y_rot_180->rotateY(0 * deg);
+    inside_cigar_ = new BoxPointSampler(1*mm, 1*mm, 1*mm, 0, G4ThreeVector(0, chamber_diameter+3*mm +3*cm, 0), y_rot_180);
 
     world_z_ = cigar_length_ * 20;
     world_xy_ = cigar_width_ * 20;
@@ -144,14 +147,18 @@ namespace nexus {
 
     // WORLD /////////////////////////////////////////////////
 
-    G4Material* world_mat = nullptr;
-
+    G4Material* world_mat = G4NistManager::Instance()->FindOrBuildMaterial("G4_AIR");
     if (gas_ == "Ar") {
-      world_mat = materials::GAr(pressure_);
-      world_mat->SetMaterialPropertiesTable(opticalprops::GAr(1. / (68 * eV)));
+      world_mat->SetMaterialPropertiesTable(opticalprops::Vacuum());
     } else if (gas_ == "Xe") {
-      world_mat = materials::GXe(pressure_);
-      world_mat->SetMaterialPropertiesTable(opticalprops::GXe(pressure_));
+      world_mat->SetMaterialPropertiesTable(opticalprops::Vacuum());
+
+    // if (gas_ == "Ar") {
+    //   world_mat = materials::GAr(pressure_);
+    //   world_mat->SetMaterialPropertiesTable(opticalprops::GAr(1. / (68 * eV)));
+    // } else if (gas_ == "Xe") {
+    //   world_mat = materials::GXe(pressure_);
+    //   world_mat->SetMaterialPropertiesTable(opticalprops::GXe(pressure_));
     // } else if (gas_ == "ArXe") {
     //   world_mat = materials::GXeAr(pressure_, 273.15, 0.01);
     //   world_mat->SetMaterialPropertiesTable(opticalprops::GXeA r());
