@@ -23,7 +23,7 @@
 
 
 
-/Geometry/Cigar/pressure 1.5 bar
+/Geometry/Cigar/pressure 7.5 bar
 /Geometry/Cigar/fiber_diameter 1 mm
 /Geometry/Cigar/coating TPB
 /Geometry/Cigar/fiber_type Y11
@@ -37,4 +37,4 @@
 ### JOB CONTROL
 /nexus/random_seed            1
 /nexus/persistency/start_id   0
-/nexus/persistency/output_file Cigar_Xe_1.5bar_Na22.next
+/nexus/persistency/output_file Cigar_Xe_7.5bar_Na22.next
