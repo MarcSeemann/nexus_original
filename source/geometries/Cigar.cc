@@ -101,21 +101,25 @@ namespace nexus {
 
     double chamber_diameter = 105 * mm;
 
-    // Na22 source pòsition
-    // inside_cigar_ = new BoxPointSampler(1*cm, 1*mm, 1*cm, 0, G4ThreeVector(0, chamber_diameter+3*mm, 0));
-
     // // Kr position
     // inside_cigar_ = new BoxPointSampler(cigar_width_/2 + 2.5 * mm, cigar_width_/2 + 2.5 * mm, cigar_length_/2, 0, G4ThreeVector(0.,0.,0.));
 
+    // Generic source in centre of Cigar
     // inside_cigar_ = new BoxPointSampler(1*mm, 1*mm, 1*mm, 0, G4ThreeVector(0.,0.,0.));
-    G4RotationMatrix *y_rot_180 = new G4RotationMatrix();
-    y_rot_180->rotateY(0 * deg);
-    inside_cigar_ = new BoxPointSampler(1*mm, 1*mm, 1*mm, 0, G4ThreeVector(0, chamber_diameter+3*mm, 0), y_rot_180);
+
+    // Alpha source position at end of chamber opposite to SiPMs
+    // inside_cigar_ = new BoxPointSampler(1*mm, 1*mm, 1*mm, 0, G4ThreeVector(0.,0., -cigar_length_/2));
+    inside_cigar_ = new BoxPointSampler(1*mm, 1*mm, 1*mm, 0, G4ThreeVector(0.,0., 0));
+
+    // // Na22 source position
+    // G4RotationMatrix *y_rot_180 = new G4RotationMatrix();
+    // y_rot_180->rotateY(0 * deg);
+    // inside_cigar_ = new BoxPointSampler(1*mm, 1*mm, 1*mm, 0, G4ThreeVector(0, chamber_diameter+3*mm, 0), y_rot_180);
+
+    // Fiber dimensions
 
     world_z_ = cigar_length_ * 20;
     world_xy_ = cigar_width_ * 20;
-    
-
 
     G4Material *this_fiber = materials::PS();
     G4MaterialPropertiesTable *this_fiber_optical = nullptr;
