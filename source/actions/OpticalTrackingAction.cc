@@ -25,32 +25,31 @@ using namespace nexus;
 
 REGISTER_CLASS(OpticalTrackingAction, G4UserTrackingAction)
 
-OpticalTrackingAction::OpticalTrackingAction(): G4UserTrackingAction()
+// Constructor: Initialize the photon counter
+OpticalTrackingAction::OpticalTrackingAction(): G4UserTrackingAction(), total_photons_(0)
 {
 }
-
-
 
 OpticalTrackingAction::~OpticalTrackingAction()
 {
+  // Print the total number of photons at the end of the simulation
+  G4cout << "Total optical photons created: " << total_photons_ << G4endl;
 }
-
-
 
 void OpticalTrackingAction::PreUserTrackingAction(const G4Track* track)
 {
-  // Create a new trajectory associated to the track.
-  // N.B. If the processesing of a track is interrupted to be resumed
-  // later on (to process, for instance, its secondaries) more than
-  // one trajectory associated to the track will be created, but
-  // the event manager will merge them at some point.
+  // Create a new trajectory associated to the track
   G4VTrajectory* trj = new Trajectory(track);
 
-   // Set the trajectory in the tracking manager
+  // Set the trajectory in the tracking manager
   fpTrackingManager->SetStoreTrajectory(true);
   fpTrackingManager->SetTrajectory(trj);
- }
 
+  // Check if the track is an optical photon and increment the counter if so
+  if (track->GetDefinition() == G4OpticalPhoton::Definition()) {
+    total_photons_++;
+  }
+}
 
 
 void OpticalTrackingAction::PostUserTrackingAction(const G4Track* track)

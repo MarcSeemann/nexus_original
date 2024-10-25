@@ -38,6 +38,8 @@ namespace nexus {
     /// Return vertex within region <region> of the chamber
     G4ThreeVector GenerateVertex(const G4String& region) const;
 
+    void ParticleName(G4String name);
+
     
 
     void Construct();
@@ -59,6 +61,9 @@ namespace nexus {
     BoxPointSampler* inside_cigar_;
     /// Messenger for the definition of control commands
     G4GenericMessenger* msg_;
+    G4GenericMessenger* particle_msg_;
+    G4ParticleDefinition* particle_definition_;
+
 
     // Sensitive detector class inside the Cigar header
     class MySensitiveDetector : public G4VSensitiveDetector {

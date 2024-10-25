@@ -26,6 +26,8 @@
 #include "G4Sphere.hh"
 #include "IonizationSD.h"
 #include <G4SDManager.hh>
+#include "G4ParticleTable.hh"
+
 
 
 using namespace nexus;
@@ -74,6 +76,13 @@ namespace nexus {
     msg_->DeclareProperty("fiber_type", fiber_type_, "Fiber type (Y11 or B2)");
     msg_->DeclareProperty("coated", coated_, "Coat fibers with WLS coating");
 
+    // Separate Messenger for ParticleName()
+    particle_msg_ = new G4GenericMessenger(this, "/Generator/SingleParticle/",
+                                           "Commands for single particle generator.");
+
+    // particle_msg_->DeclareMethod("particle", &Cigar::ParticleName, "Set particle to be generated.");
+
+
   }
 
 
@@ -81,7 +90,20 @@ namespace nexus {
   Cigar::~Cigar()
   {
     delete msg_;
+    delete particle_msg_;
   }
+
+  // void Cigar::ParticleName(G4String name)
+  // {
+  //     auto particle_def = G4ParticleTable::GetParticleTable()->FindParticle(name);
+  //     if (particle_def) {
+  //         std::cout << "Particle name set to: " << name << std::endl;
+  //         // Store the particle definition, e.g., in a class variable if needed.
+  //         particle_definition_ = particle_def;
+  //     } else {
+  //         std::cerr << "Error: Particle " << name << " not found in G4ParticleTable." << std::endl;
+  //     }
+  // }
 
 
 
@@ -100,6 +122,7 @@ namespace nexus {
     // Choose source position
 
     double chamber_diameter = 105 * mm;
+    G4double panel_width = 2.5 * mm;
 
     // // Kr position
     // inside_cigar_ = new BoxPointSampler(cigar_width_/2 + 2.5 * mm, cigar_width_/2 + 2.5 * mm, cigar_length_/2, 0, G4ThreeVector(0.,0.,0.));
@@ -108,8 +131,12 @@ namespace nexus {
     // inside_cigar_ = new BoxPointSampler(1*mm, 1*mm, 1*mm, 0, G4ThreeVector(0.,0.,0.));
 
     // Alpha source position at end of chamber opposite to SiPMs
-    // inside_cigar_ = new BoxPointSampler(1*mm, 1*mm, 1*mm, 0, G4ThreeVector(0.,0., -cigar_length_/2));
-    inside_cigar_ = new BoxPointSampler(1*mm, 1*mm, 1*mm, 0, G4ThreeVector(0.,0., 0));
+    // Inside cigar at the hole
+    // inside_cigar_ = new BoxPointSampler(1*mm, 1*mm, 1*mm, 0, G4ThreeVector(0.,0., -cigar_length_/2 + panel_width));
+    // Outside cigar at the hole
+    inside_cigar_ = new BoxPointSampler(1*mm, 1*mm, 1*mm, 0, G4ThreeVector(0.,0., -cigar_length_/2 - panel_width - 0.5*mm));
+    // Inside cigar at the centre
+    // inside_cigar_ = new BoxPointSampler(1*mm, 1*mm, 1*mm, 0, G4ThreeVector(0.,0., 0));
 
     // // Na22 source position
     // G4RotationMatrix *y_rot_180 = new G4RotationMatrix();
@@ -179,8 +206,7 @@ namespace nexus {
     world_logic_vol->SetVisAttributes(G4VisAttributes::GetInvisible());
     GeometryBase::SetLogicalVolume(world_logic_vol);
 
-    // TEFLON PANELS ////////////////////////////////////////////
-    G4double panel_width = 2.5 * mm;
+    // TEFLON PANELS ///////////////////////////////////////////
     G4double extra_width = (5) * mm;
     // G4Box* teflon_panel_top =
     //   new G4Box("TEFLON_PANEL_TOP", cigar_width_ / 2 + extra_width + panel_width, panel_width / 2, cigar_length_ / 2);
@@ -190,6 +216,11 @@ namespace nexus {
       new G4Box("TEFLON_PANEL_SIDE", cigar_width_ / 2 + extra_width, panel_width / 2, cigar_length_ / 2);
     G4Box* teflon_panel_close =
       new G4Box("TEFLON_PANEL_CLOSE", cigar_width_ / 2 + extra_width+panel_width, cigar_width_ / 2 + extra_width+panel_width, panel_width / 2);
+    // Create a subtraction solid in the telfon panel close for the source
+    G4Box* teflon_panel_close_source = new G4Box("TEFLON_PANEL_CLOSE_SOURCE", 1*mm, 1*mm, panel_width);
+    G4SubtractionSolid* teflon_panel_close_subtracted = new G4SubtractionSolid("TEFLON_PANEL_CLOSE_SUBTRACTED", teflon_panel_close, teflon_panel_close_source, 0, G4ThreeVector(0, 0, 0));
+
+    
     G4Material* teflon = G4NistManager::Instance()->FindOrBuildMaterial("G4_TEFLON");
     teflon->SetMaterialPropertiesTable(opticalprops::PTFE());
     G4LogicalVolume* teflon_logic_top =
@@ -197,7 +228,7 @@ namespace nexus {
     G4LogicalVolume* teflon_logic_side =
       new G4LogicalVolume(teflon_panel_side, teflon, "TEFLON");
     G4LogicalVolume* teflon_logic_close =
-      new G4LogicalVolume(teflon_panel_close, teflon, "TEFLON_CLOSE");
+      new G4LogicalVolume(teflon_panel_close_subtracted, teflon, "TEFLON_CLOSE");
     teflon_logic_top->SetVisAttributes(nexus::White());
     teflon_logic_side->SetVisAttributes(nexus::White());
     teflon_logic_close->SetVisAttributes(nexus::White());
@@ -489,13 +520,14 @@ namespace nexus {
             FatalException, "Invalid gas, must be Ar or Xe");
     }
 
-    G4Box* cigar_mat_solid = new G4Box("CigarGasBox", cigar_width_/2 + 2.5 * mm, cigar_width_/2 + 2.5 * mm, cigar_length_/2);
+    G4Box* cigar_mat_solid = new G4Box("CigarGasBox", cigar_width_/2 + 2.5 * mm, cigar_width_/2 + 2.5 * mm, cigar_length_/2 + panel_width*2);
     G4LogicalVolume* cigar_mat_logic = new G4LogicalVolume(cigar_mat_solid, cigar_mat, "CigarGasLogic");
     IonizationSD* ionization_sd_gas = new IonizationSD("/Cigar/GasIonInside");
-    cigar_mat_logic->SetVisAttributes(G4VisAttributes::GetInvisible());
     cigar_mat_logic->SetSensitiveDetector(ionization_sd_gas);
     G4SDManager::GetSDMpointer()->AddNewDetector(ionization_sd_gas);
+    cigar_mat_logic->SetVisAttributes(G4VisAttributes::GetInvisible());
     new G4PVPlacement(0, G4ThreeVector(0, 0, 0), cigar_mat_logic, "CigarGas", world_logic_vol, false, 0, true);
+    G4cout << "Creating CigarGas volume with sensitive detector: " << ionization_sd_gas->GetName() << G4endl;
 
 
 
@@ -516,5 +548,6 @@ namespace nexus {
     }
     return vertex;
   }
+
 
 } // end namespace nexus

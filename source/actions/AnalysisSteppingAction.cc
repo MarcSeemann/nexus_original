@@ -29,17 +29,48 @@ AnalysisSteppingAction::AnalysisSteppingAction(): G4UserSteppingAction()
 
 
 
+// AnalysisSteppingAction::~AnalysisSteppingAction()
+// {
+//   G4double total_counts = 0;
+//   detectorCounts::iterator it = my_counts_.begin();
+//   while (it != my_counts_.end()) {
+//     G4cout << "Detector " << it->first << ": " << it->second << " counts" << G4endl;
+//     total_counts += it->second;
+//     it ++;
+//   }
+//   G4cout << "TOTAL COUNTS: " << total_counts << G4endl;
+// }
+
 AnalysisSteppingAction::~AnalysisSteppingAction()
 {
   G4double total_counts = 0;
+  G4double gas_counts = 0;
+  
   detectorCounts::iterator it = my_counts_.begin();
   while (it != my_counts_.end()) {
-    G4cout << "Detector " << it->first << ": " << it->second << " counts" << G4endl;
+    // Always increment total counts
+    G4cout << "Detector Name: " << it->first << " has " << it->second << " counts" << G4endl;
     total_counts += it->second;
-    it ++;
+
+    // Increment gas_counts only if the hit is in the "CigarGas" detector
+    if (it->first == "CigarGas") {
+      G4cout << it->first << G4endl;
+      gas_counts += it->second;
+      G4cout << "CigarGas: " << it->second << " counts" << G4endl;
+    }
+
+    it++;
   }
+
+  // Calculate fiber counts as the difference between total and gas counts
+  G4double fiber_counts = total_counts - gas_counts;
+
+  // Output the three values
   G4cout << "TOTAL COUNTS: " << total_counts << G4endl;
+  G4cout << "CigarGas COUNTS: " << gas_counts << G4endl;
+  G4cout << "FIBER COUNTS: " << fiber_counts << G4endl;
 }
+
 
 
 
