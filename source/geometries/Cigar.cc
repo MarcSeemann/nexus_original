@@ -132,9 +132,9 @@ namespace nexus {
 
     // Alpha source position at end of chamber opposite to SiPMs
     // Inside cigar at the hole
-    // inside_cigar_ = new BoxPointSampler(1*mm, 1*mm, 1*mm, 0, G4ThreeVector(0.,0., -cigar_length_/2 + panel_width));
+    inside_cigar_ = new BoxPointSampler(1*mm, 1*mm, 1*mm, 0, G4ThreeVector(0.,0., -cigar_length_/2 + panel_width));
     // Outside cigar at the hole
-    inside_cigar_ = new BoxPointSampler(1*mm, 1*mm, 1*mm, 0, G4ThreeVector(0.,0., -cigar_length_/2 - panel_width - 0.5*mm));
+    // inside_cigar_ = new BoxPointSampler(1*mm, 1*mm, 1*mm, 0, G4ThreeVector(0.,0., -cigar_length_/2 - panel_width - 0.5*mm));
     // Inside cigar at the centre
     // inside_cigar_ = new BoxPointSampler(1*mm, 1*mm, 1*mm, 0, G4ThreeVector(0.,0., 0));
 
