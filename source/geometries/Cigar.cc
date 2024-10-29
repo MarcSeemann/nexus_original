@@ -210,7 +210,7 @@ namespace nexus {
         // // Vacuum chamber
 
     G4Tubs* vacuum_chamber =
-      new G4Tubs("VACUUM_CHAMBER_CYLINDER", chamber_diameter - 4*cm, chamber_diameter, cigar_length_*3/4, 0,2*pi);
+      new G4Tubs("VACUUM_CHAMBER_CYLINDER", chamber_diameter - 0.8*cm, chamber_diameter, cigar_length_*3/4, 0,2*pi);
     G4Material* steel = materials::Steel();
 
     G4LogicalVolume* vacuum_chamber_logic =
@@ -231,6 +231,7 @@ namespace nexus {
       new G4LogicalVolume(vacuum_chamber_end, steel, "CHAMBER_END");
 
     vacuum_chamber_end_logic->SetVisAttributes(nexus::DarkGrey());
+    // vacuum_chamber_end_logic->SetVisAttributes(G4VisAttributes::GetInvisible());
   
     new G4PVPlacement(0, G4ThreeVector(0, 0, cigar_length_*3/4+2.0*cm),
                       vacuum_chamber_end_logic, "VAC_CHAMBER_END_FRONT", world_logic_vol,
@@ -261,13 +262,16 @@ namespace nexus {
 
     // G4Box* cigar_mat_solid = new G4Box("CigarGasBox", cigar_width_/2 + 2.5 * mm, cigar_width_/2 + 2.5 * mm, cigar_length_/2 + panel_width*2);
     G4Tubs* cigar_mat_solid =
-      new G4Tubs("CigarGasCylinder", 0, chamber_diameter - 4*cm, cigar_length_*3/4, 0,2*pi);
+      new G4Tubs("CigarGasCylinder", 0, chamber_diameter - 0.81*cm, cigar_length_*3/4, 0,2*pi);
+
+    // G4Box* cigar_mat_solid = new G4Box("CigarGasBox", chamber_diameter-4*cm, chamber_diameter-4*cm, cigar_length_/2);
     G4LogicalVolume* cigar_mat_logic = new G4LogicalVolume(cigar_mat_solid, cigar_mat, "CigarGasLogic");
     IonizationSD* ionization_sd_gas = new IonizationSD("/Cigar/GasIonInside");
     cigar_mat_logic->SetSensitiveDetector(ionization_sd_gas);
     G4SDManager::GetSDMpointer()->AddNewDetector(ionization_sd_gas);
-    cigar_mat_logic->SetVisAttributes(G4VisAttributes::GetInvisible());
-    new G4PVPlacement(0, G4ThreeVector(0, 0, 0), cigar_mat_logic, "CigarGas", vacuum_chamber_logic, false, 0, true);
+    // cigar_mat_logic->SetVisAttributes(G4VisAttributes::GetInvisible());
+    cigar_mat_logic->SetVisAttributes(nexus::DarkGreen());
+    new G4PVPlacement(0, G4ThreeVector(0, 0, 0), cigar_mat_logic, "CigarGas", world_logic_vol, false, 0, true);
     G4cout << "Creating CigarGas volume with sensitive detector: " << ionization_sd_gas->GetName() << G4endl;
 
 

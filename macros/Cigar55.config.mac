@@ -15,10 +15,8 @@
 /Generator/SingleParticle/min_energy 5.486 MeV
 /Generator/SingleParticle/max_energy 5.486 MeV
 /Generator/SingleParticle/region INSIDE_CIGAR
-/Generator/SingleParticle/min_costheta 0
-/Generator/SingleParticle/max_costheta 1
-/Generator/SingleParticle/min_phi 0
-/Generator/SingleParticle/max_phi 6.28
+/Generator/SingleParticle/min_costheta 1
+/Generator/SingleParticle/max_costheta -1
 
 #/Generator/Kr83mGenerator/region INSIDE_CIGAR
 #/Generator/Na22Generator/region INSIDE_CIGAR
