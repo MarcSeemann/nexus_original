@@ -15,8 +15,10 @@
 /Generator/SingleParticle/min_energy 5.486 MeV
 /Generator/SingleParticle/max_energy 5.486 MeV
 /Generator/SingleParticle/region INSIDE_CIGAR
-/Generator/SingleParticle/min_costheta 1
-/Generator/SingleParticle/max_costheta -1
+/Generator/SingleParticle/min_costheta 0
+/Generator/SingleParticle/max_costheta 1
+/Generator/SingleParticle/min_phi 0
+/Generator/SingleParticle/max_phi 6.28
 
 #/Generator/Kr83mGenerator/region INSIDE_CIGAR
 #/Generator/Na22Generator/region INSIDE_CIGAR
@@ -37,4 +39,4 @@
 ### JOB CONTROL
 /nexus/random_seed            3
 /nexus/persistency/start_id   0
-/nexus/persistency/output_file Cigar_Xe_8.5bar_alpha_inside_seed3.next
+/nexus/persistency/output_file Cigar_Xe_8.5bar_alpha_inside_seed3_07112024.next

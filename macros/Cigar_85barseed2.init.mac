@@ -22,7 +22,7 @@
 /nexus/RegisterRunAction DefaultRunAction
 /nexus/RegisterEventAction DefaultEventAction
 /nexus/RegisterTrackingAction DefaultTrackingAction
-/nexus/RegisterTrackingAction OpticalTrackingAction
+#/nexus/RegisterTrackingAction OpticalTrackingAction
 /nexus/RegisterSteppingAction AnalysisSteppingAction
 
 /nexus/RegisterMacro macros/Cigar_85barseed2.config.mac
