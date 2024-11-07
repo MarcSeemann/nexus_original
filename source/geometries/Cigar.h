@@ -13,6 +13,7 @@
 #include "GenericWLSFiber.h"
 #include "PmtR11410.h"
 #include "BoxPointSampler.h"
+#include "CylinderPointSampler.h"
 #include "MaterialsList.h"
 #include "G4VSensitiveDetector.hh"
 #include "G4Step.hh"
@@ -58,7 +59,8 @@ namespace nexus {
 
 
     GenericWLSFiber* fiber_;
-    BoxPointSampler* inside_cigar_;
+    // BoxPointSampler* inside_cigar_;
+    CylinderPointSampler* inside_cigar_;
     /// Messenger for the definition of control commands
     G4GenericMessenger* msg_;
     G4GenericMessenger* particle_msg_;
