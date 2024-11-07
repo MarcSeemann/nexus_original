@@ -139,9 +139,12 @@ namespace nexus {
     // inside_cigar_ = new BoxPointSampler(1*mm, 1*mm, 1*mm, 0, G4ThreeVector(0.,0., -cigar_length_/2 - panel_width - 0.5*mm));
     double source_position_cylinder_x = 0.0;
     double source_position_cylinder_y = 0.0;
-    double source_position_cylinder_z = -cigar_length_/2 - panel_width - 1.5*mm;
-
-    inside_cigar_ = new CylinderPointSampler(0.5*mm, 7.5*mm, 0, 0, G4ThreeVector(source_position_cylinder_x,source_position_cylinder_y, source_position_cylinder_z-generic_cigar_shift), temp_rot);
+    // Outside
+    // double source_position_cylinder_z = -cigar_length_/2 - panel_width - 1.5*mm;
+    // Inside
+    double source_position_cylinder_z = -cigar_length_/2 - panel_width + 4.5*mm;
+    // Source placement
+    inside_cigar_ = new CylinderPointSampler(7.5*mm/2, 0.1*mm, 0, 0, G4ThreeVector(source_position_cylinder_x,source_position_cylinder_y, source_position_cylinder_z-generic_cigar_shift), temp_rot);
 
     
 
@@ -260,9 +263,12 @@ namespace nexus {
     if (gas_ == "Ar") {
       cigar_mat = materials::GAr(pressure_);
       cigar_mat->SetMaterialPropertiesTable(opticalprops::GAr(1. / (68 * eV)));
+      std::cout << "Ar gas pressure: " << pressure_ << " bar" << std::endl;
+      // cigar_mat->SetMaterialPropertiesTable(opticalprops::GAr(2500000));
     } else if (gas_ == "Xe") {
       cigar_mat = materials::GXe(pressure_);
       cigar_mat->SetMaterialPropertiesTable(opticalprops::GXe(pressure_));
+      std::cout << "Xe gas pressure: " << pressure_ << " bar" << std::endl;
     // } else if (gas_ == "ArXe") {
     //   world_mat = materials::GXeAr(pressure_, 273.15, 0.01);
     //   world_mat->SetMaterialPropertiesTable(opticalprops::GXeA r());
@@ -567,34 +573,12 @@ namespace nexus {
 
     // // DETECTOR /////////////////////////////////////////////
     GenericCircularPhotosensor *source_plate  = new GenericCircularPhotosensor("SOURCE_PLATE", 12.5*mm, 0.5*mm);
-    G4int source_plate_entries = 24;
+    G4int source_plate_entries = 2;
     G4double source_plate_energy[] = {
-      h_Planck * c_light / (866.20 * nm), h_Planck * c_light / (808.45 * nm),
-      h_Planck * c_light / (766.20 * nm), h_Planck * c_light / (721.13 * nm),
-      h_Planck * c_light / (685.92 * nm), h_Planck * c_light / (647.89 * nm),
-      h_Planck * c_light / (623.94 * nm), h_Planck * c_light / (597.18 * nm),
-      h_Planck * c_light / (573.24 * nm), h_Planck * c_light / (545.07 * nm),
-      h_Planck * c_light / (518.31 * nm), h_Planck * c_light / (502.82 * nm),
-      h_Planck * c_light / (454.93 * nm), h_Planck * c_light / (421.13 * nm),
-      h_Planck * c_light / (395.77 * nm), h_Planck * c_light / (378.87 * nm),
-      h_Planck * c_light / (367.61 * nm), h_Planck * c_light / (359.15 * nm),
-      h_Planck * c_light / (349.30 * nm), h_Planck * c_light / (340.85 * nm),
-      h_Planck * c_light / (336.62 * nm), h_Planck * c_light / (332.39 * nm),
-      h_Planck * c_light / (326.76 * nm), h_Planck * c_light / (319.72 * nm)
+      h_Planck * c_light / (1000 * nm), h_Planck * c_light / (90 * nm)
     };
 
     G4double source_plate_efficiency[] = {
-      100, 100,
-      100, 100,
-      100, 100,
-      100, 100,
-      100, 100,
-      100, 100,
-      100, 100,
-      100, 100,
-      100, 100,
-      100, 100,
-      100, 100,
       100, 100
     };
     for (G4int i=0; i < source_plate_entries; i++) {
