@@ -39,4 +39,4 @@
 ### JOB CONTROL
 /nexus/random_seed            1
 /nexus/persistency/start_id   0
-/nexus/persistency/output_file Cigar_Ar_1.0bar_alpha_inside_seed1_07112024.next
+/nexus/persistency/output_file Cigar_Ar_1.0bar_alpha_inside_seed.next

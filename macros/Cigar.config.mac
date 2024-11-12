@@ -25,11 +25,11 @@
 
 
 
-/Geometry/Cigar/pressure 5.5 bar
+/Geometry/Cigar/pressure 5 bar
 /Geometry/Cigar/fiber_diameter 1 mm
 /Geometry/Cigar/coating TPB
 /Geometry/Cigar/fiber_type Y11
-/Geometry/Cigar/gas Xe
+/Geometry/Cigar/gas Ar
 
 /run/verbose 1
 /event/verbose 0
@@ -39,4 +39,4 @@
 ### JOB CONTROL
 /nexus/random_seed            1
 /nexus/persistency/start_id   0
-/nexus/persistency/output_file Cigar_Xe_5.5bar_alpha_outside.next
+/nexus/persistency/output_file Cigar_local_test.next
