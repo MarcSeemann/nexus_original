@@ -244,8 +244,8 @@ namespace nexus {
     G4LogicalVolume* vacuum_chamber_end_logic =
       new G4LogicalVolume(vacuum_chamber_end, steel, "CHAMBER_END");
 
-    // vacuum_chamber_end_logic->SetVisAttributes(nexus::DarkGrey());
-    vacuum_chamber_end_logic->SetVisAttributes(G4VisAttributes::GetInvisible());
+    vacuum_chamber_end_logic->SetVisAttributes(nexus::DarkGrey());
+    // vacuum_chamber_end_logic->SetVisAttributes(G4VisAttributes::GetInvisible());
   
     new G4PVPlacement(0, G4ThreeVector(0, 0, cigar_length_*3/4+2.0*cm),
                       vacuum_chamber_end_logic, "VAC_CHAMBER_END_FRONT", world_logic_vol,
@@ -456,17 +456,17 @@ namespace nexus {
     rot_z->rotateZ(90 * deg);
     new G4PVPlacement(G4Transform3D(*rot_y, G4ThreeVector(cigar_width_ / 2 + fiber_diameter_ / 2+extra_width/2+panel_width/2+fiber_diameter_/4, 0, cigar_length_ / 2 + photosensor_thickness / 2 + 7 * cm-generic_cigar_shift)),
                       sipm_logic, "SIPM1", cigar_mat_inside_logic,
-                      false, 1, false);
+                      true, 1, false);
 
     new G4PVPlacement(G4Transform3D(*rot_y, G4ThreeVector(- cigar_width_ / 2 - fiber_diameter_ / 2-(extra_width/2+panel_width/2+fiber_diameter_/4), 0, cigar_length_ / 2 + photosensor_thickness / 2 + 7 * cm-generic_cigar_shift)),
                       sipm_logic, "SIPM2", cigar_mat_inside_logic,
-                      false, 2, false);
+                      true, 2, false);
     new G4PVPlacement(G4Transform3D(*rot_z, G4ThreeVector(0, - cigar_width_ / 2 - fiber_diameter_ / 2-(extra_width/2+panel_width/2+fiber_diameter_/4), cigar_length_ / 2 + photosensor_thickness / 2 + 7 * cm-generic_cigar_shift)),
                       sipm_logic, "SIPM3", cigar_mat_inside_logic,
-                      false, 3, false);
+                      true, 3, false);
     new G4PVPlacement(G4Transform3D(*rot_z, G4ThreeVector(0, cigar_width_ / 2 + fiber_diameter_ / 2+extra_width/2+panel_width/2+fiber_diameter_/4, cigar_length_ / 2 + photosensor_thickness / 2 + 7 * cm-generic_cigar_shift)),
                       sipm_logic, "SIPM4", cigar_mat_inside_logic,
-                      false, 4, false);
+                      true, 4, false);
 
     // Teflon special closing panel
     G4Box* teflon_closing_panel =
@@ -600,7 +600,7 @@ namespace nexus {
 
     new G4PVPlacement(0, G4ThreeVector(source_position_cylinder_x, source_position_cylinder_y, source_position_cylinder_z-0.5*mm -generic_cigar_shift),
                       source_plate_logic, "SOURCEPLATE1", cigar_mat_inside_logic,
-                      false, 1, false);
+                      false, 5, false);
 
 
 
