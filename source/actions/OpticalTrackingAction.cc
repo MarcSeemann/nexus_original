@@ -59,24 +59,24 @@ void OpticalTrackingAction::PostUserTrackingAction(const G4Track* track)
   // Do nothing if the track has no associated trajectory in the map
   if (!trj) return;
 
-  // Record final time and position of the track
-  trj->SetFinalPosition(track->GetPosition());
-  trj->SetFinalTime(track->GetGlobalTime());
-  trj->SetTrackLength(track->GetTrackLength());
-  trj->SetFinalMomentum(track->GetMomentum());
+  // // Record final time and position of the track
+  // trj->SetFinalPosition(track->GetPosition());
+  // trj->SetFinalTime(track->GetGlobalTime());
+  // trj->SetTrackLength(track->GetTrackLength());
+  // trj->SetFinalMomentum(track->GetMomentum());
 
-  // In case of optical photons
-  if (track->GetDefinition() == G4OpticalPhoton::Definition()) {
-    // If optical-photon has no NextVolume (escaping from the world)
-    // Assign current volume as the decay one
-    if (track->GetNextVolume()) trj->SetFinalVolume(track->GetNextVolume()->GetName());
-    else                        trj->SetFinalVolume(track->GetVolume()->GetName());
-  }
-  // Final Volume of non optical photons
-  else trj->SetFinalVolume(track->GetVolume()->GetName());
+  // // In case of optical photons
+  // if (track->GetDefinition() == G4OpticalPhoton::Definition()) {
+  //   // If optical-photon has no NextVolume (escaping from the world)
+  //   // // Assign current volume as the decay one
+  //   // if (track->GetNextVolume()) trj->SetFinalVolume(track->GetNextVolume()->GetName());
+  //   // else                        trj->SetFinalVolume(track->GetVolume()->GetName());
+  // }
+  // // Final Volume of non optical photons
+  // else trj->SetFinalVolume(track->GetVolume()->GetName());
 
   // Record last process of the track
-  G4String final_process = track->GetStep()->GetPostStepPoint()
-                                ->GetProcessDefinedStep()->GetProcessName();
-  trj->SetFinalProcess(final_process);
+  // G4String final_process = track->GetStep()->GetPostStepPoint()
+  //                               ->GetProcessDefinedStep()->GetProcessName();
+  // trj->SetFinalProcess(final_process);
 }

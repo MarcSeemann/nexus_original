@@ -12,8 +12,8 @@
 
 
 /Generator/SingleParticle/particle alpha   
-/Generator/SingleParticle/min_energy 5.486 keV
-/Generator/SingleParticle/max_energy 5.486 keV
+/Generator/SingleParticle/min_energy 5.486 MeV
+/Generator/SingleParticle/max_energy 5.486 MeV
 /Generator/SingleParticle/region INSIDE_CIGAR
 /Generator/SingleParticle/min_costheta 0
 /Generator/SingleParticle/max_costheta 1
@@ -25,7 +25,7 @@
 
 
 
-/Geometry/Cigar/pressure 5 bar
+/Geometry/Cigar/pressure 1 bar
 /Geometry/Cigar/fiber_diameter 1 mm
 /Geometry/Cigar/coating TPB
 /Geometry/Cigar/fiber_type Y11
