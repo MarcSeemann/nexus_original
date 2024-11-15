@@ -61,22 +61,22 @@ namespace nexus {
 
     if (pressure/bar > 0.9 && pressure/bar < 1.1)
       density = 1.60279*kg/m3;
-    else if (pressure/bar > 1.1 && pressure/bar < 1.75)
-      density = 2.4045*kg/m3;
-    else if (pressure/bar > 1.75 && pressure/bar < 2.25)
-      density = 3.2070*kg/m3;
-    else if (pressure/bar > 2.25 && pressure/bar < 2.75)
-      density = 4.0100*kg/m3;
-    else if (pressure/bar > 2.75 && pressure/bar < 3.25)
-      density = 4.8133*kg/m3;
-    else if (pressure/bar > 3.25 && pressure/bar < 4.5)
-      density = 6.4216*kg/m3;
-    else if (pressure/bar > 4.5 && pressure/bar < 5.5)
-      density = 8.0319*kg/m3;
-    else if (pressure/bar > 5.5 && pressure/bar < 7.0)
-      density = 9.6438*kg/m3;
-    else if (pressure/bar > 7.0 && pressure/bar < 9.0)
-      density = 12.8736*kg/m3;
+    else if (pressure/bar > 1.4 && pressure/bar < 1.6)
+      density = 2.417*kg/m3;
+    else if (pressure/bar > 2.4 && pressure/bar < 2.6)
+      density = 4.0289*kg/m3;
+    else if (pressure/bar > 3.4 && pressure/bar < 3.6)
+      density = 5.6405*kg/m3;
+    else if (pressure/bar > 4.4 && pressure/bar < 4.6)
+      density = 7.2521*kg/m3;
+    else if (pressure/bar > 5.4 && pressure/bar < 5.6)
+      density = 8.8637*kg/m3;
+    else if (pressure/bar > 6.4 && pressure/bar < 6.6)
+      density = 10.4752*kg/m3;
+    else if (pressure/bar > 7.4 && pressure/bar < 7.6)
+      density = 12.0868*kg/m3;
+    else if (pressure/bar > 8.4 && pressure/bar < 8.6)
+      density = 13.6984*kg/m3;
     else if (pressure/bar > 9.0 && pressure/bar < 12.5)
       density = 16.1118*kg/m3;
     else if (pressure/bar > 14.9 && pressure/bar < 15.1)

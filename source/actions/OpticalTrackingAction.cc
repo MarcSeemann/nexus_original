@@ -46,7 +46,7 @@ void OpticalTrackingAction::PreUserTrackingAction(const G4Track* track)
   fpTrackingManager->SetTrajectory(trj);
 
   // Check if the track is an optical photon and increment the counter if so
-  if (track->GetDefinition() == G4OpticalPhoton::Definition()) {
+  if ((track->GetDefinition() == G4OpticalPhoton::Definition()) && (track->GetCreatorProcess()->GetProcessName() == "Scintillation")) {
     total_photons_++;
   }
 }
