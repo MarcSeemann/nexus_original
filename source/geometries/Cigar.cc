@@ -262,7 +262,8 @@ namespace nexus {
     G4Material* cigar_mat = nullptr;
     if (gas_ == "Ar") {
       cigar_mat = materials::GAr(pressure_);
-      cigar_mat->SetMaterialPropertiesTable(opticalprops::GAr(1. / (68 * eV)));
+      cigar_mat->SetMaterialPropertiesTable(opticalprops::GAr(10/keV));
+      // cigar_mat->SetMaterialPropertiesTable(opticalprops::GAr(1. / (6 * eV)));
       std::cout << "Ar gas pressure: " << pressure_ << " bar" << std::endl;
       // cigar_mat->SetMaterialPropertiesTable(opticalprops::GAr(2500000));
     } else if (gas_ == "Xe") {

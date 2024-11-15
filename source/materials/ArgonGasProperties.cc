@@ -26,15 +26,58 @@ namespace nexus {
   {
     //These values are for a temperature of 300 K
     // taken from http://www.nist.gov/srd/upload/jpcrd363.pdf
+    // def mol_dm3_to_kg_m3(concentration_mol_dm3, molar_mass):
+    //     """
+    //     Convert concentration from mol/dm^3 to kg/m^3.
+
+    //     Parameters:
+    //         concentration_mol_dm3 (float): Concentration in mol/dm^3.
+    //         molar_mass (float): Molar mass of the substance in g/mol.
+
+    //     Returns:
+    //         float: Concentration in kg/m^3.
+    //     """
+    //     # Convert mol/dm^3 to mol/m^3 (1 dm^3 = 0.001 m^3)
+    //     concentration_mol_m3 = concentration_mol_dm3 * 1000
+
+    //     # Convert mol/m^3 to kg/m^3 (1 g = 0.001 kg)
+    //     concentration_kg_m3 = concentration_mol_m3 * (molar_mass / 1000)
+
+    //     return concentration_kg_m3
+
+
+    // # Example usage:
+    // if __name__ == "__main__":
+    //     # Input values
+    //     concentration_mol_dm3 = 0.32226  # Example concentration in mol/dm^3
+    //     molar_mass = 39.948  # Molar mass of argon in g/mol
+
+    //     # Perform the conversion
+    //     concentration_kg_m3 = mol_dm3_to_kg_m3(concentration_mol_dm3, molar_mass)
+
+    //     print(f"{concentration_mol_dm3} mol/dm^3 is equivalent to {concentration_kg_m3:.4f} kg/m^3.")
+
     G4double density = 1.60279*kg/m3;
 
     if (pressure/bar > 0.9 && pressure/bar < 1.1)
       density = 1.60279*kg/m3;
-    else if (pressure/bar > 1.9 && pressure/bar < 2.1)
-      density = 3.20719*kg/m3;
-    else if (pressure/bar > 4.9 && pressure/bar < 5.1)
-      density = 8.032*kg/m3;
-    else if (pressure/bar > 9.9 && pressure/bar < 10.1)
+    else if (pressure/bar > 1.1 && pressure/bar < 1.75)
+      density = 2.4045*kg/m3;
+    else if (pressure/bar > 1.75 && pressure/bar < 2.25)
+      density = 3.2070*kg/m3;
+    else if (pressure/bar > 2.25 && pressure/bar < 2.75)
+      density = 4.0100*kg/m3;
+    else if (pressure/bar > 2.75 && pressure/bar < 3.25)
+      density = 4.8133*kg/m3;
+    else if (pressure/bar > 3.25 && pressure/bar < 4.5)
+      density = 6.4216*kg/m3;
+    else if (pressure/bar > 4.5 && pressure/bar < 5.5)
+      density = 8.0319*kg/m3;
+    else if (pressure/bar > 5.5 && pressure/bar < 7.0)
+      density = 9.6438*kg/m3;
+    else if (pressure/bar > 7.0 && pressure/bar < 9.0)
+      density = 12.8736*kg/m3;
+    else if (pressure/bar > 9.0 && pressure/bar < 12.5)
       density = 16.1118*kg/m3;
     else if (pressure/bar > 14.9 && pressure/bar < 15.1)
       density = 24.2369 *kg/m3;
