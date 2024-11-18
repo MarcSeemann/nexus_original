@@ -25,7 +25,7 @@
 
 
 
-/Geometry/Cigar/pressure 1 bar
+/Geometry/Cigar/pressure 1.5 bar
 /Geometry/Cigar/fiber_diameter 1 mm
 /Geometry/Cigar/coating TPB
 /Geometry/Cigar/fiber_type Y11
@@ -39,4 +39,4 @@
 ### JOB CONTROL
 /nexus/random_seed            1
 /nexus/persistency/start_id   0
-/nexus/persistency/output_file Cigar_local_test.next
+/nexus/persistency/output_file Cigar_Ar_1.5bar_alpha_inside_20241118.next
