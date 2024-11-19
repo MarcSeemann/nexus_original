@@ -599,7 +599,7 @@ namespace nexus {
     source_plate->Construct();
     G4LogicalVolume* source_plate_logic = source_plate->GetLogicalVolume();
 
-    new G4PVPlacement(0, G4ThreeVector(source_position_cylinder_x, source_position_cylinder_y, source_position_cylinder_z-0.5*mm -generic_cigar_shift),
+    new G4PVPlacement(0, G4ThreeVector(source_position_cylinder_x, source_position_cylinder_y, source_position_cylinder_z-0.251*mm -generic_cigar_shift),
                       source_plate_logic, "SOURCEPLATE1", cigar_mat_inside_logic,
                       false, 5, false);
 
