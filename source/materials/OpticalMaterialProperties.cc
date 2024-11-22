@@ -797,6 +797,11 @@ namespace opticalprops {
     mpt->AddProperty("SPECULARLOBECONSTANT", ENERGIES_2, specularlobe);
     mpt->AddProperty("SPECULARSPIKECONSTANT",ENERGIES_2, specularspike);
     mpt->AddProperty("BACKSCATTERCONSTANT",  ENERGIES_2, backscatter);
+    // https://www.researchgate.net/publication/241649116_Effects_of_Radiation_and_Thermal_Cycling_on_Teflon_R_FEP
+    G4double abs_length   = 0.0001*micrometer;
+    std::vector<G4double> abs_energy = {optPhotMinE_, optPhotMaxE_};
+    std::vector<G4double> absLength  = {abs_length, abs_length};
+    mpt->AddProperty("ABSLENGTH", abs_energy, absLength);
 
     // REFRACTIVE INDEX
     std::vector<G4double> rIndex = {1.41, 1.41};

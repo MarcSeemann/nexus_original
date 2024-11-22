@@ -232,6 +232,7 @@ namespace nexus {
 
 
     vacuum_chamber_logic->SetVisAttributes(nexus::DarkGrey());
+    // vacuum_chamber_logic->SetVisAttributes(G4VisAttributes::GetInvisible());
 
     new G4PVPlacement(0, G4ThreeVector(0, 0, 0),
                       vacuum_chamber_logic, "VAC_CHAMBER", world_logic_vol,
@@ -300,7 +301,7 @@ namespace nexus {
     IonizationSD* ionization_sd_gas = new IonizationSD("/Cigar/GasIonInside");
     cigar_mat_inside_logic->SetSensitiveDetector(ionization_sd_gas);
     G4SDManager::GetSDMpointer()->AddNewDetector(ionization_sd_gas);
-    // cigar_mat_logic->SetVisAttributes(G4VisAttributes::GetInvisible());
+    // cigar_mat_inside_logic->SetVisAttributes(G4VisAttributes::GetInvisible());
     cigar_mat_inside_logic->SetVisAttributes(nexus::Blue());
     new G4PVPlacement(0, G4ThreeVector(0, 0, 0), cigar_mat_inside_logic, "CigarGas", world_logic_vol, false, 0, true);
     G4cout << "Creating CigarGas volume with sensitive detector: " << ionization_sd_gas->GetName() << G4endl;
@@ -332,9 +333,25 @@ namespace nexus {
       new G4LogicalVolume(teflon_panel_side, teflon, "TEFLON");
     G4LogicalVolume* teflon_logic_close =
       new G4LogicalVolume(teflon_panel_close_subtracted, teflon, "TEFLON_CLOSE");
-    teflon_logic_top->SetVisAttributes(nexus::White());
-    teflon_logic_side->SetVisAttributes(nexus::White());
+
+    IonizationSD* ionization_teflon_close = new IonizationSD("/Cigar/TeflonIonClose");
+    teflon_logic_close->SetSensitiveDetector(ionization_teflon_close);
+    G4SDManager::GetSDMpointer()->AddNewDetector(ionization_teflon_close);
     teflon_logic_close->SetVisAttributes(nexus::White());
+    G4cout << "Creating Teflon volume with sensitive detector: " << ionization_teflon_close->GetName() << G4endl;
+
+    IonizationSD* ionization_teflon_side = new IonizationSD("/Cigar/TeflonIonSide");
+    teflon_logic_side->SetSensitiveDetector(ionization_teflon_side);
+    G4SDManager::GetSDMpointer()->AddNewDetector(ionization_teflon_side);
+    teflon_logic_side->SetVisAttributes(nexus::White());
+    G4cout << "Creating Teflon volume with sensitive detector: " << ionization_teflon_side->GetName() << G4endl;
+
+    IonizationSD* ionization_teflon_top = new IonizationSD("/Cigar/TeflonIonTop");
+    teflon_logic_top->SetSensitiveDetector(ionization_teflon_top);
+    G4SDManager::GetSDMpointer()->AddNewDetector(ionization_teflon_top);
+    teflon_logic_top->SetVisAttributes(nexus::White());
+    G4cout << "Creating Teflon volume with sensitive detector: " << ionization_teflon_top->GetName() << G4endl;
+
 
     G4OpticalSurface* opsur_teflon =
       new G4OpticalSurface("TEFLON_OPSURF", unified, groundteflonair, dielectric_metal);
@@ -375,10 +392,11 @@ namespace nexus {
 
     fiber_->Construct();
     G4LogicalVolume *fiber_logic = fiber_->GetLogicalVolume();
-    if (fiber_type_ == "Y11")
-      fiber_logic->SetVisAttributes(nexus::LightGreenAlpha());
-    else if (fiber_type_ == "B2")
-      fiber_logic->SetVisAttributes(nexus::LightBlueAlpha());
+    if (fiber_type_ == "Y11") {
+        fiber_logic->SetVisAttributes(nexus::LightGreenAlpha());
+    } else if (fiber_type_ == "B2") {
+        fiber_logic->SetVisAttributes(nexus::LightBlueAlpha());
+    }
 
     G4int n_fibers = floor(cigar_width_ / fiber_diameter_);
     G4cout << "[Cigar] Box with " << n_fibers << " fibers each side" << G4endl;
