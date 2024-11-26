@@ -781,8 +781,8 @@ namespace opticalprops {
     //   .72,  .72,  .72
     // };
     std::vector<G4double> REFLECTIVITY = {
-      .03,  .03,  .03,  0.03,
-      .03,  .03,  .03
+      .98,  .98,  .98,  0.98,
+      .72,  .03,  .03
     };
     mpt->AddProperty("REFLECTIVITY", ENERGIES, REFLECTIVITY);
 
