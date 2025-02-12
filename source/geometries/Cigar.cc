@@ -46,7 +46,8 @@ namespace nexus {
     pressure_(1. * bar),
     coating_ ("TPB"),
     fiber_type_ ("Y11"),
-    coated_(true)
+    coated_(true),
+    opticalModel("glisur")
   {
     msg_ = new G4GenericMessenger(this, "/Geometry/Cigar/",
       "Control commands of geometry Cigar.");
@@ -76,6 +77,11 @@ namespace nexus {
     msg_->DeclareProperty("coating", coating_, "Fiber coating (TPB or PTH)");
     msg_->DeclareProperty("fiber_type", fiber_type_, "Fiber type (Y11 or B2)");
     msg_->DeclareProperty("coated", coated_, "Coat fibers with WLS coating");
+
+    msg_->DeclareMethod("setOpticalModel",
+                   &Cigar::SetOpticalModel)
+    .SetGuidance("Set optical model: unified, glisur, or LUT")
+    .SetCandidates("unified glisur LUT");
 
     // Separate Messenger for ParticleName()
     particle_msg_ = new G4GenericMessenger(this, "/Generator/SingleParticle/",
@@ -127,7 +133,7 @@ namespace nexus {
     G4double generic_cigar_shift = 3.5*cm;
 
     // Kr position
-    // inside_cigar_ = new BoxPointSampler(cigar_width_/2 + 2.5 * mm, cigar_width_/2 + 2.5 * mm, cigar_length_/2, 0, G4ThreeVector(0.,0.,0-generic_cigar_shift));
+    inside_cigar_ = new BoxPointSampler(cigar_width_/2 + 2.5 * mm, cigar_width_/2 + 2.5 * mm, cigar_length_/2, 0, G4ThreeVector(0.,0.,0-generic_cigar_shift));
 
     // Generic source in centre of Cigar
     // inside_cigar_ = new BoxPointSampler(1*mm, 1*mm, 1*mm, 0, G4ThreeVector(0.,0.,0.));
@@ -144,7 +150,7 @@ namespace nexus {
     // Inside
     double source_position_cylinder_z = -cigar_length_/2 - panel_width + 4.5*mm;
     // Source placement
-    inside_cigar_ = new CylinderPointSampler(7.5*mm/2, 0.1*mm, 0, 0, G4ThreeVector(source_position_cylinder_x,source_position_cylinder_y, source_position_cylinder_z-generic_cigar_shift), temp_rot);
+    // inside_cigar_ = new CylinderPointSampler(7.5*mm/2, 0.1*mm, 0, 0, G4ThreeVector(source_position_cylinder_x,source_position_cylinder_y, source_position_cylinder_z-generic_cigar_shift), temp_rot);
 
     
 
@@ -376,9 +382,15 @@ namespace nexus {
         new G4LogicalVolume(coating_solid, coating_mat, coating_name);
 
       // Optical surface
-      G4OpticalSurface* coating_optSurf =
-        new G4OpticalSurface("TPB_OPSURF", glisur, ground,
-                            dielectric_dielectric, .01);
+      // G4OpticalSurface* coating_optSurf =
+      //   new G4OpticalSurface("TPB_OPSURF", glisur, ground,
+      //                       dielectric_dielectric, .01);
+      G4OpticalSurface *coating_optSurf =
+        new G4OpticalSurface("TPB_OPSURF",
+            (opticalModel == "unified") ? unified :
+            (opticalModel == "LUT") ? LUT :
+            glisur,  // Default to glisur
+            ground);
       new G4LogicalSkinSurface("TPB_OPSURF", coating_logic,
                               coating_optSurf);
 
@@ -530,8 +542,14 @@ namespace nexus {
 
     G4LogicalVolume *fiber_end_logic_vol =
         new G4LogicalVolume(fiber_end_solid_vol, fiber_end_mat, "FIBER_END");
+    // G4OpticalSurface *opsur_al =
+    //     new G4OpticalSurface("AL_OPSURF", glisur, ground, dielectric_metal);
     G4OpticalSurface *opsur_al =
-        new G4OpticalSurface("AL_OPSURF", glisur, ground, dielectric_metal);
+      new G4OpticalSurface("AL_OPSURF",
+          (opticalModel == "unified") ? unified :
+          (opticalModel == "LUT") ? LUT :
+          glisur,  // Default to glisur
+          ground, dielectric_metal);
     opsur_al->SetPolish(0.75);
     opsur_al->SetMaterialPropertiesTable(opticalprops::PolishedAl());
 

@@ -41,6 +41,8 @@ namespace nexus {
 
     void ParticleName(G4String name);
 
+    void SetOpticalModel(G4String model) { opticalModel = model; }
+
     
 
     void Construct();
@@ -56,11 +58,12 @@ namespace nexus {
     G4String coating_;
     G4String fiber_type_;
     G4bool coated_;
+    G4String opticalModel;
 
 
     GenericWLSFiber* fiber_;
-    // BoxPointSampler* inside_cigar_;
-    CylinderPointSampler* inside_cigar_;
+    BoxPointSampler* inside_cigar_;
+    // CylinderPointSampler* inside_cigar_;
     /// Messenger for the definition of control commands
     G4GenericMessenger* msg_;
     G4GenericMessenger* particle_msg_;
