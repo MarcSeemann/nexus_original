@@ -784,6 +784,7 @@ namespace opticalprops {
       .98,  .98,  .98,  0.98,
       .72,  .03,  .03
     };
+    // https://link.springer.com/chapter/10.1007/978-3-031-23050-9_11
     mpt->AddProperty("REFLECTIVITY", ENERGIES, REFLECTIVITY);
 
     // REFLEXION BEHAVIOR

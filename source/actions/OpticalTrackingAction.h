@@ -22,6 +22,12 @@ namespace nexus {
 
   private:
     int total_photons_;  // Variable to store the total number of optical photons
+    int sensor_photons_;
+    int teflon_photons_;
+    int aluminum_photons_;
+    int fiber_scint_photons_;
+    int fiber_wls_photons_;
+    int vacuum_chamber_photons_;
   };
 
 }

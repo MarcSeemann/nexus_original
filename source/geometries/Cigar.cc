@@ -126,8 +126,8 @@ namespace nexus {
     G4double panel_width = 2.5 * mm;
     G4double generic_cigar_shift = 3.5*cm;
 
-    // // Kr position
-    // inside_cigar_ = new BoxPointSampler(cigar_width_/2 + 2.5 * mm, cigar_width_/2 + 2.5 * mm, cigar_length_/2, 0, G4ThreeVector(0.,0.,0.));
+    // Kr position
+    // inside_cigar_ = new BoxPointSampler(cigar_width_/2 + 2.5 * mm, cigar_width_/2 + 2.5 * mm, cigar_length_/2, 0, G4ThreeVector(0.,0.,0-generic_cigar_shift));
 
     // Generic source in centre of Cigar
     // inside_cigar_ = new BoxPointSampler(1*mm, 1*mm, 1*mm, 0, G4ThreeVector(0.,0.,0.));
@@ -192,18 +192,19 @@ namespace nexus {
 
     // WORLD /////////////////////////////////////////////////
 
-    G4Material* world_mat = G4NistManager::Instance()->FindOrBuildMaterial("G4_AIR");
-    if (gas_ == "Ar") {
-      world_mat->SetMaterialPropertiesTable(opticalprops::Vacuum());
-    } else if (gas_ == "Xe") {
-      world_mat->SetMaterialPropertiesTable(opticalprops::Vacuum());
-
+    // G4Material* world_mat = G4NistManager::Instance()->FindOrBuildMaterial("G4_AIR");
     // if (gas_ == "Ar") {
-    //   world_mat = materials::GAr(pressure_);
-    //   world_mat->SetMaterialPropertiesTable(opticalprops::GAr(1. / (68 * eV)));
+    //   world_mat->SetMaterialPropertiesTable(opticalprops::Vacuum());
     // } else if (gas_ == "Xe") {
-    //   world_mat = materials::GXe(pressure_);
-    //   world_mat->SetMaterialPropertiesTable(opticalprops::GXe(pressure_));
+    //   world_mat->SetMaterialPropertiesTable(opticalprops::Vacuum());
+
+    G4Material* world_mat = nullptr;
+    if (gas_ == "Ar") {
+      world_mat = materials::GAr(pressure_);
+      world_mat->SetMaterialPropertiesTable(opticalprops::GAr(1. / (68 * eV)));
+    } else if (gas_ == "Xe") {
+      world_mat = materials::GXe(pressure_);
+      world_mat->SetMaterialPropertiesTable(opticalprops::GXe(pressure_));
     // } else if (gas_ == "ArXe") {
     //   world_mat = materials::GXeAr(pressure_, 273.15, 0.01);
     //   world_mat->SetMaterialPropertiesTable(opticalprops::GXeA r());
@@ -231,8 +232,8 @@ namespace nexus {
       new G4LogicalVolume(vacuum_chamber, steel, "CHAMBER");
 
 
-    vacuum_chamber_logic->SetVisAttributes(nexus::DarkGrey());
-    // vacuum_chamber_logic->SetVisAttributes(G4VisAttributes::GetInvisible());
+    // vacuum_chamber_logic->SetVisAttributes(nexus::DarkGrey());
+    vacuum_chamber_logic->SetVisAttributes(G4VisAttributes::GetInvisible());
 
     new G4PVPlacement(0, G4ThreeVector(0, 0, 0),
                       vacuum_chamber_logic, "VAC_CHAMBER", world_logic_vol,
@@ -245,8 +246,8 @@ namespace nexus {
     G4LogicalVolume* vacuum_chamber_end_logic =
       new G4LogicalVolume(vacuum_chamber_end, steel, "CHAMBER_END");
 
-    vacuum_chamber_end_logic->SetVisAttributes(nexus::DarkGrey());
-    // vacuum_chamber_end_logic->SetVisAttributes(G4VisAttributes::GetInvisible());
+    // vacuum_chamber_end_logic->SetVisAttributes(nexus::DarkGrey());
+    vacuum_chamber_end_logic->SetVisAttributes(G4VisAttributes::GetInvisible());
   
     new G4PVPlacement(0, G4ThreeVector(0, 0, cigar_length_*3/4+2.0*cm),
                       vacuum_chamber_end_logic, "VAC_CHAMBER_END_FRONT", world_logic_vol,
@@ -301,8 +302,8 @@ namespace nexus {
     IonizationSD* ionization_sd_gas = new IonizationSD("/Cigar/GasIonInside");
     cigar_mat_inside_logic->SetSensitiveDetector(ionization_sd_gas);
     G4SDManager::GetSDMpointer()->AddNewDetector(ionization_sd_gas);
-    // cigar_mat_inside_logic->SetVisAttributes(G4VisAttributes::GetInvisible());
-    cigar_mat_inside_logic->SetVisAttributes(nexus::Blue());
+    cigar_mat_inside_logic->SetVisAttributes(G4VisAttributes::GetInvisible());
+    // cigar_mat_inside_logic->SetVisAttributes(nexus::Blue());
     new G4PVPlacement(0, G4ThreeVector(0, 0, 0), cigar_mat_inside_logic, "CigarGas", world_logic_vol, false, 0, true);
     G4cout << "Creating CigarGas volume with sensitive detector: " << ionization_sd_gas->GetName() << G4endl;
 
@@ -346,18 +347,43 @@ namespace nexus {
     teflon_logic_side->SetVisAttributes(nexus::White());
     G4cout << "Creating Teflon volume with sensitive detector: " << ionization_teflon_side->GetName() << G4endl;
 
+
     IonizationSD* ionization_teflon_top = new IonizationSD("/Cigar/TeflonIonTop");
     teflon_logic_top->SetSensitiveDetector(ionization_teflon_top);
     G4SDManager::GetSDMpointer()->AddNewDetector(ionization_teflon_top);
     teflon_logic_top->SetVisAttributes(nexus::White());
+
     G4cout << "Creating Teflon volume with sensitive detector: " << ionization_teflon_top->GetName() << G4endl;
 
 
-    G4OpticalSurface* opsur_teflon =
-      new G4OpticalSurface("TEFLON_OPSURF", unified, groundteflonair, dielectric_metal);
-    opsur_teflon->SetMaterialPropertiesTable(opticalprops::PTFE());
+    // G4OpticalSurface* opsur_teflon =
+    //   new G4OpticalSurface("TEFLON_OPSURF", unified, groundteflonair, dielectric_metal);
+    // opsur_teflon->SetMaterialPropertiesTable(opticalprops::PTFE());
 
-    new G4LogicalSkinSurface("TEFLON_OPSURF", teflon_logic_top, opsur_teflon);
+    // new G4LogicalSkinSurface("TEFLON_OPSURF", teflon_logic_top, opsur_teflon);
+
+
+
+
+      // Coating (only if it exists ...)
+    G4LogicalVolume* coating_logic;
+      G4String coating_name = "TPB_WLS";
+      G4cout << "**** Building COATING " << coating_name << G4endl;
+      G4Tubs* coating_solid =
+        new G4Tubs(coating_name, 0., 3*micrometer/2., cigar_length_ / 2, 0., 360.*deg);
+      G4Material* coating_mat = materials::TPB();
+      coating_logic =
+        new G4LogicalVolume(coating_solid, coating_mat, coating_name);
+
+      // Optical surface
+      G4OpticalSurface* coating_optSurf =
+        new G4OpticalSurface("TPB_OPSURF", glisur, ground,
+                            dielectric_dielectric, .01);
+      new G4LogicalSkinSurface("TPB_OPSURF", coating_logic,
+                              coating_optSurf);
+
+
+
 
     G4VPhysicalVolume *teflon_top = new G4PVPlacement(0, G4ThreeVector(0, cigar_width_/2+panel_width/2+fiber_diameter_+extra_width/2+panel_width/2+fiber_diameter_/4,0-generic_cigar_shift),
                       teflon_logic_top, "TEFLON1", cigar_mat_inside_logic,
@@ -384,6 +410,49 @@ namespace nexus {
     new G4PVPlacement(G4Transform3D(*rot_x, G4ThreeVector(-cigar_width_ / 2 - panel_width / 2 - fiber_diameter_-extra_width/2-panel_width/2-fiber_diameter_/4, 0, 0-generic_cigar_shift)),
                       teflon_logic_side, "TEFLON4", cigar_mat_inside_logic,
                       true, 1, false);
+
+
+    // // TPB coating teflon ///////////////////////////////////////
+
+    // G4Box* TPB_coating =
+    //   new G4Box("TPB_COATING",cigar_width_ / 2 + extra_width, 3*micrometer, cigar_length_ / 2);
+
+    
+    // G4Material* tpb = materials::TPB();
+    // tpb->SetMaterialPropertiesTable(opticalprops::TPB());
+
+
+    // G4LogicalVolume* tpb_logic =
+    //   new G4LogicalVolume(TPB_coating, tpb, "TPB");
+
+
+    // IonizationSD* ionization_tpp = new IonizationSD("/Cigar/TPBIonHorizontal");
+    // tpb_logic->SetSensitiveDetector(ionization_tpp);
+    // G4SDManager::GetSDMpointer()->AddNewDetector(ionization_tpp);
+    // tpb_logic->SetVisAttributes(nexus::Blue());
+    // G4cout << "Creating TPB volume with sensitive detector: " << ionization_tpp->GetName() << G4endl;
+
+
+    // new G4PVPlacement(0, G4ThreeVector(0, cigar_width_/2+panel_width/2+fiber_diameter_+extra_width/2+panel_width/2+fiber_diameter_/4,0-generic_cigar_shift),
+    //                   tpb_logic, "TPB1", cigar_mat_inside_logic,
+    //                   true, 0, false);
+    
+    // new G4PVPlacement(0, G4ThreeVector(0, -cigar_width_/2-panel_width/2-fiber_diameter_-(+extra_width/2+panel_width/2+fiber_diameter_/4), 0-generic_cigar_shift),
+    //                   tpb_logic_horizontal, "TPB2", cigar_mat_inside_logic,
+    //                   true, 1, false);
+
+    
+    // new G4PVPlacement(G4Transform3D(*rot_x, G4ThreeVector(cigar_width_ / 2 + panel_width / 2 + fiber_diameter_+extra_width/2+panel_width/2+fiber_diameter_/4, 0, 0-generic_cigar_shift)),
+    //                   tpb_logic_vertical, "TPB3", cigar_mat_inside_logic,
+    //                   true, 1, false);
+    
+
+    // new G4PVPlacement(G4Transform3D(*rot_x, G4ThreeVector(-cigar_width_ / 2 - panel_width / 2 - fiber_diameter_-extra_width/2-panel_width/2-fiber_diameter_/4, 0, 0-generic_cigar_shift)),
+    //                   tpb_logic_vertical, "TPB4", cigar_mat_inside_logic,
+    //                   true, 1, false);
+
+
+
 
     // // FIBER ////////////////////////////////////////////////////
     
