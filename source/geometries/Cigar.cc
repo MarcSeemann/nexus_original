@@ -46,8 +46,7 @@ namespace nexus {
     pressure_(1. * bar),
     coating_ ("TPB"),
     fiber_type_ ("Y11"),
-    coated_(true),
-    opticalModel("glisur")
+    coated_(true)
   {
     msg_ = new G4GenericMessenger(this, "/Geometry/Cigar/",
       "Control commands of geometry Cigar.");
@@ -359,7 +358,7 @@ namespace nexus {
 
     // Optical surface on teflon
     G4OpticalSurface* opsur_teflon =
-      new G4OpticalSurface("TEFLON_OPSURF", unified, ground, dielectric_metal);
+      new G4OpticalSurface("TEFLON_OPSURF", glisur, ground, dielectric_metal);
     opsur_teflon->SetMaterialPropertiesTable(opticalprops::PTFE());
 
     new G4LogicalSkinSurface("TEFLON_OPSURF", teflon_logic_top, opsur_teflon);
@@ -375,11 +374,11 @@ namespace nexus {
 
 
     // G4OpticalSurface* opsur_teflon_tpb =
-    //     new G4OpticalSurface("TEFLON_TPB", unified, groundteflonair, dielectric_metal);
+    //     new G4OpticalSurface("TEFLON_TPB", glisur, groundteflonair, dielectric_metal);
     // opsur_teflon_tpb->SetMaterialPropertiesTable(opticalprops::TPB());
 
     // G4OpticalSurface* opsur_tpb_gas =
-    //     new G4OpticalSurface("TPB_GAS", unified, ground, dielectric_dielectric);
+    //     new G4OpticalSurface("TPB_GAS", glisur, ground, dielectric_dielectric);
     // opsur_tpb_gas->SetMaterialPropertiesTable(opticalprops::TPB());
 
 
@@ -568,12 +567,7 @@ namespace nexus {
         new G4LogicalVolume(fiber_end_solid_vol, fiber_end_mat, "FIBER_END");
     G4OpticalSurface *opsur_al =
         new G4OpticalSurface("AL_OPSURF", glisur, ground, dielectric_metal);
-    // G4OpticalSurface *opsur_al =
-    //   new G4OpticalSurface("AL_OPSURF",
-    //       (opticalModel == "unified") ? unified :
-    //       (opticalModel == "LUT") ? LUT :
-    //       glisur,  // Default to glisur
-    //       ground, dielectric_metal);
+
     opsur_al->SetPolish(0.75);
     opsur_al->SetMaterialPropertiesTable(opticalprops::PolishedAl());
 
