@@ -41,8 +41,6 @@ namespace nexus {
 
     void ParticleName(G4String name);
 
-    void SetOpticalModel(G4String model) { opticalModel = model; }
-
     
 
     void Construct();

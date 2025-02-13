@@ -78,11 +78,6 @@ namespace nexus {
     msg_->DeclareProperty("fiber_type", fiber_type_, "Fiber type (Y11 or B2)");
     msg_->DeclareProperty("coated", coated_, "Coat fibers with WLS coating");
 
-    msg_->DeclareMethod("setOpticalModel",
-                   &Cigar::SetOpticalModel)
-    .SetGuidance("Set optical model: unified, glisur, or LUT")
-    .SetCandidates("unified glisur LUT");
-
     // Separate Messenger for ParticleName()
     particle_msg_ = new G4GenericMessenger(this, "/Generator/SingleParticle/",
                                            "Commands for single particle generator.");
@@ -362,37 +357,33 @@ namespace nexus {
     G4cout << "Creating Teflon volume with sensitive detector: " << ionization_teflon_top->GetName() << G4endl;
 
 
-    // G4OpticalSurface* opsur_teflon =
-    //   new G4OpticalSurface("TEFLON_OPSURF", unified, groundteflonair, dielectric_metal);
-    // opsur_teflon->SetMaterialPropertiesTable(opticalprops::PTFE());
+    // Optical surface on teflon
+    G4OpticalSurface* opsur_teflon =
+      new G4OpticalSurface("TEFLON_OPSURF", unified, ground, dielectric_metal);
+    opsur_teflon->SetMaterialPropertiesTable(opticalprops::PTFE());
 
-    // new G4LogicalSkinSurface("TEFLON_OPSURF", teflon_logic_top, opsur_teflon);
+    new G4LogicalSkinSurface("TEFLON_OPSURF", teflon_logic_top, opsur_teflon);
+    new G4LogicalSkinSurface("TEFLON_OPSURF", teflon_logic_side, opsur_teflon);
+
+    // Optical surface between gas and TPB 
+
+
+    // G4OpticalSurface* gas_tpb_teflon_surf =
+    //   new G4OpticalSurface("gas_tpb_teflon_surf", glisur, ground,
+    //                       dielectric_dielectric, .01);
+    
+
+
+    // G4OpticalSurface* opsur_teflon_tpb =
+    //     new G4OpticalSurface("TEFLON_TPB", unified, groundteflonair, dielectric_metal);
+    // opsur_teflon_tpb->SetMaterialPropertiesTable(opticalprops::TPB());
+
+    // G4OpticalSurface* opsur_tpb_gas =
+    //     new G4OpticalSurface("TPB_GAS", unified, ground, dielectric_dielectric);
+    // opsur_tpb_gas->SetMaterialPropertiesTable(opticalprops::TPB());
 
 
 
-
-      // Coating (only if it exists ...)
-    G4LogicalVolume* coating_logic;
-      G4String coating_name = "TPB_WLS";
-      G4cout << "**** Building COATING " << coating_name << G4endl;
-      G4Tubs* coating_solid =
-        new G4Tubs(coating_name, 0., 3*micrometer/2., cigar_length_ / 2, 0., 360.*deg);
-      G4Material* coating_mat = materials::TPB();
-      coating_logic =
-        new G4LogicalVolume(coating_solid, coating_mat, coating_name);
-
-      // Optical surface
-      // G4OpticalSurface* coating_optSurf =
-      //   new G4OpticalSurface("TPB_OPSURF", glisur, ground,
-      //                       dielectric_dielectric, .01);
-      G4OpticalSurface *coating_optSurf =
-        new G4OpticalSurface("TPB_OPSURF",
-            (opticalModel == "unified") ? unified :
-            (opticalModel == "LUT") ? LUT :
-            glisur,  // Default to glisur
-            ground);
-      new G4LogicalSkinSurface("TPB_OPSURF", coating_logic,
-                              coating_optSurf);
 
 
 
@@ -423,45 +414,78 @@ namespace nexus {
                       teflon_logic_side, "TEFLON4", cigar_mat_inside_logic,
                       true, 1, false);
 
+    // TPB coating teflon ///////////////////////////////////////
 
-    // // TPB coating teflon ///////////////////////////////////////
-
-    // G4Box* TPB_coating =
-    //   new G4Box("TPB_COATING",cigar_width_ / 2 + extra_width, 3*micrometer, cigar_length_ / 2);
-
+    // G4Box* TPB_coating_top =
+    //   new G4Box("TPB_COATING_TOP", extra_width/2, 3*micrometer, (cigar_length_ / 2) - panel_width);
+    // G4Box* TPB_coating_rot =
+    //   new G4Box("TPB_COATING_ROT", extra_width/2 - 3*micrometer, 3*micrometer, (cigar_length_ / 2) - panel_width);
     
     // G4Material* tpb = materials::TPB();
     // tpb->SetMaterialPropertiesTable(opticalprops::TPB());
 
 
-    // G4LogicalVolume* tpb_logic =
-    //   new G4LogicalVolume(TPB_coating, tpb, "TPB");
+    // G4LogicalVolume* tpb_logic_top =
+    //   new G4LogicalVolume(TPB_coating_top, tpb, "TPB_TOP");
+    // tpb_logic_top->SetVisAttributes(nexus::Blue());
+
+    // G4LogicalVolume* tpb_logic_rot =
+    //   new G4LogicalVolume(TPB_coating_rot, tpb, "TPB_ROT");
+    // tpb_logic_rot->SetVisAttributes(nexus::Blue());
 
 
-    // IonizationSD* ionization_tpp = new IonizationSD("/Cigar/TPBIonHorizontal");
-    // tpb_logic->SetSensitiveDetector(ionization_tpp);
-    // G4SDManager::GetSDMpointer()->AddNewDetector(ionization_tpp);
-    // tpb_logic->SetVisAttributes(nexus::Blue());
-    // G4cout << "Creating TPB volume with sensitive detector: " << ionization_tpp->GetName() << G4endl;
-
-
-    // new G4PVPlacement(0, G4ThreeVector(0, cigar_width_/2+panel_width/2+fiber_diameter_+extra_width/2+panel_width/2+fiber_diameter_/4,0-generic_cigar_shift),
-    //                   tpb_logic, "TPB1", cigar_mat_inside_logic,
+    // new G4PVPlacement(0, G4ThreeVector(15*mm + extra_width/2, cigar_width_/2+panel_width/2+fiber_diameter_+extra_width/2+panel_width/2+fiber_diameter_/4 -panel_width/2-3*micrometer, 0-generic_cigar_shift),
+    //                   tpb_logic_top, "TPB_TEFLON1_LEFT", cigar_mat_inside_logic,
     //                   true, 0, false);
     
-    // new G4PVPlacement(0, G4ThreeVector(0, -cigar_width_/2-panel_width/2-fiber_diameter_-(+extra_width/2+panel_width/2+fiber_diameter_/4), 0-generic_cigar_shift),
-    //                   tpb_logic_horizontal, "TPB2", cigar_mat_inside_logic,
+    // new G4PVPlacement(0, G4ThreeVector(-(15*mm + extra_width/2), cigar_width_/2+panel_width/2+fiber_diameter_+extra_width/2+panel_width/2+fiber_diameter_/4 -panel_width/2-3*micrometer, 0-generic_cigar_shift),
+    //               tpb_logic_top, "TPB_TEFLON1_RIGHT", cigar_mat_inside_logic,
+    //               true, 0, false);
+
+
+
+    // new G4PVPlacement(0, G4ThreeVector(15*mm + extra_width/2, -cigar_width_/2-panel_width/2-fiber_diameter_-(+extra_width/2+panel_width/2+fiber_diameter_/4) +panel_width/2+3*micrometer, 0-generic_cigar_shift),
+    //                   tpb_logic_top, "TPB_TEFLON2_LEFT", cigar_mat_inside_logic,
+    //                   true, 0, false);
+    
+    // new G4PVPlacement(0, G4ThreeVector(-(15*mm + extra_width/2), -cigar_width_/2-panel_width/2-fiber_diameter_-(+extra_width/2+panel_width/2+fiber_diameter_/4) +panel_width/2+3*micrometer, 0-generic_cigar_shift),
+    //               tpb_logic_top, "TPB_TEFLON2_RIGHT", cigar_mat_inside_logic,
+    //               true, 0, false);
+
+
+    // G4RotationMatrix* rotZ90 = new G4RotationMatrix();
+    // rotZ90->rotateZ(90. * deg);
+
+
+    // // Rotated placements (90 degrees around Z-axis)
+    // new G4PVPlacement(rotZ90, G4ThreeVector(cigar_width_/2+panel_width/2+fiber_diameter_+extra_width/2+panel_width/2+fiber_diameter_/4 -panel_width/2-3*micrometer, 15*mm + extra_width/2-3*micrometer, 0-generic_cigar_shift),
+    //                   tpb_logic_rot, "TPB_TEFLON3_LEFT", cigar_mat_inside_logic,
     //                   true, 1, false);
 
-    
-    // new G4PVPlacement(G4Transform3D(*rot_x, G4ThreeVector(cigar_width_ / 2 + panel_width / 2 + fiber_diameter_+extra_width/2+panel_width/2+fiber_diameter_/4, 0, 0-generic_cigar_shift)),
-    //                   tpb_logic_vertical, "TPB3", cigar_mat_inside_logic,
+    // new G4PVPlacement(rotZ90, G4ThreeVector(-cigar_width_/2-panel_width/2-fiber_diameter_-extra_width/2-panel_width/2-fiber_diameter_/4 +panel_width/2+3*micrometer, 15*mm + extra_width/2-3*micrometer, 0-generic_cigar_shift),
+    //                   tpb_logic_rot, "TPB_TEFLON3_RIGHT", cigar_mat_inside_logic,
+    //                   true, 1, false);
+
+    // new G4PVPlacement(rotZ90, G4ThreeVector(cigar_width_/2+panel_width/2+fiber_diameter_+extra_width/2+panel_width/2+fiber_diameter_/4 -panel_width/2-3*micrometer, -15*mm - extra_width/2+3*micrometer, 0-generic_cigar_shift),
+    //                   tpb_logic_rot, "TPB_TEFLON4_LEFT", cigar_mat_inside_logic,
+    //                   true, 1, false);
+
+    // new G4PVPlacement(rotZ90, G4ThreeVector(-cigar_width_/2-panel_width/2-fiber_diameter_-extra_width/2-panel_width/2-fiber_diameter_/4 +panel_width/2+3*micrometer, -15*mm - extra_width/2+3*micrometer, 0-generic_cigar_shift),
+    //                   tpb_logic_rot, "TPB_TEFLON4_RIGHT", cigar_mat_inside_logic,
     //                   true, 1, false);
     
 
-    // new G4PVPlacement(G4Transform3D(*rot_x, G4ThreeVector(-cigar_width_ / 2 - panel_width / 2 - fiber_diameter_-extra_width/2-panel_width/2-fiber_diameter_/4, 0, 0-generic_cigar_shift)),
-    //                   tpb_logic_vertical, "TPB4", cigar_mat_inside_logic,
-    //                   true, 1, false);
+
+
+    // new G4LogicalBorderSurface("gas_tpb_teflon_surf", teflon_logic_top,
+    //                           cigar_mat_inside_logic, opsur_teflon);
+    // new G4LogicalBorderSurface("gas_tpb_teflon_surf", teflon_logic_side,
+    //                           cigar_mat_inside_logic, opsur_teflon);
+    // new G4LogicalBorderSurface("gas_tpb_teflon_surf", teflon_logic_top,
+    //                           tpb_logic_top, gas_tpb_teflon_surf);
+    // new G4LogicalBorderSurface("gas_tpb_teflon_surf", teflon_logic_side,
+    //                           tpb_logic_rot, gas_tpb_teflon_surf);
+
 
 
 
@@ -542,14 +566,14 @@ namespace nexus {
 
     G4LogicalVolume *fiber_end_logic_vol =
         new G4LogicalVolume(fiber_end_solid_vol, fiber_end_mat, "FIBER_END");
-    // G4OpticalSurface *opsur_al =
-    //     new G4OpticalSurface("AL_OPSURF", glisur, ground, dielectric_metal);
     G4OpticalSurface *opsur_al =
-      new G4OpticalSurface("AL_OPSURF",
-          (opticalModel == "unified") ? unified :
-          (opticalModel == "LUT") ? LUT :
-          glisur,  // Default to glisur
-          ground, dielectric_metal);
+        new G4OpticalSurface("AL_OPSURF", glisur, ground, dielectric_metal);
+    // G4OpticalSurface *opsur_al =
+    //   new G4OpticalSurface("AL_OPSURF",
+    //       (opticalModel == "unified") ? unified :
+    //       (opticalModel == "LUT") ? LUT :
+    //       glisur,  // Default to glisur
+    //       ground, dielectric_metal);
     opsur_al->SetPolish(0.75);
     opsur_al->SetMaterialPropertiesTable(opticalprops::PolishedAl());
 
@@ -655,9 +679,13 @@ namespace nexus {
     subtracted_solid_test = new G4SubtractionSolid("SUBTRACTED_SOLID", subtracted_solid_test, fiber_space, rot_y, G4ThreeVector(+cigar_width_ / 2 + fiber_diameter_ / 2+(extra_width/2+panel_width/2+fiber_diameter_/4),0,0));
     
     G4LogicalVolume* teflon_closing_panel_logic_temp = new G4LogicalVolume(subtracted_solid_test, teflon, "TEFLON_PANEL");
+
+
     teflon_closing_panel_logic_temp->SetVisAttributes(nexus::White());
     rot_x->rotateZ(90 * deg);
     new G4PVPlacement(rot_x, G4ThreeVector(0, 0, cigar_length_/2+panel_width/2 -generic_cigar_shift), teflon_closing_panel_logic_temp, "TEFLON_FRONT", cigar_mat_inside_logic, true, 1, false);
+
+
 
 
     // // Na22 position check

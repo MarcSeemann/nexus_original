@@ -30,7 +30,6 @@
 /Geometry/Cigar/coating TPB
 /Geometry/Cigar/fiber_type Y11
 /Geometry/Cigar/gas Ar
-/Geometry/Cigar/setOpticalModel unified
 
 /run/verbose 1
 /event/verbose 0
