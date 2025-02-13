@@ -60,8 +60,8 @@ namespace nexus {
 
 
     GenericWLSFiber* fiber_;
-    BoxPointSampler* inside_cigar_;
-    // CylinderPointSampler* inside_cigar_;
+    // BoxPointSampler* inside_cigar_;
+    CylinderPointSampler* inside_cigar_;
     /// Messenger for the definition of control commands
     G4GenericMessenger* msg_;
     G4GenericMessenger* particle_msg_;

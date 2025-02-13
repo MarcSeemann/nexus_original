@@ -128,7 +128,7 @@ namespace nexus {
     G4double generic_cigar_shift = 3.5*cm;
 
     // Kr position
-    inside_cigar_ = new BoxPointSampler(cigar_width_/2 + 2.5 * mm, cigar_width_/2 + 2.5 * mm, cigar_length_/2, 0, G4ThreeVector(0.,0.,0-generic_cigar_shift));
+    // inside_cigar_ = new BoxPointSampler(cigar_width_/2 + 2.5 * mm, cigar_width_/2 + 2.5 * mm, cigar_length_/2, 0, G4ThreeVector(0.,0.,0-generic_cigar_shift));
 
     // Generic source in centre of Cigar
     // inside_cigar_ = new BoxPointSampler(1*mm, 1*mm, 1*mm, 0, G4ThreeVector(0.,0.,0.));
@@ -145,7 +145,7 @@ namespace nexus {
     // Inside
     double source_position_cylinder_z = -cigar_length_/2 - panel_width + 4.5*mm;
     // Source placement
-    // inside_cigar_ = new CylinderPointSampler(7.5*mm/2, 0.1*mm, 0, 0, G4ThreeVector(source_position_cylinder_x,source_position_cylinder_y, source_position_cylinder_z-generic_cigar_shift), temp_rot);
+    inside_cigar_ = new CylinderPointSampler(7.5*mm/2, 0.1*mm, 0, 0, G4ThreeVector(source_position_cylinder_x,source_position_cylinder_y, source_position_cylinder_z-generic_cigar_shift), temp_rot);
 
     
 
