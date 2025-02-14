@@ -363,6 +363,7 @@ namespace nexus {
 
     new G4LogicalSkinSurface("TEFLON_OPSURF", teflon_logic_top, opsur_teflon);
     new G4LogicalSkinSurface("TEFLON_OPSURF", teflon_logic_side, opsur_teflon);
+    new G4LogicalSkinSurface("TEFLON_OPSURF", teflon_logic_close, opsur_teflon);
 
     // Optical surface between gas and TPB 
 
@@ -679,7 +680,7 @@ namespace nexus {
     rot_x->rotateZ(90 * deg);
     new G4PVPlacement(rot_x, G4ThreeVector(0, 0, cigar_length_/2+panel_width/2 -generic_cigar_shift), teflon_closing_panel_logic_temp, "TEFLON_FRONT", cigar_mat_inside_logic, true, 1, false);
 
-
+    new G4LogicalSkinSurface("TEFLON_OPSURF", teflon_closing_panel_logic_temp, opsur_teflon);
 
 
     // // Na22 position check
