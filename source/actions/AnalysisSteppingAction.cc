@@ -102,6 +102,7 @@ void AnalysisSteppingAction::UserSteppingAction(const G4Step* step)
     for (size_t i=0; i<pv->size(); i++) {
       if ((*pv)[i]->GetProcessName() == "OpBoundary") {
 	boundary = (G4OpBoundaryProcess*) (*pv)[i];
+  G4cout << "Boundary pre step length" << G4endl;
   if (step->GetStepLength() >= 1e-09) {
     G4cout << "Boundary: " << boundary << G4endl;
   };
