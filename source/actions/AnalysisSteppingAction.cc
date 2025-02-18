@@ -70,7 +70,7 @@ AnalysisSteppingAction::~AnalysisSteppingAction()
 void AnalysisSteppingAction::UserSteppingAction(const G4Step* step)
 {
   G4ParticleDefinition* pdef = step->GetTrack()->GetDefinition();
-
+  G4double step_length = step->GetStepLength();
   //Check whether the track is an optical photon
   if (pdef != G4OpticalPhoton::Definition()) return;
 
@@ -102,6 +102,9 @@ void AnalysisSteppingAction::UserSteppingAction(const G4Step* step)
     for (size_t i=0; i<pv->size(); i++) {
       if ((*pv)[i]->GetProcessName() == "OpBoundary") {
 	boundary = (G4OpBoundaryProcess*) (*pv)[i];
+  if (step->GetStepLength() >= 1e-09 * 1e-3) {
+    G4cout << "Boundary: " << boundary << G4endl;
+  };
 	break;
       }
     }
