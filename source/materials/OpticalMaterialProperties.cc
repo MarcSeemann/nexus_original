@@ -1638,6 +1638,58 @@ namespace opticalprops {
   }
 
 
+    /// Generic material, to be modifed by the user ///
+  G4MaterialPropertiesTable* Steel()
+  {
+    // Playing material properties
+    G4MaterialPropertiesTable* mpt = new G4MaterialPropertiesTable();
+    // REFLECTIVITY
+    std::vector<G4double> ENERGIES = {
+      optPhotMinE_,  2.8 * eV,  3.5 * eV,  4. * eV,
+      6. * eV,       7.2 * eV,  optPhotMaxE_
+    };
+    // std::vector<G4double> REFLECTIVITY = {
+    //   .98,  .98,  .98,  .98,
+    //   .72,  .72,  .72
+    // };
+    std::vector<G4double> REFLECTIVITY = {
+      0.0,  0.0,  0.0,  0.0,
+      0.0,  0.0,  0.0
+    };
+    // https://link.springer.com/chapter/10.1007/978-3-031-23050-9_11
+    mpt->AddProperty("REFLECTIVITY", ENERGIES, REFLECTIVITY);
+
+    // REFLEXION BEHAVIOR
+    std::vector<G4double> ENERGIES_2    = {optPhotMinE_, optPhotMaxE_};
+    // Specular reflection about the normal to a microfacet.
+    // Such a vector is chosen according to a gaussian distribution with
+    // sigma = SigmaAlhpa (in rad) and centered in the average normal.
+    std::vector<G4double> specularlobe  = {0., 0.};
+    // specular reflection about the average normal
+    std::vector<G4double> specularspike = {0., 0.};
+    // 180 degrees reflection.
+    std::vector<G4double> backscatter   = {0., 0.};
+    // 1 - the sum of these three last parameters is the percentage of Lambertian reflection
+
+    mpt->AddProperty("SPECULARLOBECONSTANT", ENERGIES_2, specularlobe);
+    mpt->AddProperty("SPECULARSPIKECONSTANT",ENERGIES_2, specularspike);
+    mpt->AddProperty("BACKSCATTERCONSTANT",  ENERGIES_2, backscatter);
+    // https://www.researchgate.net/publication/241649116_Effects_of_Radiation_and_Thermal_Cycling_on_Teflon_R_FEP
+    G4double abs_length   = 0.0001*micrometer;
+    std::vector<G4double> abs_energy = {optPhotMinE_, optPhotMaxE_};
+    std::vector<G4double> absLength  = {abs_length, abs_length};
+    mpt->AddProperty("ABSLENGTH", abs_energy, absLength);
+
+    // REFRACTIVE INDEX
+    std::vector<G4double> rIndex = {1.41, 1.41};
+    mpt->AddProperty("RINDEX", ENERGIES_2, rIndex);
+
+
+
+    return mpt;
+  }
+
+
 
   /// Generic material, to be modifed by the user ///
   G4MaterialPropertiesTable* XXX()

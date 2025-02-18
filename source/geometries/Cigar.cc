@@ -257,6 +257,14 @@ namespace nexus {
                       vacuum_chamber_end_logic, "VAC_CHAMBER_END_BACK", world_logic_vol,
                       true, 0, false);
 
+    // Optical surface for vacuum chamber
+    G4OpticalSurface* opsur_vac_chamber =
+      new G4OpticalSurface("VAC_CHAMBER_OPSURF", glisur, ground, dielectric_metal);
+    opsur_vac_chamber->SetMaterialPropertiesTable(opticalprops::Steel());
+
+    new G4LogicalSkinSurface("VAC_CHAMBER_OPSURF", vacuum_chamber_logic, opsur_vac_chamber);
+    new G4LogicalSkinSurface("VAC_CHAMBER_OPSURF", vacuum_chamber_end_logic, opsur_vac_chamber);
+
 
 
     // Create gas material for inside Cigar
@@ -730,6 +738,13 @@ namespace nexus {
     new G4PVPlacement(0, G4ThreeVector(source_position_cylinder_x, source_position_cylinder_y, source_position_cylinder_z-0.251*mm -generic_cigar_shift),
                       source_plate_logic, "SOURCEPLATE1", cigar_mat_inside_logic,
                       false, 5, false);
+
+        // Optical surface for vacuum chamber
+    G4OpticalSurface* opsur_source =
+      new G4OpticalSurface("SOURCE_OPSURF", glisur, ground, dielectric_metal);
+    opsur_source->SetMaterialPropertiesTable(opticalprops::Steel());
+
+    new G4LogicalSkinSurface("SOURCE_OPSURF", source_plate_logic, opsur_source);
 
 
 
