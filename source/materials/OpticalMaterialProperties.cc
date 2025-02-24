@@ -888,12 +888,15 @@ namespace opticalprops {
     // REFRACTIVE INDEX
     std::vector<G4double> rIndex_energies = {optPhotMinE_, optPhotMaxE_};
     std::vector<G4double> TPB_rIndex      = {1.67    , 1.67};
+    // std::vector<G4double> TPB_rIndex      = {1.0    , 1.0};
     mpt->AddProperty("RINDEX", rIndex_energies, TPB_rIndex);
 
     // ABSORPTION LENGTH
     // Assuming no absorption except WLS
     std::vector<G4double> abs_energy = {optPhotMinE_, optPhotMaxE_};
     std::vector<G4double> absLength  = {noAbsLength_, noAbsLength_};
+    // Set the absorption length to 100 cm (adjust as needed)
+    // std::vector<G4double> absLength  = {1. * mm, 1. * mm};
     mpt->AddProperty("ABSLENGTH", abs_energy, absLength);
 
     // WLS ABSORPTION LENGTH
