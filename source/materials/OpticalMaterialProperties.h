@@ -87,6 +87,11 @@ namespace opticalprops {
 
   G4MaterialPropertiesTable* Steel();
 
+  G4MaterialPropertiesTable* GArXe(G4double sc_yield,
+                                 G4double e_lifetime=1000.*ms,
+                                 G4int ppm=1000);
+  
+
 
   constexpr G4double optPhotMinE_ =  0.2  * eV;
   constexpr G4double optPhotMaxE_ = 11.5  * eV;
