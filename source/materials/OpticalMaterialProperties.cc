@@ -1708,18 +1708,16 @@ namespace opticalprops {
           ri_energy.push_back(optPhotMinE_ + i * eWidth);
       }
 
+      // Use Argon refractive index for now, as Xenon concentration is very low 
       std::vector<G4double> rIndex;
       for (int i=0; i<ri_entries; i++) {
-          G4double wl = hc_ / ri_energy[i] * 1000; // in micron
-          // Interpolating refractive index between Ar and Xe
-          G4double n_Ar = 1 + 0.012055*(0.2075*pow(wl,2)/(91.012*pow(wl,2)-1) +
-                                        0.0415*pow(wl,2)/(87.892*pow(wl,2)-1) +
-                                        4.3330*pow(wl,2)/(214.02*pow(wl,2)-1));
-          G4double n_Xe = XenonRefractiveIndex(ri_energy[i], GXeDensity(ppm));
-
-          // Mixing rule: linear interpolation based on Xe concentration
-          G4double mix_fraction = ppm / (ppm + 1e6); // ppm to fractional
-          rIndex.push_back((1 - mix_fraction) * n_Ar + mix_fraction * n_Xe);
+        G4double wl = hc_ / ri_energy[i] * 1000; // in micron
+        // From refractiveindex.info
+        rIndex.push_back(1 + 0.012055*(0.2075*pow(wl,2)/(91.012*pow(wl,2)-1) +
+                                      0.0415*pow(wl,2)/(87.892*pow(wl,2)-1) +
+                                      4.3330*pow(wl,2)/(214.02*pow(wl,2)-1)));
+        //G4cout << "* GAr rIndex:  " << std::setw(5) << ri_energy[i]/eV
+        //       << " eV -> " << rIndex[i] << G4endl;
       }
       mpt->AddProperty("RINDEX", ri_energy, rIndex);
 
@@ -1745,9 +1743,24 @@ namespace opticalprops {
 
       // REEMISSION PROBABILITY (BASED ON Xe ppm) //https://arxiv.org/pdf/1511.07723
       G4double Reemission_Prob = 2750/(2750 + 250);  // NEED TO CHECK IF THIS APPROACH IS CORRECT
+
+      std::vector<G4double> argon_signal = {2000, 1000, 550, 325, 150};
+      std::vector<G4double> xenon_signal = {150, 1400, 2500, 2700, 2800};
+      std::vector<G4double> ppm_ranges = {0.1, 1, 10, 100, 1000};
+
+      // Calculate the reemission probability based on the PPM given
+
+      for (int i=0; i<4; i++) {
+        if (ppm >= ppm_ranges[i] && ppm < ppm_ranges[i+1]) {
+          Reemission_Prob = xenon_signal[i] / (argon_signal[i] + xenon_signal[i]);
+        }
+      }
+
+
+
       std::vector<G4double> reemission_energy = {optPhotMinE_, optPhotMaxE_};
       std::vector<G4double> reemission_prob   = {Reemission_Prob, Reemission_Prob};
-      mpt->AddProperty("REEMISSIONPROBABILITY", reemission_energy, reemission_prob);
+      mpt->AddProperty("REEMISSIONPROBABILITY", reemission_energy, reemission_prob, true);
 
       // XENON REEMISSION SPECTRUM (~172 nm)
       const G4int xe_entries = 200;

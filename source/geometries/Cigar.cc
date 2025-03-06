@@ -286,15 +286,15 @@ namespace nexus {
       cigar_mat = materials::GAr(pressure_);
       cigar_mat->SetMaterialPropertiesTable(opticalprops::GAr(10/keV));
       // cigar_mat->SetMaterialPropertiesTable(opticalprops::GAr(1. / (6 * eV)));
-      std::cout << "Cigra Ar gas pressure: " << pressure_ << " bar" << std::endl;
+      std::cout << "Cigar Ar gas pressure: " << pressure_ << " bar" << std::endl;
       // cigar_mat->SetMaterialPropertiesTable(opticalprops::GAr(2500000));
     } else if (gas_ == "Xe") {
       cigar_mat = materials::GXe(pressure_);
       cigar_mat->SetMaterialPropertiesTable(opticalprops::GXe(pressure_));
       std::cout << "Cigar Xe gas pressure: " << pressure_ << " bar" << std::endl;
     } else if (gas_ == "ArXe") {
-      world_mat = materials::GXeAr(pressure_, 273.15, 0.01);
-      world_mat->SetMaterialPropertiesTable(opticalprops::GArXe(10/keV));
+      cigar_mat = materials::GXeAr(pressure_, 273.15, 0.1);
+      cigar_mat->SetMaterialPropertiesTable(opticalprops::GArXe(10/keV));
       std::cout << "Cigar ArXe gas pressure: " << pressure_ << " bar" << std::endl;
     } else {
       G4Exception("[Cigar]", "Construct()",
@@ -326,7 +326,7 @@ namespace nexus {
     cigar_mat_inside_logic->SetVisAttributes(G4VisAttributes::GetInvisible());
     // cigar_mat_inside_logic->SetVisAttributes(nexus::Blue());
     G4VPhysicalVolume *gas_inside = new G4PVPlacement(0, G4ThreeVector(0, 0, 0), cigar_mat_inside_logic, "CigarGas", world_logic_vol, false, 0, true);
-    G4cout << "Creating CigarGas volume with sensitive detectora: " << ionization_sd_gas->GetName() << G4endl;
+    G4cout << "Creating CigarGas volume with sensitive detector: " << ionization_sd_gas->GetName() << G4endl;
 
 
 
