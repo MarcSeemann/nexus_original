@@ -1694,7 +1694,7 @@ namespace opticalprops {
 
   /// Gaseous ArXe ///
   G4MaterialPropertiesTable* GArXe(G4double sc_yield,
-                                  G4double e_lifetime, G4int ppm) // Add Xenon concentration in ppm
+                                  G4double e_lifetime, G4int ppm, G4double pressure) // Add Xenon concentration in ppm
   {
       G4MaterialPropertiesTable* mpt = new G4MaterialPropertiesTable();
 
@@ -1726,61 +1726,74 @@ namespace opticalprops {
       std::vector<G4double> absLength  = {noAbsLength_, noAbsLength_};
       mpt->AddProperty("ABSLENGTH", abs_energy, absLength);
 
-      // SCINTILLATION SPECTRUM (ARGON EMISSION)
-      const G4int sc_entries = 380;
+      // EMISSION SPECTRUM
+      // Sampling from ~150 nm to 200 nm <----> from 6.20625 eV to 8.20625 eV
+      const G4int sc_entries = 200;
       std::vector<G4double> sc_energy;
-      std::vector<G4double> intensity;
-
       for (int i=0; i<sc_entries; i++){
-          sc_energy.push_back(8.240*eV + 0.008*i*eV);
-          intensity.push_back(exp(-pow((hc_ / (128.0 * nm) / eV) - sc_energy[i]/eV,2) /
-                                (2*pow((hc_ / (2.929 * nm) / eV), 2))) /
-                                ((hc_ / (2.929 * nm) / eV) * sqrt(pi*2.)));
+        sc_energy.push_back(6.20625 * eV + 0.01 * i * eV);
       }
+      std::vector<G4double> intensity;
+      for (G4int i=0; i<sc_entries; i++) {
+        intensity.push_back(GXeScintillation(sc_energy[i], pressure));
+      }
+      //for (int i=0; i<sc_entries; i++) {
+      //  G4cout << "* GXe Scint:  " << std::setw(7) << sc_energy[i]/eV
+      //         << " eV -> " << intensity[i] << G4endl;
+      //}
       mpt->AddProperty("SCINTILLATIONCOMPONENT1", sc_energy, intensity);
       mpt->AddProperty("SCINTILLATIONCOMPONENT2", sc_energy, intensity);
       mpt->AddProperty("ELSPECTRUM"             , sc_energy, intensity, 1);
 
-      // REEMISSION PROBABILITY (BASED ON Xe ppm) //https://arxiv.org/pdf/1511.07723
-      G4double Reemission_Prob = 2750/(2750 + 250);  // NEED TO CHECK IF THIS APPROACH IS CORRECT
-
-      std::vector<G4double> argon_signal = {2000, 1000, 550, 325, 150};
-      std::vector<G4double> xenon_signal = {150, 1400, 2500, 2700, 2800};
-      std::vector<G4double> ppm_ranges = {0.1, 1, 10, 100, 1000};
-
-      // Calculate the reemission probability based on the PPM given
-
-      for (int i=0; i<4; i++) {
-        if (ppm >= ppm_ranges[i] && ppm < ppm_ranges[i+1]) {
-          Reemission_Prob = xenon_signal[i] / (argon_signal[i] + xenon_signal[i]);
-        }
-      }
-
-
-
-      std::vector<G4double> reemission_energy = {optPhotMinE_, optPhotMaxE_};
-      std::vector<G4double> reemission_prob   = {Reemission_Prob, Reemission_Prob};
-      mpt->AddProperty("REEMISSIONPROBABILITY", reemission_energy, reemission_prob, true);
-
-      // XENON REEMISSION SPECTRUM (~172 nm)
-      const G4int xe_entries = 200;
-      std::vector<G4double> Xe_sc_energy;
-      std::vector<G4double> Xe_intensity;
-
-      for (int i = 0; i < xe_entries; i++) {
-          G4double energy = 6.8*eV + 0.02*i*eV; // Sampling ~172 nm range
-          Xe_sc_energy.push_back(energy);
-          Xe_intensity.push_back(GXeScintillation(energy, ppm)); // Xe spectrum function
-      }
-      mpt->AddProperty("WLSCOMPONENT", Xe_sc_energy, Xe_intensity); // Reemission spectrum
       // CONST PROPERTIES
       mpt->AddConstProperty("SCINTILLATIONYIELD", sc_yield);
-      mpt->AddConstProperty("SCINTILLATIONTIMECONSTANT1",   6.*ns);
-      mpt->AddConstProperty("SCINTILLATIONTIMECONSTANT2",   3480.*ns);
-      mpt->AddConstProperty("SCINTILLATIONYIELD1", .136);
-      mpt->AddConstProperty("SCINTILLATIONYIELD2", .864);
       mpt->AddConstProperty("RESOLUTIONSCALE",    1.0);
+      mpt->AddConstProperty("SCINTILLATIONTIMECONSTANT1",   4.5  * ns);
+      mpt->AddConstProperty("SCINTILLATIONTIMECONSTANT2",   100. * ns);
+      mpt->AddConstProperty("SCINTILLATIONYIELD1", .1);
+      mpt->AddConstProperty("SCINTILLATIONYIELD2", .9);
       mpt->AddConstProperty("ATTACHMENT",         e_lifetime, 1);
+
+      // // REEMISSION PROBABILITY (BASED ON Xe ppm) //https://arxiv.org/pdf/1511.07723
+      // G4double Reemission_Prob = 2750/(2750 + 250);  // NEED TO CHECK IF THIS APPROACH IS CORRECT
+
+      // std::vector<G4double> argon_signal = {2000, 1000, 550, 325, 150};
+      // std::vector<G4double> xenon_signal = {150, 1400, 2500, 2700, 2800};
+      // std::vector<G4double> ppm_ranges = {0.1, 1, 10, 100, 1000};
+
+      // // Calculate the reemission probability based on the PPM given
+
+      // for (int i=0; i<4; i++) {
+      //   if (ppm >= ppm_ranges[i] && ppm < ppm_ranges[i+1]) {
+      //     Reemission_Prob = xenon_signal[i] / (argon_signal[i] + xenon_signal[i]);
+      //   }
+      // }
+
+
+
+      // // std::vector<G4double> reemission_energy = {optPhotMinE_, optPhotMaxE_};
+      // // std::vector<G4double> reemission_prob   = {Reemission_Prob, Reemission_Prob};
+      // // mpt->AddProperty("REEMISSIONPROBABILITY", reemission_energy, reemission_prob, true);
+
+      // // XENON REEMISSION SPECTRUM (~172 nm)
+      // const G4int xe_entries = 200;
+      // std::vector<G4double> Xe_sc_energy;
+      // std::vector<G4double> Xe_intensity;
+
+      // for (int i = 0; i < xe_entries; i++) {
+      //     G4double energy = 6.8*eV + 0.02*i*eV; // Sampling ~172 nm range
+      //     Xe_sc_energy.push_back(energy);
+      //     Xe_intensity.push_back(GXeScintillation(energy, ppm)); // Xe spectrum function
+      // }
+      // mpt->AddProperty("WLSCOMPONENT", Xe_sc_energy, Xe_intensity); // Reemission spectrum
+      // CONST PROPERTIES
+      // mpt->AddConstProperty("SCINTILLATIONYIELD", sc_yield);
+      // mpt->AddConstProperty("SCINTILLATIONTIMECONSTANT1",   6.*ns);
+      // mpt->AddConstProperty("SCINTILLATIONTIMECONSTANT2",   3480.*ns);
+      // mpt->AddConstProperty("SCINTILLATIONYIELD1", .136);
+      // mpt->AddConstProperty("SCINTILLATIONYIELD2", .864);
+      // mpt->AddConstProperty("RESOLUTIONSCALE",    1.0);
+      // mpt->AddConstProperty("ATTACHMENT",         e_lifetime, 1);
 
       return mpt;
   }

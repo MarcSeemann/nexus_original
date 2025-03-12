@@ -284,10 +284,10 @@ namespace nexus {
     
     if (gas_ == "Ar") {
       cigar_mat = materials::GAr(pressure_);
-      // cigar_mat->SetMaterialPropertiesTable(opticalprops::GAr(10/keV));
+      cigar_mat->SetMaterialPropertiesTable(opticalprops::GAr(10/keV));
       // cigar_mat->SetMaterialPropertiesTable(opticalprops::GAr(1. / (6 * eV)));
       // https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=1263927
-      cigar_mat->SetMaterialPropertiesTable(opticalprops::GAr(1. / (26 * eV)));
+      // cigar_mat->SetMaterialPropertiesTable(opticalprops::GAr(19841/MeV));
       std::cout << "Cigar Ar gas pressure: " << pressure_ << " bar" << std::endl;
       // cigar_mat->SetMaterialPropertiesTable(opticalprops::GAr(2500000));
     } else if (gas_ == "Xe") {
@@ -296,8 +296,8 @@ namespace nexus {
       std::cout << "Cigar Xe gas pressure: " << pressure_ << " bar" << std::endl;
     } else if (gas_ == "ArXe") {
       cigar_mat = materials::GXeAr(pressure_, 273.15, 0.1);
-      // cigar_mat->SetMaterialPropertiesTable(opticalprops::GArXe(10/keV));
-      cigar_mat->SetMaterialPropertiesTable(opticalprops::GArXe(1. / (26 * eV)));
+      cigar_mat->SetMaterialPropertiesTable(opticalprops::GArXe(10/keV, 1000.*ms, 1000, pressure_));
+      // cigar_mat->SetMaterialPropertiesTable(opticalprops::GArXe(19841/MeV));
       std::cout << "Cigar ArXe gas pressure: " << pressure_ << " bar" << std::endl;
     } else {
       G4Exception("[Cigar]", "Construct()",

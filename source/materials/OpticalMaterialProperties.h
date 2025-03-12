@@ -89,7 +89,7 @@ namespace opticalprops {
 
   G4MaterialPropertiesTable* GArXe(G4double sc_yield,
                                  G4double e_lifetime=1000.*ms,
-                                 G4int ppm=1000);
+                                 G4int ppm=1000, G4double pressure=1.0*bar);
   
 
 
