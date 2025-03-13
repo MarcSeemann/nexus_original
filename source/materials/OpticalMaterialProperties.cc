@@ -774,7 +774,7 @@ namespace opticalprops {
     // REFLECTIVITY
     std::vector<G4double> ENERGIES = {
       optPhotMinE_,  2.8 * eV,  3.5 * eV,  4. * eV,
-      6. * eV,       7.2 * eV,  optPhotMaxE_
+      6. * eV,       7.2 * eV,   9.1, optPhotMaxE_
     };
     // std::vector<G4double> REFLECTIVITY = {
     //   .98,  .98,  .98,  .98,
@@ -782,7 +782,7 @@ namespace opticalprops {
     // };
     std::vector<G4double> REFLECTIVITY = {
       .98,  .98,  .98,  0.98,
-      .72,  .03,  .03
+      .72,  .72,  .03, .03
     };
     // https://link.springer.com/chapter/10.1007/978-3-031-23050-9_11
     mpt->AddProperty("REFLECTIVITY", ENERGIES, REFLECTIVITY);
