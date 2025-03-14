@@ -211,13 +211,16 @@ namespace nexus {
     G4Material* world_mat = nullptr;
     if (gas_ == "Ar") {
       world_mat = materials::GAr(pressure_);
-      world_mat->SetMaterialPropertiesTable(opticalprops::GAr(1. / (68 * eV)));
+      world_mat->SetMaterialPropertiesTable(opticalprops::GAr(10/keV));
     } else if (gas_ == "Xe") {
       world_mat = materials::GXe(pressure_);
-      world_mat->SetMaterialPropertiesTable(opticalprops::GXe(pressure_));
+      world_mat->SetMaterialPropertiesTable(opticalprops::GXe(pressure_, 273.15, 10/keV, 1000.*ms));
     } else if (gas_ == "ArXe") {
       world_mat = materials::GXeAr(pressure_, 273.15, 0.01);
-      world_mat->SetMaterialPropertiesTable(opticalprops::GArXe(10/keV));
+      world_mat->SetMaterialPropertiesTable(opticalprops::GArXe(10/keV, 1000.*ms, 1000, pressure_));
+    } else if (gas_ == "Test") {
+      world_mat = materials::GXe(pressure_);
+      world_mat->SetMaterialPropertiesTable(opticalprops::GTest(pressure_, 273.15, 10/keV, 1000.*ms));
     } else {
       G4cout << "Invalid gas = " << gas_ << G4endl;
       G4Exception("[Cigar]", "Construct()",
@@ -293,13 +296,19 @@ namespace nexus {
     } else if (gas_ == "Xe") {
       cigar_mat = materials::GXe(pressure_);
       // cigar_mat->SetMaterialPropertiesTable(opticalprops::GXe(pressure_));
-      cigar_mat->SetMaterialPropertiesTable(opticalprops::GXe(pressure_, 273.15, 10/keV));
+      cigar_mat->SetMaterialPropertiesTable(opticalprops::GXe(pressure_, 273.15, 10/keV, 1000.*ms));
       std::cout << "Cigar Xe gas pressure: " << pressure_ << " bar" << std::endl;
     } else if (gas_ == "ArXe") {
       cigar_mat = materials::GXeAr(pressure_, 273.15, 0.1);
       cigar_mat->SetMaterialPropertiesTable(opticalprops::GArXe(10/keV, 1000.*ms, 1000, pressure_));
       // cigar_mat->SetMaterialPropertiesTable(opticalprops::GArXe(19841/MeV));
       std::cout << "Cigar ArXe gas pressure: " << pressure_ << " bar" << std::endl;
+      
+    } else if (gas_ == "Test") {
+      cigar_mat = materials::GXe(pressure_);
+      // cigar_mat->SetMaterialPropertiesTable(opticalprops::GXe(pressure_));
+      cigar_mat->SetMaterialPropertiesTable(opticalprops::GTest(pressure_, 273.15, 10/keV, 1000.*ms));
+      std::cout << "Cigar Xe gas pressure: " << pressure_ << " bar" << std::endl;
     } else {
       G4Exception("[Cigar]", "Construct()",
             FatalException, "Invalid gas, must be Ar or Xe or ArXe");
