@@ -218,7 +218,7 @@ namespace nexus {
     } else if (gas_ == "ArXe") {
       world_mat = materials::GXeAr(pressure_, 273.15, 0.01);
       world_mat->SetMaterialPropertiesTable(opticalprops::GArXe(10/keV, 1000.*ms, 1000, pressure_));
-    } else if (gas_ == "Test") {
+    } else if (gas_ == "GTest") {
       world_mat = materials::GXe(pressure_);
       world_mat->SetMaterialPropertiesTable(opticalprops::GTest(pressure_, 273.15, 10/keV, 1000.*ms));
     } else {
@@ -304,7 +304,7 @@ namespace nexus {
       // cigar_mat->SetMaterialPropertiesTable(opticalprops::GArXe(19841/MeV));
       std::cout << "Cigar ArXe gas pressure: " << pressure_ << " bar" << std::endl;
       
-    } else if (gas_ == "Test") {
+    } else if (gas_ == "GTest") {
       cigar_mat = materials::GXe(pressure_);
       // cigar_mat->SetMaterialPropertiesTable(opticalprops::GXe(pressure_));
       cigar_mat->SetMaterialPropertiesTable(opticalprops::GTest(pressure_, 273.15, 10/keV, 1000.*ms));
