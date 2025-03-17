@@ -1881,12 +1881,18 @@ namespace opticalprops {
       return mpt;
   }
 
-    /// Generic material, to be modifed by the user ///
+  /// Generic material, to be modifed by the user ///
   G4MaterialPropertiesTable* GTest(G4double pressure,
                                  G4double /*temperature*/,
                                 G4int    sc_yield,
                                 G4double e_lifetime)
   {
+        // An argon gas proportional scintillation counter with UV avalanche photodiode scintillation
+    // readout C.M.B. Monteiro, J.A.M. Lopes, P.C.P.S. Simoes, J.M.F. dos Santos, C.A.N. Conde
+    //
+    // May 2023:
+    // Updated scintillation decay and yields from:
+    // Triplet Lifetime in Gaseous Argon. Michael Akashi-Ronquest et al.
     G4MaterialPropertiesTable* mpt = new G4MaterialPropertiesTable();
 
     // REFRACTIVE INDEX
@@ -1913,31 +1919,35 @@ namespace opticalprops {
     mpt->AddProperty("ABSLENGTH", abs_energy, absLength);
 
     // EMISSION SPECTRUM
-    // Sampling from ~150 nm to 200 nm <----> from 6.20625 eV to 8.20625 eV
-    const G4int sc_entries = 200;
+    G4double Wavelength_peak  = 128.000 * nm;
+    G4double Wavelength_sigma =   2.929 * nm;
+    G4double Energy_peak  = (hc_ / Wavelength_peak);
+    G4double Energy_sigma = (hc_ * Wavelength_sigma / pow(Wavelength_peak,2));
+    //G4cout << "*** GAr Energy_peak: " << Energy_peak/eV << " eV   Energy_sigma: "
+    //       << Energy_sigma/eV << " eV" << G4endl;
+
+    // Sampling from ~110 nm to 150 nm <----> from ~11.236 eV to 8.240 eV
+    const G4int sc_entries = 380;
     std::vector<G4double> sc_energy;
-    for (int i=0; i<sc_entries; i++){
-      sc_energy.push_back(6.20625 * eV + 0.01 * i * eV);
-    }
     std::vector<G4double> intensity;
-    for (G4int i=0; i<sc_entries; i++) {
-      intensity.push_back(GXeScintillation(sc_energy[i], pressure));
+    for (int i=0; i<sc_entries; i++){
+      sc_energy.push_back(8.240*eV + 0.008*i*eV);
+      intensity.push_back(exp(-pow(Energy_peak/eV-sc_energy[i]/eV,2) /
+                              (2*pow(Energy_sigma/eV, 2)))/(Energy_sigma/eV*sqrt(pi*2.)));
+      //G4cout << "* GAr energy: " << std::setw(6) << sc_energy[i]/eV << " eV  ->  "
+      //       << std::setw(6) << intensity[i] << G4endl;
     }
-    //for (int i=0; i<sc_entries; i++) {
-    //  G4cout << "* GXe Scint:  " << std::setw(7) << sc_energy[i]/eV
-    //         << " eV -> " << intensity[i] << G4endl;
-    //}
     mpt->AddProperty("SCINTILLATIONCOMPONENT1", sc_energy, intensity);
     mpt->AddProperty("SCINTILLATIONCOMPONENT2", sc_energy, intensity);
     mpt->AddProperty("ELSPECTRUM"             , sc_energy, intensity, 1);
 
     // CONST PROPERTIES
     mpt->AddConstProperty("SCINTILLATIONYIELD", sc_yield);
+    mpt->AddConstProperty("SCINTILLATIONTIMECONSTANT1",   6.*ns);
+    mpt->AddConstProperty("SCINTILLATIONTIMECONSTANT2",   3480.*ns);
+    mpt->AddConstProperty("SCINTILLATIONYIELD1", .136);
+    mpt->AddConstProperty("SCINTILLATIONYIELD2", .864);
     mpt->AddConstProperty("RESOLUTIONSCALE",    1.0);
-    mpt->AddConstProperty("SCINTILLATIONTIMECONSTANT1",   4.5  * ns);
-    mpt->AddConstProperty("SCINTILLATIONTIMECONSTANT2",   100. * ns);
-    mpt->AddConstProperty("SCINTILLATIONYIELD1", .1);
-    mpt->AddConstProperty("SCINTILLATIONYIELD2", .9);
     mpt->AddConstProperty("ATTACHMENT",         e_lifetime, 1);
 
     return mpt;
