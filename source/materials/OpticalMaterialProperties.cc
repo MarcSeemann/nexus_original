@@ -548,8 +548,8 @@ namespace opticalprops {
       rIndex.push_back(1 + 0.012055*(0.2075*pow(wl,2)/(91.012*pow(wl,2)-1) +
                                      0.0415*pow(wl,2)/(87.892*pow(wl,2)-1) +
                                      4.3330*pow(wl,2)/(214.02*pow(wl,2)-1)));
-      //G4cout << "* GAr rIndex:  " << std::setw(5) << ri_energy[i]/eV
-      //       << " eV -> " << rIndex[i] << G4endl;
+      G4cout << "* GAr rIndex:  " << std::setw(5) << ri_energy[i]/eV
+            << " eV -> " << rIndex[i] << G4endl;
     }
     mpt->AddProperty("RINDEX", ri_energy, rIndex);
 
@@ -1678,7 +1678,7 @@ namespace opticalprops {
     mpt->AddProperty("SPECULARSPIKECONSTANT",ENERGIES_2, specularspike);
     mpt->AddProperty("BACKSCATTERCONSTANT",  ENERGIES_2, backscatter);
     // https://www.researchgate.net/publication/241649116_Effects_of_Radiation_and_Thermal_Cycling_on_Teflon_R_FEP
-    G4double abs_length   = 0.0001*micrometer;
+    G4double abs_length   = 0.0000001*micrometer;
     std::vector<G4double> abs_energy = {optPhotMinE_, optPhotMaxE_};
     std::vector<G4double> absLength  = {abs_length, abs_length};
     mpt->AddProperty("ABSLENGTH", abs_energy, absLength);
@@ -1752,134 +1752,117 @@ namespace opticalprops {
       mpt->AddConstProperty("SCINTILLATIONYIELD2", .9);
       mpt->AddConstProperty("ATTACHMENT",         e_lifetime, 1);
 
-
-
-      // // REEMISSION PROBABILITY (BASED ON Xe ppm) //https://arxiv.org/pdf/1511.07723
-      // G4double Reemission_Prob = 2750/(2750 + 250);  // NEED TO CHECK IF THIS APPROACH IS CORRECT
-
-      // std::vector<G4double> argon_signal = {2000, 1000, 550, 325, 150};
-      // std::vector<G4double> xenon_signal = {150, 1400, 2500, 2700, 2800};
-      // std::vector<G4double> ppm_ranges = {0.1, 1, 10, 100, 1000};
-
-      // // Calculate the reemission probability based on the PPM given
-
-      // for (int i=0; i<4; i++) {
-      //   if (ppm >= ppm_ranges[i] && ppm < ppm_ranges[i+1]) {
-      //     Reemission_Prob = xenon_signal[i] / (argon_signal[i] + xenon_signal[i]);
-      //   }
-      // }
-
-
-
-      // // std::vector<G4double> reemission_energy = {optPhotMinE_, optPhotMaxE_};
-      // // std::vector<G4double> reemission_prob   = {Reemission_Prob, Reemission_Prob};
-      // // mpt->AddProperty("REEMISSIONPROBABILITY", reemission_energy, reemission_prob, true);
-
-      // // XENON REEMISSION SPECTRUM (~172 nm)
-      // const G4int xe_entries = 200;
-      // std::vector<G4double> Xe_sc_energy;
-      // std::vector<G4double> Xe_intensity;
-
-      // for (int i = 0; i < xe_entries; i++) {
-      //     G4double energy = 6.8*eV + 0.02*i*eV; // Sampling ~172 nm range
-      //     Xe_sc_energy.push_back(energy);
-      //     Xe_intensity.push_back(GXeScintillation(energy, ppm)); // Xe spectrum function
-      // }
-      // mpt->AddProperty("WLSCOMPONENT", Xe_sc_energy, Xe_intensity); // Reemission spectrum
-      // CONST PROPERTIES
-      // mpt->AddConstProperty("SCINTILLATIONYIELD", sc_yield);
-      // mpt->AddConstProperty("SCINTILLATIONTIMECONSTANT1",   6.*ns);
-      // mpt->AddConstProperty("SCINTILLATIONTIMECONSTANT2",   3480.*ns);
-      // mpt->AddConstProperty("SCINTILLATIONYIELD1", .136);
-      // mpt->AddConstProperty("SCINTILLATIONYIELD2", .864);
-      // mpt->AddConstProperty("RESOLUTIONSCALE",    1.0);
-      // mpt->AddConstProperty("ATTACHMENT",         e_lifetime, 1);
-
-
-
-
-      // // -------------------------------------------------
-
-      //       // ABSORPTION LENGTH
-      // std::vector<G4double> abs_energy = {optPhotMinE_, optPhotMaxE_};
-      // std::vector<G4double> absLength  = {noAbsLength_, noAbsLength_};
-      // mpt->AddProperty("ABSLENGTH", abs_energy, absLength);
-
-      // // EMISSION SPECTRUM
-      // G4double Wavelength_peak_Ar  = 128.000 * nm;
-      // G4double Wavelength_sigma_Ar =   2.929 * nm;
-      // G4double Energy_peak_Ar  = (hc_ / Wavelength_peak_Ar);
-      // G4double Energy_sigma_Ar = (hc_ * Wavelength_sigma_Ar / pow(Wavelength_peak_Ar,2));
-      // //G4cout << "*** GAr Energy_peak: " << Energy_peak/eV << " eV   Energy_sigma: "
-      // //       << Energy_sigma/eV << " eV" << G4endl;
-
-      // // Sampling from ~110 nm to 150 nm <----> from ~11.236 eV to 8.240 eV
-      // const G4int sc_entries_Ar = 380;
-      // std::vector<G4double> sc_energy_Ar;
-      // std::vector<G4double> intensity_Ar;
-      // for (int i=0; i<sc_entries_Ar; i++){
-      //   sc_energy_Ar.push_back(8.240*eV + 0.008*i*eV);
-      //   intensity_Ar.push_back(exp(-pow(Energy_peak_Ar/eV-sc_energy[i]/eV,2) /
-      //                           (2*pow(Energy_sigma_Ar/eV, 2)))/(Energy_sigma_Ar/eV*sqrt(pi*2.)));
-      //   //G4cout << "* GAr energy: " << std::setw(6) << sc_energy[i]/eV << " eV  ->  "
-      //   //       << std::setw(6) << intensity[i] << G4endl;
-      // }
-      // mpt->AddProperty("SCINTILLATIONCOMPONENT1", sc_energy_Ar, intensity_Ar);
-      // mpt->AddProperty("SCINTILLATIONCOMPONENT2", sc_energy, intensity);
-      // mpt->AddProperty("ELSPECTRUM"             , sc_energy_Ar, intensity_Ar, 1);
-
-      // // CONST PROPERTIES FOR ARGON
-      // mpt->AddConstProperty("SCINTILLATIONYIELD", sc_yield);
-      // mpt->AddConstProperty("SCINTILLATIONTIMECONSTANT1",   6.*ns);
-      // mpt->AddConstProperty("SCINTILLATIONYIELD1", .136);
-      // mpt->AddConstProperty("RESOLUTIONSCALE",    1.0);
-      // mpt->AddConstProperty("ATTACHMENT",         e_lifetime, 1);
-
-
-
-
-      // // XENON PROPERTIES
-
-
-
-      // // EMISSION SPECTRUM
-      // // Sampling from ~150 nm to 200 nm <----> from 6.20625 eV to 8.20625 eV
-      // const G4int sc_entries_Xe = 200;
-      // std::vector<G4double> sc_energy_Xe;
-      // for (int i=0; i<sc_entries_Xe; i++){
-      //   sc_energy_Xe.push_back(6.20625 * eV + 0.01 * i * eV);
-      // }
-      // std::vector<G4double> intensity_Xe;
-      // for (G4int i=0; i<sc_entries_Xe; i++) {
-      //   intensity.push_back(GXeScintillation(sc_energy_Xe[i], pressure));
-      // }
-
-      // mpt->AddConstProperty("SCINTILLATIONTIMECONSTANT2",   3480.*ns);
-      // mpt->AddConstProperty("SCINTILLATIONYIELD2", .864);
-
-
-
-      // mpt->AddProperty("SCINTILLATIONCOMPONENT1", sc_energy, intensity);
-      // mpt->AddProperty("SCINTILLATIONCOMPONENT2", sc_energy, intensity);
-      // mpt->AddProperty("ELSPECTRUM"             , sc_energy, intensity, 1);
-
-      // // CONST PROPERTIES
-      // mpt->AddConstProperty("SCINTILLATIONYIELD", sc_yield);
-      // mpt->AddConstProperty("RESOLUTIONSCALE",    1.0);
-      // mpt->AddConstProperty("SCINTILLATIONTIMECONSTANT1",   4.5  * ns);
-      // mpt->AddConstProperty("SCINTILLATIONTIMECONSTANT2",   100. * ns);
-      // mpt->AddConstProperty("SCINTILLATIONYIELD1", .1);
-      // mpt->AddConstProperty("SCINTILLATIONYIELD2", .9);
-      // mpt->AddConstProperty("ATTACHMENT",         e_lifetime, 1);
-
-
-
-
-
-
-
       return mpt;
   }
+
+
+
+  //   /// Gaseous ArXe ///
+  // G4MaterialPropertiesTable* GArXe(G4double sc_yield,
+  //                                 G4double e_lifetime, G4int ppm, G4double pressure) // Add Xenon concentration in ppm
+  // {
+  //   // An argon gas proportional scintillation counter with UV avalanche photodiode scintillation
+  //   // readout C.M.B. Monteiro, J.A.M. Lopes, P.C.P.S. Simoes, J.M.F. dos Santos, C.A.N. Conde
+  //   //
+  //   // May 2023:
+  //   // Updated scintillation decay and yields from:
+  //   // Triplet Lifetime in Gaseous Argon. Michael Akashi-Ronquest et al.
+
+  //   G4MaterialPropertiesTable* mpt = new G4MaterialPropertiesTable();
+
+  //   // REFRACTIVE INDEX
+  //   const G4int ri_entries = 200;
+  //   G4double eWidth = (optPhotMaxE_ - optPhotMinE_) / ri_entries;
+
+  //   std::vector<G4double> ri_energy;
+  //   for (int i=0; i<ri_entries; i++) {
+  //     ri_energy.push_back(optPhotMinE_ + i * eWidth);
+  //   }
+
+  //   std::vector<G4double> rIndex;
+  //   for (int i=0; i<ri_entries; i++) {
+  //     G4double wl = hc_ / ri_energy[i] * 1000; // in micron
+  //     // From refractiveindex.info
+  //     rIndex.push_back(1 + 0.012055*(0.2075*pow(wl,2)/(91.012*pow(wl,2)-1) +
+  //                                    0.0415*pow(wl,2)/(87.892*pow(wl,2)-1) +
+  //                                    4.3330*pow(wl,2)/(214.02*pow(wl,2)-1)));
+  //     //G4cout << "* GAr rIndex:  " << std::setw(5) << ri_energy[i]/eV
+  //     //       << " eV -> " << rIndex[i] << G4endl;
+  //   }
+  //   mpt->AddProperty("RINDEX", ri_energy, rIndex);
+
+  //   // ABSORPTION LENGTH
+  //   std::vector<G4double> abs_energy = {optPhotMinE_, optPhotMaxE_};
+  //   std::vector<G4double> absLength  = {noAbsLength_, noAbsLength_};
+  //   mpt->AddProperty("ABSLENGTH", abs_energy, absLength);
+
+  //     // EMISSION SPECTRUM
+  //     G4double Wavelength_peak_Ar  = 128.000 * nm;
+  //     G4double Wavelength_sigma_Ar =   2.929 * nm;
+  //     G4double Energy_peak_Ar  = (hc_ / Wavelength_peak_Ar);
+  //     G4double Energy_sigma_Ar = (hc_ * Wavelength_sigma_Ar / pow(Wavelength_peak_Ar,2));
+  //     //G4cout << "*** GAr Energy_peak: " << Energy_peak/eV << " eV   Energy_sigma: "
+  //     //       << Energy_sigma/eV << " eV" << G4endl;
+
+  //     // Sampling from ~110 nm to 150 nm <----> from ~11.236 eV to 8.240 eV
+  //     const G4int sc_entries_Ar = 380;
+  //     std::vector<G4double> sc_energy_Ar;
+  //     std::vector<G4double> intensity_Ar;
+  //     for (int i=0; i<sc_entries_Ar; i++){
+  //       sc_energy_Ar.push_back(8.240*eV + 0.008*i*eV);
+  //       intensity_Ar.push_back(exp(-pow(Energy_peak_Ar/eV-sc_energy_Ar[i]/eV,2) /
+  //                               (2*pow(Energy_sigma_Ar/eV, 2)))/(Energy_sigma_Ar/eV*sqrt(pi*2.)));
+  //       //G4cout << "* GAr energy: " << std::setw(6) << sc_energy[i]/eV << " eV  ->  "
+  //       //       << std::setw(6) << intensity[i] << G4endl;
+  //     }
+  //     mpt->AddProperty("SCINTILLATIONCOMPONENT1", sc_energy_Ar, intensity_Ar);
+  //     mpt->AddProperty("ELSPECTRUM"             , sc_energy_Ar, intensity_Ar, 1);
+
+  //     // CONST PROPERTIES FOR ARGON
+  //     mpt->AddConstProperty("SCINTILLATIONYIELD", sc_yield);
+  //     mpt->AddConstProperty("SCINTILLATIONTIMECONSTANT1",   6.*ns);
+  //     mpt->AddConstProperty("SCINTILLATIONYIELD1", .136);
+  //     mpt->AddConstProperty("RESOLUTIONSCALE",    1.0);
+  //     mpt->AddConstProperty("ATTACHMENT",         e_lifetime, 1);
+
+
+
+  //     // -------------------------------------------------------
+  //     // XENON PROPERTIES
+  //     // -------------------------------------------------------
+
+
+
+  //     // EMISSION SPECTRUM
+  //     // Sampling from ~150 nm to 200 nm <----> from 6.20625 eV to 8.20625 eV
+  //     const G4int sc_entries_Xe = 200;
+  //     std::vector<G4double> sc_energy_Xe;
+  //     for (int i=0; i<sc_entries_Xe; i++){
+  //       sc_energy_Xe.push_back(6.20625 * eV + 0.01 * i * eV);
+  //     }
+  //     std::vector<G4double> intensity_Xe;
+  //     for (G4int i=0; i<sc_entries_Xe; i++) {
+  //       intensity_Xe.push_back(GXeScintillation(sc_energy_Xe[i], pressure));
+  //     }
+
+  //     mpt->AddProperty("SCINTILLATIONCOMPONENT2", sc_energy_Xe, intensity_Xe);
+  //     mpt->AddProperty("SCINTILLATIONCOMPONENT3", sc_energy_Xe, intensity_Xe);
+  //     mpt->AddProperty("ELSPECTRUM"             , sc_energy_Xe, intensity_Xe, 1);
+
+  //     // CONST PROPERTIES
+  //     mpt->AddConstProperty("RESOLUTIONSCALE",    1.0);
+  //     mpt->AddConstProperty("SCINTILLATIONTIMECONSTANT2",   ((3.4*2) + 20) * ns);
+  //     mpt->AddConstProperty("SCINTILLATIONTIMECONSTANT3",   250. * ns);
+
+  //     mpt->AddConstProperty("SCINTILLATIONYIELD2", 0.0864);
+  //     mpt->AddConstProperty("SCINTILLATIONYIELD3", 0.7776);
+  //     mpt->AddConstProperty("ATTACHMENT",         e_lifetime, 1);
+
+
+  //     return mpt;
+  // }
+
+
 
   /// Generic material, to be modifed by the user ///
   G4MaterialPropertiesTable* GTest(G4double pressure,
@@ -1991,3 +1974,52 @@ namespace opticalprops {
     return mpt;
   }
 }
+
+
+
+
+
+
+
+
+
+      // // REEMISSION PROBABILITY (BASED ON Xe ppm) //https://arxiv.org/pdf/1511.07723
+      // G4double Reemission_Prob = 2750/(2750 + 250);  // NEED TO CHECK IF THIS APPROACH IS CORRECT
+
+      // std::vector<G4double> argon_signal = {2000, 1000, 550, 325, 150};
+      // std::vector<G4double> xenon_signal = {150, 1400, 2500, 2700, 2800};
+      // std::vector<G4double> ppm_ranges = {0.1, 1, 10, 100, 1000};
+
+      // // Calculate the reemission probability based on the PPM given
+
+      // for (int i=0; i<4; i++) {
+      //   if (ppm >= ppm_ranges[i] && ppm < ppm_ranges[i+1]) {
+      //     Reemission_Prob = xenon_signal[i] / (argon_signal[i] + xenon_signal[i]);
+      //   }
+      // }
+
+
+
+      // // std::vector<G4double> reemission_energy = {optPhotMinE_, optPhotMaxE_};
+      // // std::vector<G4double> reemission_prob   = {Reemission_Prob, Reemission_Prob};
+      // // mpt->AddProperty("REEMISSIONPROBABILITY", reemission_energy, reemission_prob, true);
+
+      // // XENON REEMISSION SPECTRUM (~172 nm)
+      // const G4int xe_entries = 200;
+      // std::vector<G4double> Xe_sc_energy;
+      // std::vector<G4double> Xe_intensity;
+
+      // for (int i = 0; i < xe_entries; i++) {
+      //     G4double energy = 6.8*eV + 0.02*i*eV; // Sampling ~172 nm range
+      //     Xe_sc_energy.push_back(energy);
+      //     Xe_intensity.push_back(GXeScintillation(energy, ppm)); // Xe spectrum function
+      // }
+      // mpt->AddProperty("WLSCOMPONENT", Xe_sc_energy, Xe_intensity); // Reemission spectrum
+      // CONST PROPERTIES
+      // mpt->AddConstProperty("SCINTILLATIONYIELD", sc_yield);
+      // mpt->AddConstProperty("SCINTILLATIONTIMECONSTANT1",   6.*ns);
+      // mpt->AddConstProperty("SCINTILLATIONTIMECONSTANT2",   3480.*ns);
+      // mpt->AddConstProperty("SCINTILLATIONYIELD1", .136);
+      // mpt->AddConstProperty("SCINTILLATIONYIELD2", .864);
+      // mpt->AddConstProperty("RESOLUTIONSCALE",    1.0);
+      // mpt->AddConstProperty("ATTACHMENT",         e_lifetime, 1);

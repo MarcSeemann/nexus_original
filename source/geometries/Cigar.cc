@@ -28,6 +28,8 @@
 #include "IonizationSD.h"
 #include <G4SDManager.hh>
 #include "G4ParticleTable.hh"
+#include "MaterialsList.h"
+#include "GenericSourceSensor.h"
 
 
 
@@ -733,7 +735,7 @@ namespace nexus {
     // Cylindrical metal plate behind the source
 
     // // DETECTOR /////////////////////////////////////////////
-    GenericCircularPhotosensor *source_plate  = new GenericCircularPhotosensor("SOURCE_PLATE", 12.5*mm, 0.5*mm);
+    GenericSourceSensor *source_plate  = new GenericSourceSensor("SOURCE_PLATE", 12.5*mm, 0.5*mm);
     G4int source_plate_entries = 2;
     G4double source_plate_energy[] = {
       h_Planck * c_light / (1000 * nm), h_Planck * c_light / (90 * nm)
@@ -755,7 +757,6 @@ namespace nexus {
     source_plate->SetVisibility(true);
     source_plate->SetSensorDepth(1);
     source_plate->SetTimeBinning(50 * ns);
-    source_plate->SetWindowRefractiveIndex(opticalprops::OptCoupler()->GetProperty("RINDEX"));
     source_plate->Construct();
     G4LogicalVolume* source_plate_logic = source_plate->GetLogicalVolume();
 
