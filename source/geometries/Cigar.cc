@@ -753,17 +753,17 @@ namespace nexus {
     G4MaterialPropertiesTable* photosensor_mpt_plate = new G4MaterialPropertiesTable();
     photosensor_mpt_plate->AddProperty("REFLECTIVITY", energy_plate, reflectivity_plate, 2);
     photosensor_mpt_plate->AddProperty("EFFICIENCY",   source_plate_energy, source_plate_efficiency, source_plate_entries);
-    source_plate->SetOpticalProperties(photosensor_mpt_plate);
+    source_plate->SetOpticalProperties(opticalprops::Steel());
     source_plate->SetVisibility(true);
     source_plate->SetSensorDepth(1);
     source_plate->SetTimeBinning(50 * ns);
     source_plate->Construct();
     G4LogicalVolume* source_plate_logic = source_plate->GetLogicalVolume();
 
-    new G4PVPlacement(0, G4ThreeVector(source_position_cylinder_x, source_position_cylinder_y, source_position_cylinder_z-0.251*mm -generic_cigar_shift),
+    new G4PVPlacement(0, G4ThreeVector(source_position_cylinder_x, source_position_cylinder_y, source_position_cylinder_z-0.26*mm -generic_cigar_shift),
                       source_plate_logic, "SOURCEPLATE1", cigar_mat_inside_logic,
                       false, 5, false);
-
+    // 0.251*mm
         // Optical surface for vacuum chamber
     G4OpticalSurface* opsur_source =
       new G4OpticalSurface("SOURCE_OPSURF", unified, ground, dielectric_metal);

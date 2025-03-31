@@ -616,8 +616,8 @@ namespace opticalprops {
     std::vector<G4double> rIndex;
     for (int i=0; i<ri_entries; i++) {
       rIndex.push_back(XenonRefractiveIndex(ri_energy[i], density));
-      // G4cout << "* GXe rIndex:  " << std::setw(7)
-      //        << ri_energy[i]/eV << " eV -> " << rIndex[i] << G4endl;
+      G4cout << "* GXe rIndex:  " << std::setw(7)
+             << ri_energy[i]/eV << " eV -> " << rIndex[i] << G4endl;
     }
     mpt->AddProperty("RINDEX", ri_energy, rIndex, ri_entries);
 
@@ -1678,13 +1678,14 @@ namespace opticalprops {
     mpt->AddProperty("SPECULARSPIKECONSTANT",ENERGIES_2, specularspike);
     mpt->AddProperty("BACKSCATTERCONSTANT",  ENERGIES_2, backscatter);
     // https://www.researchgate.net/publication/241649116_Effects_of_Radiation_and_Thermal_Cycling_on_Teflon_R_FEP
-    G4double abs_length   = 0.0000001*micrometer;
+    G4double abs_length   = 0.000001*micrometer;
     std::vector<G4double> abs_energy = {optPhotMinE_, optPhotMaxE_};
     std::vector<G4double> absLength  = {abs_length, abs_length};
     mpt->AddProperty("ABSLENGTH", abs_energy, absLength);
 
     // REFRACTIVE INDEX
     std::vector<G4double> rIndex = {1.41, 1.41};
+    // std::vector<G4double> rIndex = {10, 10};
     mpt->AddProperty("RINDEX", ENERGIES_2, rIndex);
 
 
@@ -1714,8 +1715,8 @@ namespace opticalprops {
         rIndex.push_back(1 + 0.012055*(0.2075*pow(wl,2)/(91.012*pow(wl,2)-1) +
                                       0.0415*pow(wl,2)/(87.892*pow(wl,2)-1) +
                                       4.3330*pow(wl,2)/(214.02*pow(wl,2)-1)));
-        //G4cout << "* GAr rIndex:  " << std::setw(5) << ri_energy[i]/eV
-        //       << " eV -> " << rIndex[i] << G4endl;
+        G4cout << "* GAr rIndex:  " << std::setw(5) << ri_energy[i]/eV
+              << " eV -> " << rIndex[i] << G4endl;
       }
       mpt->AddProperty("RINDEX", ri_energy, rIndex);
 

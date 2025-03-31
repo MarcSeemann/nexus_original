@@ -66,7 +66,7 @@ void GenericSourceSensor::ComputeDimensions()
   if ((sensarea_thickness_) > thickness_) {
     G4Exception("[GenericSourceSensor]", "ComputeDimensions()", FatalException,
                 ("Sensor size too small. Required thickness >= " +
-                 std::to_string(sensarea_thickness_) +
+                 std::to_string(thickness_) +
                  " mm").data());
   }
 }
@@ -92,7 +92,7 @@ void GenericSourceSensor::Construct()
   // PHOTOSENSITIVE AREA /////////////////////////////////////////////
   G4String name = name_ + "_SENSAREA";
 
-  G4Tubs* sensarea_solid_vol = new G4Tubs(name, 0, reduced_radius_ / 2., sensarea_thickness_ / 2., 0, twopi);
+  G4Tubs* sensarea_solid_vol = new G4Tubs(name, 0, reduced_radius_ / 2., thickness_ / 2., 0, twopi);
 
   G4LogicalVolume* sensarea_logic_vol =
     new G4LogicalVolume(sensarea_solid_vol, sensitive_mat_, name);
