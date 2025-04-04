@@ -1684,8 +1684,8 @@ namespace opticalprops {
     mpt->AddProperty("ABSLENGTH", abs_energy, absLength);
 
     // REFRACTIVE INDEX
-    std::vector<G4double> rIndex = {1.41, 1.41};
-    // std::vector<G4double> rIndex = {10, 10};
+    // std::vector<G4double> rIndex = {1.41, 1.41};
+    std::vector<G4double> rIndex = {10, 10};
     mpt->AddProperty("RINDEX", ENERGIES_2, rIndex);
 
 

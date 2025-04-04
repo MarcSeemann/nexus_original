@@ -405,7 +405,7 @@ namespace nexus {
     //                   teflon_logic_close, "TEFLON_FRONT", cigar_mat_logic,
     //                   true, 1, false);
 
-    G4VPhysicalVolume *teflon_back = new G4PVPlacement(0, G4ThreeVector(0, 0, -cigar_length_/2-panel_width/2-1*mm-generic_cigar_shift),
+    G4VPhysicalVolume *teflon_back = new G4PVPlacement(0, G4ThreeVector(0, 0, -cigar_length_/2-panel_width/2-0.1*mm-generic_cigar_shift),
                       teflon_logic_close, "TEFLON_BACK", cigar_mat_inside_logic,
                       true, 1, false);
 
