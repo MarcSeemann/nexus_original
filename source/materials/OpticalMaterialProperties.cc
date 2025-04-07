@@ -781,9 +781,10 @@ namespace opticalprops {
     //   .72,  .72,  .72
     // };
     std::vector<G4double> REFLECTIVITY = {
-      .98,  .98,  .98,  0.98,
+      .98,  .98,  .98,  .98,
       .72,  .72,  .03, .03
     };
+
     // https://link.springer.com/chapter/10.1007/978-3-031-23050-9_11
     mpt->AddProperty("REFLECTIVITY", ENERGIES, REFLECTIVITY);
 
@@ -809,7 +810,8 @@ namespace opticalprops {
     mpt->AddProperty("ABSLENGTH", abs_energy, absLength);
 
     // REFRACTIVE INDEX
-    std::vector<G4double> rIndex = {1.41, 1.41};
+    // std::vector<G4double> rIndex = {1.41, 1.41};
+    std::vector<G4double> rIndex = {1.0, 1.0};
     mpt->AddProperty("RINDEX", ENERGIES_2, rIndex);
 
     return mpt;
@@ -1684,8 +1686,8 @@ namespace opticalprops {
     mpt->AddProperty("ABSLENGTH", abs_energy, absLength);
 
     // REFRACTIVE INDEX
-    // std::vector<G4double> rIndex = {1.41, 1.41};
-    std::vector<G4double> rIndex = {10, 10};
+    std::vector<G4double> rIndex = {1.41, 1.41};
+    // std::vector<G4double> rIndex = {10, 10};
     mpt->AddProperty("RINDEX", ENERGIES_2, rIndex);
 
 
@@ -1715,7 +1717,7 @@ namespace opticalprops {
         rIndex.push_back(1 + 0.012055*(0.2075*pow(wl,2)/(91.012*pow(wl,2)-1) +
                                       0.0415*pow(wl,2)/(87.892*pow(wl,2)-1) +
                                       4.3330*pow(wl,2)/(214.02*pow(wl,2)-1)));
-        G4cout << "* GAr rIndex:  " << std::setw(5) << ri_energy[i]/eV
+        G4cout << "* GArXe rIndex:  " << std::setw(5) << ri_energy[i]/eV
               << " eV -> " << rIndex[i] << G4endl;
       }
       mpt->AddProperty("RINDEX", ri_energy, rIndex);
