@@ -782,7 +782,7 @@ namespace opticalprops {
     // };
     std::vector<G4double> REFLECTIVITY = {
       .98,  .98,  .98,  .98,
-      .72,  .72,  .03, .03
+      .72,  .72,  .01, .01
     };
 
     // https://link.springer.com/chapter/10.1007/978-3-031-23050-9_11
