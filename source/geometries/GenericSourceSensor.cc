@@ -121,7 +121,7 @@ void GenericSourceSensor::Construct()
     G4Exception("[GenericSourceSensor]", "Construct()", FatalException,
                 "Sensor Optical Properties must be set before constructing");
   G4OpticalSurface* sensitive_opsurf =
-    new G4OpticalSurface(name + "_optSurf", unified, polished, dielectric_metal);
+    new G4OpticalSurface(name + "_optSurf", glisur, polished, dielectric_metal);
   sensitive_opsurf->SetMaterialPropertiesTable(sensitive_mpt_);
   new G4LogicalSkinSurface(name + "_optSurf", sensarea_logic_vol, sensitive_opsurf);
 
