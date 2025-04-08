@@ -139,7 +139,7 @@ void GenericWLSFiber::BuildRoundFiber()
 
     // Optical surface
     G4OpticalSurface* coating_optSurf =
-      new G4OpticalSurface(coating_name + "_OPSURF", glisur, ground,
+      new G4OpticalSurface(coating_name + "_OPSURF", unified, ground,
                            dielectric_dielectric, .01);
     new G4LogicalSkinSurface(coating_name + "_OPSURF", coating_logic,
                              coating_optSurf);
@@ -231,7 +231,7 @@ void GenericWLSFiber::BuildSquareFiber()
 
     // Optical surface
     G4OpticalSurface* coating_optSurf =
-      new G4OpticalSurface(coating_name + "_OPSURF", glisur, ground,
+      new G4OpticalSurface(coating_name + "_OPSURF", unified, ground,
                            dielectric_dielectric, .01);
     new G4LogicalSkinSurface(coating_name + "_OPSURF", coating_logic,
                              coating_optSurf);
