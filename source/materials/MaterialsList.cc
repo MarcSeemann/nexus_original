@@ -175,8 +175,11 @@ namespace materials {
     if (mat == 0) {
       G4NistManager* nist = G4NistManager::Instance();
 
-      mat = new G4Material(name, ArgonDensity(pressure), 1,
+      // mat = new G4Material(name, ArgonDensity(pressure), 1,
+      //   kStateGas, temperature, pressure);
+      mat = new G4Material(name, GXeDensity(pressure), 1,
         kStateGas, temperature, pressure);
+      
 
       G4Element* Ar = nist->FindOrBuildElement("Ar");
 

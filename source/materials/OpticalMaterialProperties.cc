@@ -612,25 +612,25 @@ namespace opticalprops {
       ri_energy.push_back(optPhotMinE_ + i * eWidth);
     }
 
-    // G4double density = GXeDensity(pressure);
-    // std::vector<G4double> rIndex;
-    // for (int i=0; i<ri_entries; i++) {
-    //   rIndex.push_back(XenonRefractiveIndex(ri_energy[i], density));
-    //   G4cout << "* GXe rIndex:  " << std::setw(7)
-    //          << ri_energy[i]/eV << " eV -> " << rIndex[i] << G4endl;
-    // }
-
-    // Argon refractive index, test!
+    G4double density = GXeDensity(pressure);
     std::vector<G4double> rIndex;
     for (int i=0; i<ri_entries; i++) {
-      G4double wl = hc_ / ri_energy[i] * 1000; // in micron
-      // From refractiveindex.info
-      rIndex.push_back(1 + 0.012055*(0.2075*pow(wl,2)/(91.012*pow(wl,2)-1) +
-                                     0.0415*pow(wl,2)/(87.892*pow(wl,2)-1) +
-                                     4.3330*pow(wl,2)/(214.02*pow(wl,2)-1)));
-      G4cout << "* GXe rIndex:  " << std::setw(5) << ri_energy[i]/eV
-            << " eV -> " << rIndex[i] << G4endl;
+      rIndex.push_back(XenonRefractiveIndex(ri_energy[i], density));
+      G4cout << "* GXe rIndex:  " << std::setw(7)
+             << ri_energy[i]/eV << " eV -> " << rIndex[i] << G4endl;
     }
+
+    // // Argon refractive index, test!
+    // std::vector<G4double> rIndex;
+    // for (int i=0; i<ri_entries; i++) {
+    //   G4double wl = hc_ / ri_energy[i] * 1000; // in micron
+    //   // From refractiveindex.info
+    //   rIndex.push_back(1 + 0.012055*(0.2075*pow(wl,2)/(91.012*pow(wl,2)-1) +
+    //                                  0.0415*pow(wl,2)/(87.892*pow(wl,2)-1) +
+    //                                  4.3330*pow(wl,2)/(214.02*pow(wl,2)-1)));
+    //   G4cout << "* GXe rIndex:  " << std::setw(5) << ri_energy[i]/eV
+    //         << " eV -> " << rIndex[i] << G4endl;
+    // }
 
     mpt->AddProperty("RINDEX", ri_energy, rIndex, ri_entries);
 
