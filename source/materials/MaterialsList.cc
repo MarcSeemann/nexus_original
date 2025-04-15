@@ -22,10 +22,10 @@ using namespace CLHEP;
 namespace materials {
   G4Material* GXe(G4double pressure, G4double temperature)
   {
-    // G4Material* mat = GXe_bydensity(GXeDensity(pressure),
-    //                                 temperature, pressure);
-    G4Material* mat = GXe_bydensity(ArgonDensity(pressure),
+    G4Material* mat = GXe_bydensity(GXeDensity(pressure),
                                     temperature, pressure);
+    // G4Material* mat = GXe_bydensity(ArgonDensity(pressure),
+    //                                 temperature, pressure);
 
     return mat;
   }

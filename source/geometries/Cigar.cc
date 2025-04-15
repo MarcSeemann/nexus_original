@@ -275,7 +275,7 @@ namespace nexus {
 
     // Optical surface for vacuum chamber
     G4OpticalSurface* opsur_vac_chamber =
-      new G4OpticalSurface("VAC_CHAMBER_OPSURF", unified, ground, dielectric_metal);
+      new G4OpticalSurface("VAC_CHAMBER_OPSURF", glisur, ground, dielectric_metal);
     opsur_vac_chamber->SetMaterialPropertiesTable(opticalprops::Steel());
 
     new G4LogicalSkinSurface("VAC_CHAMBER_OPSURF", vacuum_chamber_logic, opsur_vac_chamber);
@@ -572,7 +572,7 @@ namespace nexus {
     G4LogicalVolume *fiber_end_logic_vol =
         new G4LogicalVolume(fiber_end_solid_vol, fiber_end_mat, "FIBER_END");
     G4OpticalSurface *opsur_al =
-        new G4OpticalSurface("AL_OPSURF", unified, ground, dielectric_metal);
+        new G4OpticalSurface("AL_OPSURF", glisur, ground, dielectric_metal);
 
     opsur_al->SetPolish(0.75);
     opsur_al->SetMaterialPropertiesTable(opticalprops::PolishedAl());
@@ -690,7 +690,7 @@ namespace nexus {
 
     // Optical surface on teflon
     G4OpticalSurface* opsur_teflon =
-      new G4OpticalSurface("TEFLON_OPSURF", unified, ground, dielectric_metal, .01);
+      new G4OpticalSurface("TEFLON_OPSURF", glisur, ground, dielectric_metal, .01);
     opsur_teflon->SetMaterialPropertiesTable(opticalprops::PTFE());
 
     // Teflon skin surface
@@ -703,7 +703,7 @@ namespace nexus {
         // Optical surface between gas and TPB 
 
     G4OpticalSurface* opsur_teflon_tpb =
-        new G4OpticalSurface("TEFLON_TPB", unified, groundteflonair, dielectric_metal, .01);
+        new G4OpticalSurface("TEFLON_TPB", glisur, groundteflonair, dielectric_metal, .01);
     opsur_teflon_tpb->SetMaterialPropertiesTable(opticalprops::TPB());
 
     // // TPB skin surface
@@ -766,7 +766,7 @@ namespace nexus {
     // 0.251*mm
         // Optical surface for vacuum chamber
     G4OpticalSurface* opsur_source =
-      new G4OpticalSurface("SOURCE_OPSURF", unified, ground, dielectric_metal);
+      new G4OpticalSurface("SOURCE_OPSURF", glisur, ground, dielectric_metal);
     opsur_source->SetMaterialPropertiesTable(opticalprops::Steel());
 
     new G4LogicalSkinSurface("SOURCE_OPSURF", source_plate_logic, opsur_source);
