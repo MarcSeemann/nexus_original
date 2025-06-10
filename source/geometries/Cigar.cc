@@ -430,16 +430,16 @@ namespace nexus {
     // TPB coating teflon ///////////////////////////////////////
 
 
-
+    G4double tpb_thickness = 300 * micrometer; // micrometers
     
     G4Material* tpb = materials::TPB();
     tpb->SetMaterialPropertiesTable(opticalprops::TPB());
 
     G4Box* tpb_solid_sides =
-      new G4Box("TPB_TEFLON_COATING_SIDES", extra_width/2, 3*micrometer, (cigar_length_ / 2) - panel_width);
+      new G4Box("TPB_TEFLON_COATING_SIDES", extra_width/2, tpb_thickness, (cigar_length_ / 2) - panel_width);
     
     G4Box* tpb_solid_tops =
-      new G4Box("TPB_TEFLON_COATING_TOPS", extra_width/2-3*micrometer, 3*micrometer, (cigar_length_ / 2) - panel_width);
+      new G4Box("TPB_TEFLON_COATING_TOPS", extra_width/2-tpb_thickness, tpb_thickness, (cigar_length_ / 2) - panel_width);
 
 
     G4LogicalVolume* tpb_logic_sides =
@@ -464,21 +464,21 @@ namespace nexus {
 
     // Top TPB coating
     
-    G4VPhysicalVolume *tpb_top_left = new G4PVPlacement(0, G4ThreeVector(-15*mm-extra_width/2+3*micrometer, cigar_width_/2+panel_width/2+fiber_diameter_+extra_width/2+panel_width/2+fiber_diameter_/4 -panel_width/2-3*micrometer, 0-generic_cigar_shift),
+    G4VPhysicalVolume *tpb_top_left = new G4PVPlacement(0, G4ThreeVector(-15*mm-extra_width/2+tpb_thickness, cigar_width_/2+panel_width/2+fiber_diameter_+extra_width/2+panel_width/2+fiber_diameter_/4 -panel_width/2-tpb_thickness, 0-generic_cigar_shift),
                       tpb_logic_tops, "TPB_TEFLON_TOP_LEFT", cigar_mat_inside_logic,
                       true, 0, false);
 
-    G4VPhysicalVolume *tpb_top_right = new G4PVPlacement(0, G4ThreeVector(+15*mm+extra_width/2-3*micrometer, cigar_width_/2+panel_width/2+fiber_diameter_+extra_width/2+panel_width/2+fiber_diameter_/4 -panel_width/2-3*micrometer, 0-generic_cigar_shift),
+    G4VPhysicalVolume *tpb_top_right = new G4PVPlacement(0, G4ThreeVector(+15*mm+extra_width/2-tpb_thickness, cigar_width_/2+panel_width/2+fiber_diameter_+extra_width/2+panel_width/2+fiber_diameter_/4 -panel_width/2-tpb_thickness, 0-generic_cigar_shift),
                       tpb_logic_tops, "TPB_TEFLON_TOP_RIGHT", cigar_mat_inside_logic,
                       true, 0, false);
     
     // Bottom TPB coating
 
-    G4VPhysicalVolume *tpb_bottom_left = new G4PVPlacement(0, G4ThreeVector(-15*mm-extra_width/2+3*micrometer, -cigar_width_/2-panel_width/2-fiber_diameter_-extra_width/2-panel_width/2-fiber_diameter_/4 +panel_width/2+3*micrometer, 0-generic_cigar_shift),
+    G4VPhysicalVolume *tpb_bottom_left = new G4PVPlacement(0, G4ThreeVector(-15*mm-extra_width/2+tpb_thickness, -cigar_width_/2-panel_width/2-fiber_diameter_-extra_width/2-panel_width/2-fiber_diameter_/4 +panel_width/2+tpb_thickness, 0-generic_cigar_shift),
                       tpb_logic_tops, "TPB_TEFLON_BOTTOM_LEFT", cigar_mat_inside_logic,
                       true, 0, false);
 
-    G4VPhysicalVolume *tpb_bottom_right = new G4PVPlacement(0, G4ThreeVector(+15*mm+extra_width/2-3*micrometer, -cigar_width_/2-panel_width/2-fiber_diameter_-extra_width/2-panel_width/2-fiber_diameter_/4 +panel_width/2+3*micrometer, 0-generic_cigar_shift),
+    G4VPhysicalVolume *tpb_bottom_right = new G4PVPlacement(0, G4ThreeVector(+15*mm+extra_width/2-tpb_thickness, -cigar_width_/2-panel_width/2-fiber_diameter_-extra_width/2-panel_width/2-fiber_diameter_/4 +panel_width/2+tpb_thickness, 0-generic_cigar_shift),
                       tpb_logic_tops, "TPB_TEFLON_BOTTOM_RIGHT", cigar_mat_inside_logic,
                       true, 0, false);
 
@@ -487,19 +487,19 @@ namespace nexus {
     G4RotationMatrix *rot_z_temp = new G4RotationMatrix();
     rot_z_temp->rotateZ(90 * deg);
 
-    G4VPhysicalVolume *tpb_side_left_top = new G4PVPlacement(G4Transform3D(*rot_z_temp, G4ThreeVector(cigar_width_ / 2 + panel_width / 2 + fiber_diameter_+extra_width/2+panel_width/2+fiber_diameter_/4 -panel_width/2-3*micrometer, -15*mm-extra_width/2, 0-generic_cigar_shift)),
+    G4VPhysicalVolume *tpb_side_left_top = new G4PVPlacement(G4Transform3D(*rot_z_temp, G4ThreeVector(cigar_width_ / 2 + panel_width / 2 + fiber_diameter_+extra_width/2+panel_width/2+fiber_diameter_/4 -panel_width/2-tpb_thickness, -15*mm-extra_width/2, 0-generic_cigar_shift)),
                       tpb_logic_sides, "TPB_TEFLON_SIDE_LEFT_TOP", cigar_mat_inside_logic,
                       true, 0, false);
     
-    G4VPhysicalVolume *tpb_side_left_bottom = new G4PVPlacement(G4Transform3D(*rot_z_temp, G4ThreeVector(cigar_width_ / 2 + panel_width / 2 + fiber_diameter_+extra_width/2+panel_width/2+fiber_diameter_/4 -panel_width/2-3*micrometer, +15*mm+extra_width/2, 0-generic_cigar_shift)),
+    G4VPhysicalVolume *tpb_side_left_bottom = new G4PVPlacement(G4Transform3D(*rot_z_temp, G4ThreeVector(cigar_width_ / 2 + panel_width / 2 + fiber_diameter_+extra_width/2+panel_width/2+fiber_diameter_/4 -panel_width/2-tpb_thickness, +15*mm+extra_width/2, 0-generic_cigar_shift)),
                       tpb_logic_sides, "TPB_TEFLON_SIDE_LEFT_BOTTOM", cigar_mat_inside_logic,
                       true, 0, false);
     
-    G4VPhysicalVolume *tpb_side_right_top = new G4PVPlacement(G4Transform3D(*rot_z_temp, G4ThreeVector(-cigar_width_ / 2 - panel_width / 2 - fiber_diameter_-extra_width/2-panel_width/2-fiber_diameter_/4 +panel_width/2+3*micrometer, -15*mm-extra_width/2, 0-generic_cigar_shift)),
+    G4VPhysicalVolume *tpb_side_right_top = new G4PVPlacement(G4Transform3D(*rot_z_temp, G4ThreeVector(-cigar_width_ / 2 - panel_width / 2 - fiber_diameter_-extra_width/2-panel_width/2-fiber_diameter_/4 +panel_width/2+tpb_thickness, -15*mm-extra_width/2, 0-generic_cigar_shift)),
                       tpb_logic_sides, "TPB_TEFLON_SIDE_RIGHT_TOP", cigar_mat_inside_logic,
                       true, 0, false);
     
-    G4VPhysicalVolume *tpb_side_right_bottom = new G4PVPlacement(G4Transform3D(*rot_z_temp, G4ThreeVector(-cigar_width_ / 2 - panel_width / 2 - fiber_diameter_-extra_width/2-panel_width/2-fiber_diameter_/4 +panel_width/2+3*micrometer, +15*mm+extra_width/2, 0-generic_cigar_shift)),
+    G4VPhysicalVolume *tpb_side_right_bottom = new G4PVPlacement(G4Transform3D(*rot_z_temp, G4ThreeVector(-cigar_width_ / 2 - panel_width / 2 - fiber_diameter_-extra_width/2-panel_width/2-fiber_diameter_/4 +panel_width/2+tpb_thickness, +15*mm+extra_width/2, 0-generic_cigar_shift)),
                       tpb_logic_sides, "TPB_TEFLON_SIDE_RIGHT_BOTTOM", cigar_mat_inside_logic,
                       true, 0, false);
   
