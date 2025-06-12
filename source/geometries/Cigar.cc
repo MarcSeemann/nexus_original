@@ -430,7 +430,7 @@ namespace nexus {
     // TPB coating teflon ///////////////////////////////////////
 
 
-    G4double tpb_thickness = 300 * micrometer; // micrometers
+    G4double tpb_thickness = 3 * micrometer; // micrometers
     
     G4Material* tpb = materials::TPB();
     tpb->SetMaterialPropertiesTable(opticalprops::TPB());
