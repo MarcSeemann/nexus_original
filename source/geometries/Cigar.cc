@@ -837,10 +837,9 @@ namespace nexus {
 
     // WORLD
     if (region == "INSIDE_CIGAR") {
-        // Use cylinder sampler for vertical muon generation (SingleParticleGenerator)
-        // or muons sampler for realistic angular distribution (MuonGenerator)
-        return inside_cigar_->GenerateVertex("BODY_VOL");
-        // For realistic muons: return muons_sampler_->GenerateVertex();
+        // Use RealisticMuonsGenerator for cosmic ray muon generation with cos²θ distribution
+        return muons_sampler_->GenerateVertex();
+        // Alternative: Use cylinder sampler for point source: return inside_cigar_->GenerateVertex("BODY_VOL");
     }
     else {
       G4Exception("[Cigar]", "GenerateVertex()", FatalException,
