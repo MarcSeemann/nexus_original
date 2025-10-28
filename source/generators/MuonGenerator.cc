@@ -253,7 +253,6 @@ void MuonGenerator::GeneratePrimaryVertex(G4Event* event)
 
       // Rotate about the Y-Axis
       p_dir *= *rPhi_;
-
     }
   }
 
@@ -386,7 +385,10 @@ G4ThreeVector MuonGenerator::ProjectToVertex(const G4ThreeVector& dir)
 
 G4double MuonGenerator::GetZenith() const
 {
-  return fRandomGeneral_->fire()*pi/2;
+  // Sample zenith angle for cos^2 theta distribution
+  // cos(theta) = uniform^(1/3) for proper cosmic ray angular distribution
+  G4double cosTheta = std::pow(G4UniformRand(), 1.0/3.0);
+  return std::acos(cosTheta);
 }
 
 

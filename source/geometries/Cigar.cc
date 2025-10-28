@@ -156,7 +156,19 @@ namespace nexus {
     // Inside
     double source_position_cylinder_z = -cigar_length_/2 - panel_width + 4.5*mm;
     // Source placement
-    inside_cigar_ = new CylinderPointSampler(7.5*mm/2, 0.1*mm, 0, 0, G4ThreeVector(source_position_cylinder_x,source_position_cylinder_y, source_position_cylinder_z-generic_cigar_shift), temp_rot);
+    // inside_cigar_ = new CylinderPointSampler(7.5*mm/2, 0.1*mm, 0, 0, G4ThreeVector(source_position_cylinder_x,source_position_cylinder_y, source_position_cylinder_z-generic_cigar_shift), temp_rot);
+    // Muon position above the cigar - use MuonsPointSampler for rectangular surface sampling
+    // Position above the detector at Y = cigar_width/2 + some clearance
+    G4double muon_plane_y = chamber_diameter + 70*mm;  // 10mm clearance outside vacuum chamber  // 50mm above the top of the cigar
+    // Create rectangular sampling area slightly larger than the cigar cross-section
+    G4double muon_sampling_x = cigar_width_/2 + 50*mm;  // 20mm margin on each side
+    G4double muon_sampling_z = cigar_length_/2 + 50*mm; // 20mm margin front and back
+    muons_sampler_ = new RealisticMuonsGenerator(muon_sampling_x, muon_plane_y - generic_cigar_shift, muon_sampling_z);
+    // Point source cylindrical sampler for vertical muons at center
+    G4RotationMatrix *muon_rot = new G4RotationMatrix();
+    muon_rot->rotateZ(0 * deg);
+    // Use very small cylinder to create essentially a point source at center (x=0, z=0)
+    inside_cigar_ = new CylinderPointSampler(0.01*mm, 0.01*mm, 0, 0, G4ThreeVector(0, muon_plane_y - generic_cigar_shift, 0), muon_rot);
 
     
 
@@ -571,8 +583,9 @@ namespace nexus {
       16.02, 11.50,
       6.81, 3.36
     };
+    // Set 100% efficiency for all wavelengths to test detection mechanism
     for (G4int i=0; i < sipm_entries; i++) {
-      sipm_efficiency[i] /= 100;
+      sipm_efficiency[i] = 1.0;  // 100% efficiency for all wavelengths
     }
     G4double energy[]       = {opticalprops::optPhotMinE_, opticalprops::optPhotMaxE_};
     G4double reflectivity[] = {0.0     , 0.0     };
@@ -824,7 +837,10 @@ namespace nexus {
 
     // WORLD
     if (region == "INSIDE_CIGAR") {
-        return inside_cigar_->GenerateVertex("INSIDE");
+        // Use cylinder sampler for vertical muon generation (SingleParticleGenerator)
+        // or muons sampler for realistic angular distribution (MuonGenerator)
+        return inside_cigar_->GenerateVertex("BODY_VOL");
+        // For realistic muons: return muons_sampler_->GenerateVertex();
     }
     else {
       G4Exception("[Cigar]", "GenerateVertex()", FatalException,

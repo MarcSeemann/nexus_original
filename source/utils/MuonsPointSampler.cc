@@ -8,45 +8,31 @@
 // ----------------------------------------------------------------------------
 
 #include "MuonsPointSampler.h"
+
 #include <Randomize.hh>
-#include <G4RunManager.hh>
-#include "CLHEP/Units/PhysicalConstants.h"
-#include <G4Box.hh>
-#include <G4VSolid.hh>
-#include <vector>
+#include <G4RotationMatrix.hh>
 
+using namespace nexus;
 
-namespace nexus {
+MuonsPointSampler::MuonsPointSampler(G4double x, G4double yPoint, G4double z):
+  x_(x), yPoint_(yPoint),z_(z)
+{
+}
 
-  using namespace CLHEP;
+G4ThreeVector MuonsPointSampler::GenerateVertex()
+{
 
-  MuonsPointSampler::MuonsPointSampler
-  (G4double x, G4double yPoint, G4double z):
-    x_(x),yPoint_(yPoint),z_(z)
-  {
-  }
+  G4ThreeVector vtx = GetXZPointInMuonsPlane();
 
+  return vtx;
+}
 
-  G4ThreeVector MuonsPointSampler::GenerateVertex()
-  {
+G4ThreeVector MuonsPointSampler::GetXZPointInMuonsPlane()
+{
 
-    // Get a random point in the surface of the muon plane
-    G4ThreeVector point = GetXZPointInMuonsPlane();
+  G4double x = x_ * (G4UniformRand() - 0.5);
+  G4double z = z_ * (G4UniformRand() - 0.5);
+  G4ThreeVector vtx(x, yPoint_, z);
 
-    return point;
-  }
-
-  G4ThreeVector MuonsPointSampler::GetXZPointInMuonsPlane()
-  {
-
-    // y is fixed
-    G4double x = -x_ + G4UniformRand()*2*x_;
-    G4double z = -z_ + G4UniformRand()*2*z_;
-
-    G4ThreeVector mypoint(x, yPoint_, z);
-
-    // std::cout<<"Generating Muons in: "<<x<<" , "<<y<<" , "<<z<<std::endl;
-    return mypoint;
-  }
-
-} // end namespace nexus
+  return vtx;
+}
