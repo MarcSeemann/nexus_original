@@ -7,6 +7,7 @@
 // ----------------------------------------------------------------------------
 
 #include "Cigar.h"
+#include "RealisticMuonPlaneSampler.h"
 
 #include "FactoryBase.h"
 #include "OpticalMaterialProperties.h"
@@ -48,7 +49,8 @@ namespace nexus {
     pressure_(1. * bar),
     coating_ ("TPB"),
     fiber_type_ ("Y11"),
-    coated_(true)
+    coated_(true),
+    muon_plane_(nullptr)
   {
     msg_ = new G4GenericMessenger(this, "/Geometry/Cigar/",
       "Control commands of geometry Cigar.");
@@ -94,6 +96,7 @@ namespace nexus {
   {
     delete msg_;
     delete particle_msg_;
+    delete muon_plane_;
   }
 
   // void Cigar::ParticleName(G4String name)
@@ -118,11 +121,6 @@ namespace nexus {
     if (coated_)
       G4cout << " with " << coating_ << " coating";
     G4cout << G4endl;
-    std::ifstream file("macros/Cigar.init.mac");
-    std::string line;
-    while (std::getline(file, line)) {
-        G4cout << "Macro line: [" << line << "]" << G4endl;
-    }
     G4cout << "Cigar gas: [" << gas_ << "]" << G4endl;
 
 
@@ -156,22 +154,15 @@ namespace nexus {
     // Inside
     double source_position_cylinder_z = -cigar_length_/2 - panel_width + 4.5*mm;
     // Source placement
-    // inside_cigar_ = new CylinderPointSampler(7.5*mm/2, 0.1*mm, 0, 0, G4ThreeVector(source_position_cylinder_x,source_position_cylinder_y, source_position_cylinder_z-generic_cigar_shift), temp_rot);
-    // Muon position above the cigar - use MuonsPointSampler for rectangular surface sampling
-    // Position above the detector at Y = cigar_width/2 + some clearance
-    G4double muon_plane_y = chamber_diameter + 70*mm;  // 10mm clearance outside vacuum chamber  // 50mm above the top of the cigar
-    // Create rectangular sampling area slightly larger than the cigar cross-section
-    G4double muon_sampling_x = cigar_width_/2 + 50*mm;  // 20mm margin on each side
-    G4double muon_sampling_z = cigar_length_/2 + 50*mm; // 20mm margin front and back
-    muons_sampler_ = new RealisticMuonsGenerator(muon_sampling_x, muon_plane_y - generic_cigar_shift, muon_sampling_z);
-    // Point source cylindrical sampler for vertical muons at center
-    G4RotationMatrix *muon_rot = new G4RotationMatrix();
-    muon_rot->rotateZ(0 * deg);
-    // Use very small cylinder to create essentially a point source at center (x=0, z=0)
-    inside_cigar_ = new CylinderPointSampler(0.01*mm, 0.01*mm, 0, 0, G4ThreeVector(0, muon_plane_y - generic_cigar_shift, 0), muon_rot);
+    inside_cigar_ = new CylinderPointSampler(7.5*mm/2, 0.1*mm, 0, 0, G4ThreeVector(source_position_cylinder_x,source_position_cylinder_y, source_position_cylinder_z-generic_cigar_shift), temp_rot);
 
-    
-
+    // Muon plane sampler - positioned above the chamber for realistic muon generation
+    G4double muon_plane_width = 10 * chamber_diameter;  // Make plane larger than chamber
+    G4double muon_plane_height = 10 * chamber_diameter;
+    // G4double muon_plane_y = chamber_diameter + 10*cm;  // Position above chamber
+    G4double muon_plane_y = 2*chamber_diameter;  // Position above chamber
+    G4ThreeVector muon_plane_center(0., muon_plane_y, 0.);
+    muon_plane_ = new RealisticMuonPlaneSampler(muon_plane_width, muon_plane_height, muon_plane_center);
 
     // Inside cigar at the centre
     // inside_cigar_ = new BoxPointSampler(1*mm, 1*mm, 1*mm, 0, G4ThreeVector(0.,0., 0));
@@ -583,9 +574,8 @@ namespace nexus {
       16.02, 11.50,
       6.81, 3.36
     };
-    // Set 100% efficiency for all wavelengths to test detection mechanism
     for (G4int i=0; i < sipm_entries; i++) {
-      sipm_efficiency[i] = 1.0;  // 100% efficiency for all wavelengths
+      sipm_efficiency[i] /= 100;
     }
     G4double energy[]       = {opticalprops::optPhotMinE_, opticalprops::optPhotMaxE_};
     G4double reflectivity[] = {0.0     , 0.0     };
@@ -837,9 +827,10 @@ namespace nexus {
 
     // WORLD
     if (region == "INSIDE_CIGAR") {
-        // Use RealisticMuonsGenerator for cosmic ray muon generation with cos²θ distribution
-        return muons_sampler_->GenerateVertex();
-        // Alternative: Use cylinder sampler for point source: return inside_cigar_->GenerateVertex("BODY_VOL");
+        return inside_cigar_->GenerateVertex("INSIDE");
+    }
+    else if (region == "MUON_PLANE") {
+        return muon_plane_->GenerateVertex("INSIDE");
     }
     else {
       G4Exception("[Cigar]", "GenerateVertex()", FatalException,

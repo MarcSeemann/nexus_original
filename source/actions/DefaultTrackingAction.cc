@@ -21,6 +21,8 @@
 #include <G4Trajectory.hh>
 #include <G4ParticleDefinition.hh>
 #include <G4OpticalPhoton.hh>
+#include <G4MuonPlus.hh>
+#include <G4MuonMinus.hh>
 
 using namespace nexus;
 
@@ -44,6 +46,11 @@ void DefaultTrackingAction::PreUserTrackingAction(const G4Track *track)
     return;
   }
 
+  // Special handling for primary muons - FORCE trajectory storage
+  bool isPrimaryMuon = (track->GetParentID() == 0) && 
+                      (track->GetDefinition() == G4MuonPlus::Definition() ||
+                       track->GetDefinition() == G4MuonMinus::Definition());
+
   // Create a new trajectory associated to the track.
   // N.B. If the processesing of a track is interrupted to be resumed
   // later on (to process, for instance, its secondaries) more than
@@ -54,6 +61,8 @@ void DefaultTrackingAction::PreUserTrackingAction(const G4Track *track)
   // Set the trajectory in the tracking manager
   fpTrackingManager->SetStoreTrajectory(true);
   fpTrackingManager->SetTrajectory(trj);
+
+  // Primary muons are now forced to save (no debug output needed)
 }
 
 void DefaultTrackingAction::PostUserTrackingAction(const G4Track *track)
@@ -63,10 +72,23 @@ void DefaultTrackingAction::PostUserTrackingAction(const G4Track *track)
       track->GetDefinition() == IonizationElectron::Definition())
     return;
 
+  // Check if this is a primary muon
+  bool isPrimaryMuon = (track->GetParentID() == 0) && 
+                      (track->GetDefinition() == G4MuonPlus::Definition() ||
+                       track->GetDefinition() == G4MuonMinus::Definition());
+
   Trajectory *trj = (Trajectory *)TrajectoryMap::Get(track->GetTrackID());
 
+  // CRITICAL: For primary muons, if trajectory is missing, create emergency backup
+  if (!trj && isPrimaryMuon) {
+    trj = new Trajectory(track);
+    // This trajectory should be automatically added to the map via the Trajectory constructor
+  }
+
   // Do nothing if the track has no associated trajectory in the map
-  if (!trj) return;
+  if (!trj) {
+    return;
+  }
 
   // Record final time and position of the track
   trj->SetFinalPosition(track->GetPosition());
@@ -78,4 +100,6 @@ void DefaultTrackingAction::PostUserTrackingAction(const G4Track *track)
   // Record last process of the track
   G4String proc_name = track->GetStep()->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName();
   trj->SetFinalProcess(proc_name);
+
+  // Primary muon finalized and saved (no debug output needed)
 }

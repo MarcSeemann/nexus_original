@@ -14,7 +14,7 @@
 #include "PmtR11410.h"
 #include "BoxPointSampler.h"
 #include "CylinderPointSampler.h"
-#include "RealisticMuonsGenerator.h"
+#include "RealisticMuonPlaneSampler.h"
 #include "MaterialsList.h"
 #include "G4VSensitiveDetector.hh"
 #include "G4Step.hh"
@@ -63,7 +63,7 @@ namespace nexus {
     GenericWLSFiber* fiber_;
     // BoxPointSampler* inside_cigar_;
     CylinderPointSampler* inside_cigar_;
-    RealisticMuonsGenerator* muons_sampler_;
+    RealisticMuonPlaneSampler* muon_plane_;
     /// Messenger for the definition of control commands
     G4GenericMessenger* msg_;
     G4GenericMessenger* particle_msg_;

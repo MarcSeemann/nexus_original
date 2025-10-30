@@ -20,6 +20,8 @@
 #include <G4HCofThisEvent.hh>
 #include <G4SDManager.hh>
 #include <G4HCtable.hh>
+#include <G4MuonPlus.hh>
+#include <G4MuonMinus.hh>
 #include <globals.hh>
 
 
@@ -80,9 +82,10 @@ REGISTER_CLASS(DefaultEventAction, G4UserEventAction)
     if (energy_min_ >= 0.) {
 
       // Get the trajectories stored for this event and loop through them
-      // to calculate the total energy deposit
+      // to calculate the total energy deposit and check for primary muons
 
       G4double edep = 0.;
+      G4bool hasPrimaryMuon = false;
 
       G4TrajectoryContainer* tc = event->GetTrajectoryContainer();
       if (tc) {
@@ -96,6 +99,14 @@ REGISTER_CLASS(DefaultEventAction, G4UserEventAction)
         for (unsigned int i=0; i<tc->size(); ++i) {
           Trajectory* tr = dynamic_cast<Trajectory*>((*tc)[i]);
           edep += tr->GetEnergyDeposit();
+          
+          // Check if this is a primary muon (parent ID == 0 and is muon)
+          if (tr->GetParentID() == 0) {
+            G4String particleName = tr->GetParticleName();
+            if (particleName == "mu+" || particleName == "mu-") {
+              hasPrimaryMuon = true;
+            }
+          }
         }
       }
       else {
@@ -111,7 +122,16 @@ REGISTER_CLASS(DefaultEventAction, G4UserEventAction)
       } else {
 	pm->InteractingEvent(false);
       }
-      if (!event->IsAborted() && edep > energy_min_ && edep < energy_max_) {
+      
+      // CRITICAL: Always store events with primary muons, even if they deposit no energy!
+      G4bool shouldStore = false;
+      if (hasPrimaryMuon) {
+        shouldStore = true;
+      } else if (!event->IsAborted() && edep > energy_min_ && edep < energy_max_) {
+        shouldStore = true;
+      }
+      
+      if (shouldStore) {
 	pm->StoreCurrentEvent(true);
       } else {
 	pm->StoreCurrentEvent(false);
