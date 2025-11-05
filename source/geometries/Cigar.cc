@@ -154,7 +154,15 @@ namespace nexus {
     // Inside
     double source_position_cylinder_z = -cigar_length_/2 - panel_width + 4.5*mm;
     // Source placement
-    inside_cigar_ = new CylinderPointSampler(7.5*mm/2, 0.1*mm, 0, 0, G4ThreeVector(source_position_cylinder_x,source_position_cylinder_y, source_position_cylinder_z-generic_cigar_shift), temp_rot);
+    // inside_cigar_ = new CylinderPointSampler(7.5*mm/2, 0.1*mm, 0, 0, G4ThreeVector(source_position_cylinder_x,source_position_cylinder_y, source_position_cylinder_z-generic_cigar_shift), temp_rot);
+
+
+    double source_position_barium_x = 0.0;
+    double source_position_barium_y = 11.0 * cm;
+    double source_position_barium_z = -13.0 * cm;
+    // Source placement
+    inside_cigar_ = new CylinderPointSampler(7.5*mm/2, 0.1*mm, 0, 0, G4ThreeVector(source_position_barium_x,source_position_barium_y, source_position_barium_z-generic_cigar_shift), temp_rot);
+
 
     // Muon plane sampler - positioned above the chamber for realistic muon generation
     G4double muon_plane_width = 10 * chamber_diameter;  // Make plane larger than chamber
@@ -789,6 +797,7 @@ namespace nexus {
     source_plate->SetTimeBinning(50 * ns);
     source_plate->Construct();
     G4LogicalVolume* source_plate_logic = source_plate->GetLogicalVolume();
+
 
     new G4PVPlacement(0, G4ThreeVector(source_position_cylinder_x, source_position_cylinder_y, source_position_cylinder_z-0.26*mm -generic_cigar_shift),
                       source_plate_logic, "SOURCEPLATE1", cigar_mat_inside_logic,

@@ -1,0 +1,26 @@
+### --------------------------------------------------------
+### This init macro simulates single particles in 
+### the Cigar geometry with Xenon gas for Barium testing
+### --------------------------------------------------------
+
+/control/execute macros/physics/DefaultPhysicsList.mac
+/tracking/verbose 0
+/nexus/RegisterGeometry Cigar
+/nexus/RegisterGenerator SingleParticleGenerator
+/nexus/RegisterPersistencyManager PersistencyManager
+
+/PhysicsList/RegisterPhysics G4EmStandardPhysics_option4
+/PhysicsList/RegisterPhysics G4DecayPhysics
+/PhysicsList/RegisterPhysics G4RadioactiveDecayPhysics
+#/PhysicsList/RegisterPhysics G4OpticalPhysics
+/PhysicsList/RegisterPhysics NexusPhysics
+/PhysicsList/RegisterPhysics G4StepLimiterPhysics
+
+### ACTIONS
+/nexus/RegisterRunAction DefaultRunAction
+/nexus/RegisterEventAction DefaultEventAction
+/nexus/RegisterTrackingAction DefaultTrackingAction
+/nexus/RegisterTrackingAction OpticalTrackingAction
+/nexus/RegisterSteppingAction AnalysisSteppingAction
+
+/nexus/RegisterMacro macros/Barium_Xe_test.config.mac

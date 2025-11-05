@@ -1,0 +1,32 @@
+## Realistic Barium-133 generator configuration 
+## Generates gamma rays at specific Ba-133 decay energies with realistic branching ratios
+
+# Barium-133 generator settings - uses CylinderPointSampler from INSIDE_CIGAR region
+/Generator/Barium133Generator/region INSIDE_CIGAR
+
+# Geometry configuration  
+/Geometry/Cigar/pressure 5.5 bar
+/Geometry/Cigar/fiber_diameter 1 mm
+/Geometry/Cigar/coating TPB
+/Geometry/Cigar/fiber_type Y11
+/Geometry/Cigar/gas Xe
+
+# Verbosity settings
+/run/verbose 1
+/event/verbose 0
+/tracking/verbose 0
+/process/em/verbose 0
+
+# Tracking configuration - FORCE ALL TRAJECTORIES TO BE STORED
+#/tracking/storeTrajectory 2
+
+### JOB CONTROL
+/nexus/random_seed            1
+/nexus/persistency/start_id   0
+/nexus/persistency/output_file Barium133_5.5_Xe_realistic_gammas_test.next
+
+### PERSISTENCY CONFIGURATION - Ensure all particles are saved
+#/nexus/persistency/save_particles true
+
+### RUN CONTROL
+/run/beamOn 1

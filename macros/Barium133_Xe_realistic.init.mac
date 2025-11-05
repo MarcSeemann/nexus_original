@@ -1,0 +1,26 @@
+### --------------------------------------------------------
+### This init macro simulates Barium-133 decay in 
+### the Cigar geometry with Xenon gas using realistic gamma ray energies
+### --------------------------------------------------------
+
+/control/execute macros/physics/DefaultPhysicsList.mac
+/tracking/verbose 0
+/nexus/RegisterGeometry Cigar
+/nexus/RegisterGenerator Barium133Generator
+/nexus/RegisterPersistencyManager PersistencyManager
+
+/PhysicsList/RegisterPhysics G4EmStandardPhysics_option4
+/PhysicsList/RegisterPhysics G4DecayPhysics
+/PhysicsList/RegisterPhysics G4RadioactiveDecayPhysics
+#/PhysicsList/RegisterPhysics G4OpticalPhysics
+/PhysicsList/RegisterPhysics NexusPhysics
+/PhysicsList/RegisterPhysics G4StepLimiterPhysics
+
+### ACTIONS
+/nexus/RegisterRunAction DefaultRunAction
+/nexus/RegisterEventAction DefaultEventAction
+/nexus/RegisterTrackingAction DefaultTrackingAction
+/nexus/RegisterTrackingAction OpticalTrackingAction
+/nexus/RegisterSteppingAction AnalysisSteppingAction
+
+/nexus/RegisterMacro macros/Barium133_Xe_realistic.config.mac

@@ -1,0 +1,36 @@
+## Single particle generator configuration for Barium testing
+## Generates single particles at the source position inside the Cigar detector
+
+# Single particle generator settings
+/Generator/SingleParticle/particle alpha
+/Generator/SingleParticle/min_energy 5.3 MeV
+/Generator/SingleParticle/max_energy 5.3 MeV
+/Generator/SingleParticle/region INSIDE_CIGAR
+/Generator/SingleParticle/min_costheta 0
+/Generator/SingleParticle/max_costheta 1
+/Generator/SingleParticle/min_phi 0
+/Generator/SingleParticle/max_phi 6.28
+
+# Geometry configuration
+/Geometry/Cigar/pressure 4.5 bar
+/Geometry/Cigar/fiber_diameter 1 mm
+/Geometry/Cigar/coating TPB
+/Geometry/Cigar/fiber_type Y11
+/Geometry/Cigar/gas Xe
+
+# Verbosity settings
+/run/verbose 1
+/event/verbose 0
+/tracking/verbose 0
+/process/em/verbose 0
+
+# Tracking configuration - FORCE ALL TRAJECTORIES TO BE STORED
+/tracking/storeTrajectory 2
+
+### JOB CONTROL
+/nexus/random_seed            1
+/nexus/persistency/start_id   0
+/nexus/persistency/output_file Barium_4.5_Xe_alpha_test.next
+
+### PERSISTENCY CONFIGURATION - Ensure all particles are saved
+/nexus/persistency/save_particles true
