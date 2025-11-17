@@ -39,6 +39,9 @@ namespace nexus {
     
     /// Generate zenith angle following cos²θ distribution  
     G4double GenerateZenithAngle() const;
+    
+    /// Generate realistic muon energy using Gaisser parametrization
+    G4double GenerateRealisticMuonEnergy() const;
 
   private:
     G4GenericMessenger* msg_;

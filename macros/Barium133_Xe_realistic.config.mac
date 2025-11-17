@@ -23,7 +23,7 @@
 ### JOB CONTROL
 /nexus/random_seed            1
 /nexus/persistency/start_id   0
-/nexus/persistency/output_file Barium133_5.5_Xe_realistic_gammas_test.next
+/nexus/persistency/output_file Barium133_5.5_Xe_realistic_gammas_500k_moved.next
 
 ### PERSISTENCY CONFIGURATION - Ensure all particles are saved
 #/nexus/persistency/save_particles true

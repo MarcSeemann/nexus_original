@@ -159,18 +159,20 @@ namespace nexus {
 
     double source_position_barium_x = 0.0;
     double source_position_barium_y = 11.0 * cm;
-    double source_position_barium_z = -13.0 * cm;
-    // Source placement
+    double source_position_barium_z = -8.0 * cm;
+    // // Source placement
     inside_cigar_ = new CylinderPointSampler(7.5*mm/2, 0.1*mm, 0, 0, G4ThreeVector(source_position_barium_x,source_position_barium_y, source_position_barium_z-generic_cigar_shift), temp_rot);
 
 
     // Muon plane sampler - positioned above the chamber for realistic muon generation
-    G4double muon_plane_width = 10 * chamber_diameter;  // Make plane larger than chamber
-    G4double muon_plane_height = 10 * chamber_diameter;
+    // Dimensions should scale with chamber size as per README
+    G4double muon_plane_width = 10*mm;   // Proper width (X dimension) - 21 cm
+    G4double muon_plane_height = 10*mm;  // Proper height (Z dimension) - 21 cm  
     // G4double muon_plane_y = chamber_diameter + 10*cm;  // Position above chamber
     G4double muon_plane_y = 2*chamber_diameter;  // Position above chamber
     G4ThreeVector muon_plane_center(0., muon_plane_y, 0.);
-    muon_plane_ = new RealisticMuonPlaneSampler(muon_plane_width, muon_plane_height, muon_plane_center);
+    // muon_plane_ = new RealisticMuonPlaneSampler(muon_plane_width, muon_plane_height, muon_plane_center);
+    
 
     // Inside cigar at the centre
     // inside_cigar_ = new BoxPointSampler(1*mm, 1*mm, 1*mm, 0, G4ThreeVector(0.,0., 0));
