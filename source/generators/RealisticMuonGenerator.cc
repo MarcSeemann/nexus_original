@@ -71,9 +71,6 @@ RealisticMuonGenerator::~RealisticMuonGenerator()
 
 void RealisticMuonGenerator::GeneratePrimaryVertex(G4Event* event)
 {
-  G4cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << G4endl;
-  G4cout << "@@@@ REALISTIC MUON GENERATOR IS BEING USED! @@@@" << G4endl;
-  G4cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" << G4endl;
   // Randomly choose between mu+ and mu- (approximately equal rates at sea level)
   if (G4UniformRand() < 0.5) {
     muon_definition_ = G4MuonMinus::MuonMinus();
@@ -82,9 +79,7 @@ void RealisticMuonGenerator::GeneratePrimaryVertex(G4Event* event)
   }
 
   // Generate realistic muon energy using Gaisser parametrization
-  G4cout << "DEBUG: About to call GenerateRealisticMuonEnergy()" << G4endl;
   G4double kinetic_energy = GenerateRealisticMuonEnergy();
-  G4cout << "DEBUG: Generated muon energy: " << kinetic_energy/GeV << " GeV" << G4endl;
 
   // Calculate momentum magnitude
   G4double mass = muon_definition_->GetPDGMass();
@@ -154,52 +149,85 @@ G4double RealisticMuonGenerator::GenerateZenithAngle() const
 
 G4double RealisticMuonGenerator::GenerateRealisticMuonEnergy() const
 {
-  G4cout << "DEBUG: ENTERED GenerateRealisticMuonEnergy() function!" << G4endl;
-  // Improved Gaisser/Tang parametrization based on Frontiers paper
-  // More accurate than basic Gaisser, especially in low-energy region
-  // Uses segmented approach with atmospheric curvature corrections
-  
-  const G4double E_min = energy_min_;
-  const G4double E_max = energy_max_;
-  const G4double gamma = 2.7;  // Energy spectrum index
-  
-  // For vertical incidence (theta=0), cos(theta*) ≈ 1
-  // Simplified Gaisser/Tang: dN/dE ∝ E^(-2.7) * [1/(1 + 1.1*E/115) + 0.054/(1 + 1.1*E/810)]
-  const G4double epsilon_pi = 115.0 * GeV / 1.1;  // ≈ 104.5 GeV
-  const G4double epsilon_k = 810.0 * GeV / 1.1;   // ≈ 736.4 GeV
-  const G4double B_G = 0.054;  // Kaon contribution factor
-  
-  // Find maximum of the Gaisser/Tang function in our energy range for rejection sampling
+  G4cout << "DEBUG: ENTERED GenerateRealisticMuonEnergy()" << G4endl;
+
+  //------------------------------------------------------------------
+  // Energy range and spectral index
+  //------------------------------------------------------------------
+  const G4double E_min = energy_min_;   // user-defined
+  const G4double E_max = energy_max_;   // user-defined
+  const G4double gamma = 2.70;          // Tang spectral index
+
+  //------------------------------------------------------------------
+  // Tang atmospheric curvature correction parameters
+  //------------------------------------------------------------------
+  const G4double a = 0.102573;
+  const G4double b = -0.068287;
+  const G4double c = 0.958633;
+
+  // Zenith angle = 0 → cosθ = 1
+  const G4double cos_theta = 1.0;
+
+  // Tang effective cos(theta*)
+  const G4double cos_theta_star =
+      std::sqrt(cos_theta*cos_theta + a*a + b*std::pow(cos_theta, c)) - a;
+
+  //------------------------------------------------------------------
+  // Gaisser-Tang meson critical energies
+  //------------------------------------------------------------------
+  const G4double eps_pi = 115.0 * GeV;   // pion critical energy
+  const G4double eps_K  = 850.0 * GeV;   // kaon critical energy
+
+  //------------------------------------------------------------------
+  // Low-energy enhancement term coefficients
+  // Tang (2006) introduces an extra contribution in the GeV range.
+  //------------------------------------------------------------------
+  const G4double D_low  = 0.00195;  // magnitude of low-energy term
+  const G4double B_low  = 1.0;      // slope of low-energy term
+
+  //------------------------------------------------------------------
+  // Helper lambda: Gaisser–Tang flux function (unnormalized)
+  //------------------------------------------------------------------
+  auto FluxTang = [&](G4double E)
+  {
+    // Pion contribution
+    G4double term_pi =
+      1.0 / (1.0 + 3.64 * E * cos_theta_star / eps_pi);
+
+    // Kaon contribution
+    G4double term_K =
+      0.054 / (1.0 + 1.29 * E * cos_theta_star / eps_K);
+
+    // Tang low-energy correction
+    G4double term_low =
+      D_low / (1.0 + B_low * E * cos_theta_star);
+
+    // Full differential spectrum
+    return std::pow(E, -gamma) * (term_pi + term_K + term_low);
+  };
+
+  //------------------------------------------------------------------
+  // Compute maximum of flux for rejection sampling
+  //------------------------------------------------------------------
   G4double max_value = 0.0;
-  G4int ntest = 1000;
-  for(G4int i = 0; i < ntest; i++) {
-    G4double E_test = E_min + (E_max - E_min) * i / ntest;
-    
-    // Gaisser/Tang differential flux components
-    G4double pion_term = 1.0 / (1.0 + 1.1 * E_test / (115.0 * GeV));
-    G4double kaon_term = B_G / (1.0 + 1.1 * E_test / (810.0 * GeV));
-    G4double total_term = pion_term + kaon_term;
-    
-    G4double value = std::pow(E_test, -gamma) * total_term;
-    if(value > max_value) max_value = value;
+  const int ntest = 2000;
+
+  for(int i = 0; i < ntest; i++) {
+    G4double E_test = E_min + (E_max - E_min) * (G4double(i) / ntest);
+    G4double val = FluxTang(E_test);
+    if(val > max_value) max_value = val;
   }
-  
-  // Rejection sampling loop
-  G4double energy;
-  G4double gaisser_tang_value;
+
+  //------------------------------------------------------------------
+  // Rejection sampling
+  //------------------------------------------------------------------
+  G4double E;
   do {
-    // Sample uniformly in energy range
-    energy = E_min + (E_max - E_min) * G4UniformRand();
-    
-    // Calculate Gaisser/Tang function value
-    G4double pion_term = 1.0 / (1.0 + 1.1 * energy / (115.0 * GeV));
-    G4double kaon_term = B_G / (1.0 + 1.1 * energy / (810.0 * GeV));
-    G4double total_term = pion_term + kaon_term;
-    
-    gaisser_tang_value = std::pow(energy, -gamma) * total_term;
-    
-  } while (G4UniformRand() * max_value > gaisser_tang_value);
-  
-  G4cout << "DEBUG: Generated energy using Gaisser/Tang model: " << energy/GeV << " GeV" << G4endl;
-  return energy;
+    E = E_min + (E_max - E_min) * G4UniformRand();
+  } while (G4UniformRand() * max_value > FluxTang(E));
+
+  G4cout << "DEBUG: Generated Tang muon energy = " << E/GeV << " GeV" << G4endl;
+
+  return E;
 }
+
