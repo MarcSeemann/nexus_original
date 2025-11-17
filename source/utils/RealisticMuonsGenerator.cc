@@ -36,6 +36,19 @@ namespace nexus {
     // Generate zenith angle according to I(θ) ∝ cos²(θ)
     // (muon intensity proportional to cos²θ)
     // For uniform sampling in cos²(θ): cos(θ) = √U
+
+    std::cout << "HERE USING THE WRONG FILE" << std::endl;
+    std::cout << "--------------------------------" << std::endl;
+    std::cout << "--------------------------------" << std::endl;
+    std::cout << "--------------------------------" << std::endl;
+    std::cout << "--------------------------------" << std::endl;
+    std::cout << "--------------------------------" << std::endl;
+    std::cout << "--------------------------------" << std::endl;
+    std::cout << "--------------------------------" << std::endl;
+    std::cout << "--------------------------------" << std::endl;
+    std::cout << "--------------------------------" << std::endl;
+    std::cout << "--------------------------------" << std::endl;
+    std::cout << "--------------------------------" << std::endl;
     
     G4double uniform = G4UniformRand();
     G4double cosTheta = std::sqrt(uniform);  // CORRECTED: cos(θ) = √U for uniform cos²(θ) 
