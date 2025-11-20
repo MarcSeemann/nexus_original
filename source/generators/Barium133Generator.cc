@@ -34,7 +34,8 @@ namespace nexus {
   using namespace CLHEP;
 
   Barium133Generator::Barium133Generator() : 
-    G4VPrimaryGenerator(), geom_(0), msg_(0), gamma_particle_(0)
+    G4VPrimaryGenerator(), geom_(0), msg_(0), gamma_particle_(0),
+    use_hemisphere_emission_(false), emission_direction_(0., 0., 1.)
   {
     // Barium-133 gamma ray energies (in keV) and intensities (%) from ENSDF data
     // Energy [keV]    Intensity [%]
@@ -76,6 +77,7 @@ namespace nexus {
     G4cout << "[Barium133Generator] Initialized with " << gamma_energies_.size() 
            << " gamma ray energies" << G4endl;
     G4cout << "[Barium133Generator] Total normalized intensity: " << total_intensity << "%" << G4endl;
+    G4cout << "[Barium133Generator] Default: Isotropic emission (use /Generator/Barium133Generator/use_hemisphere_emission true to enable directional)" << G4endl;
 
     // Set up messenger for region configuration
     msg_ = new G4GenericMessenger(this, "/Generator/Barium133Generator/",
@@ -83,6 +85,12 @@ namespace nexus {
 
     msg_->DeclareProperty("region", region_,
                           "Set the region of the geometry where the vertex will be generated.");
+    
+    msg_->DeclareProperty("use_hemisphere_emission", use_hemisphere_emission_,
+                          "Enable hemisphere emission (true) or isotropic emission (false).");
+    
+    msg_->DeclarePropertyWithUnit("emission_direction", "mm", emission_direction_,
+                                  "Set emission direction for hemisphere emission (unit vector).");
 
     // Get gamma particle definition
     gamma_particle_ = G4ParticleTable::GetParticleTable()->FindParticle("gamma");
@@ -134,20 +142,42 @@ namespace nexus {
 
     G4double selected_energy = gamma_energies_[selected_index];
     
-    // Generate random direction in downward hemisphere (negative Y direction)
-    // For a hemisphere pointing in -Y direction:
-    // - Y component should be negative (toward detector)
-    // - X and Z components can be anything within the hemisphere
+    // Generate direction based on emission mode
+    G4ThreeVector momentum_direction;
     
-    G4double costheta = -G4UniformRand(); // Random between -1 and 0 (negative Y hemisphere)
-    G4double phi = G4UniformRand() * 2.0 * M_PI; // Random azimuthal angle
-    
-    G4double sinTheta = std::sqrt(1.0 - costheta*costheta);
-    
-    // Create direction vector with Y as the polar axis (pointing down)
-    G4ThreeVector momentum_direction(sinTheta*std::cos(phi),  // X component (lateral)
-                                     costheta,                 // Y component (always negative = downward)
-                                     sinTheta*std::sin(phi)); // Z component (lateral)
+    if (use_hemisphere_emission_) {
+      // Generate random direction in hemisphere towards emission_direction
+      
+      // Normalize the emission direction to ensure it's a unit vector
+      G4ThreeVector preferred_dir = emission_direction_.unit();
+      
+      // Generate isotropic direction in hemisphere around preferred_dir
+      // Use costheta between 0 and 1 (hemisphere in preferred direction)
+      G4double costheta = G4UniformRand(); // Random between 0 and 1 (hemisphere)
+      G4double phi = G4UniformRand() * 2.0 * M_PI; // Random azimuthal angle
+      
+      G4double sintheta = std::sqrt(1.0 - costheta*costheta);
+      
+      // Create a local coordinate system with preferred_dir as the z-axis
+      G4ThreeVector local_dir(sintheta*std::cos(phi), sintheta*std::sin(phi), costheta);
+      
+      // We need to rotate local_dir so that its z-component aligns with preferred_dir
+      // Find two orthogonal vectors perpendicular to preferred_dir
+      G4ThreeVector u, v;
+      if (std::abs(preferred_dir.z()) < 0.9) {
+        u = preferred_dir.cross(G4ThreeVector(0, 0, 1)).unit();
+      } else {
+        u = preferred_dir.cross(G4ThreeVector(1, 0, 0)).unit();
+      }
+      v = preferred_dir.cross(u).unit();
+      
+      // Transform local direction to global coordinates
+      momentum_direction = local_dir.x()*u + local_dir.y()*v + local_dir.z()*preferred_dir;
+      
+    } else {
+      // Full isotropic emission (4π steradians)
+      momentum_direction = G4RandomDirection();
+    }
 
     // Calculate momentum components
     G4double mass = gamma_particle_->GetPDGMass();
@@ -171,7 +201,13 @@ namespace nexus {
     static G4int event_count = 0;
     if (event_count < 10) {
       G4cout << "[Barium133Generator] Event " << event_count 
-             << ": Generated " << selected_energy/keV << " keV gamma ray" << G4endl;
+             << ": Generated " << selected_energy/keV << " keV gamma ray";
+      if (use_hemisphere_emission_) {
+        G4cout << " (hemisphere toward " << emission_direction_ << ")";
+      } else {
+        G4cout << " (isotropic)";
+      }
+      G4cout << G4endl;
     }
     event_count++;
   }

@@ -46,6 +46,10 @@ namespace nexus {
     
     G4String region_;
     G4ParticleDefinition* gamma_particle_;
+    
+    // Directional control parameters
+    G4bool use_hemisphere_emission_;              // Enable/disable hemisphere emission
+    G4ThreeVector emission_direction_;            // Preferred emission direction (for hemisphere)
   };
 
 } // end namespace nexus

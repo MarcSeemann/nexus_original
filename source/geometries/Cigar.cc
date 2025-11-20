@@ -157,17 +157,23 @@ namespace nexus {
     // inside_cigar_ = new CylinderPointSampler(7.5*mm/2, 0.1*mm, 0, 0, G4ThreeVector(source_position_cylinder_x,source_position_cylinder_y, source_position_cylinder_z-generic_cigar_shift), temp_rot);
 
 
+    // Barium source position - keep it within reasonable geometry bounds
     double source_position_barium_x = 0.0;
-    double source_position_barium_y = 11.0 * cm;
-    double source_position_barium_z = -8.0 * cm;
-    // // Source placement
-    // inside_cigar_ = new CylinderPointSampler(7.5*mm/2, 0.1*mm, 0, 0, G4ThreeVector(source_position_barium_x,source_position_barium_y, source_position_barium_z-generic_cigar_shift), temp_rot);
+    double source_position_barium_y = 3.0 * cm;  // Changed from 11.0 cm to 0.0 to keep within chamber
+    double source_position_barium_z = -31.0 * cm;  // Changed from -8.0 cm to 0.0 for center position
+    
+    // Create a separate rotation matrix for the Barium source to avoid conflicts
+    G4RotationMatrix* barium_rot = new G4RotationMatrix();
+    barium_rot->rotateY(0 * deg);
+    
+    // Source placement with smaller, more reasonable dimensions
+    inside_cigar_ = new CylinderPointSampler(2.0*mm, 1.0*mm, 0, 0, G4ThreeVector(source_position_barium_x,source_position_barium_y, source_position_barium_z-generic_cigar_shift), barium_rot);
 
 
     // Muon plane sampler - positioned above the chamber for realistic muon generation
     // Dimensions should scale with chamber size as per README
-    G4double muon_plane_width = 10*mm;   // Proper width (X dimension) - 21 cm
-    G4double muon_plane_height = 10*mm;  // Proper height (Z dimension) - 21 cm  
+    G4double muon_plane_width = 1*cm;   // Proper width (X dimension) - 21 cm
+    G4double muon_plane_height = 2 * chamber_diameter;  // Proper height (Z dimension) - 21 cm  
     // G4double muon_plane_y = chamber_diameter + 10*cm;  // Position above chamber
     G4double muon_plane_y = 2*chamber_diameter;  // Position above chamber
     G4ThreeVector muon_plane_center(0., muon_plane_y, 0.);
@@ -724,7 +730,7 @@ namespace nexus {
 
 
     teflon_closing_panel_logic_temp->SetVisAttributes(nexus::White());
-    rot_x->rotateZ(90 * deg);
+    rot_x->rotateZ(10090 * deg);
     G4VPhysicalVolume *teflon_front = new G4PVPlacement(rot_x, G4ThreeVector(0, 0, cigar_length_/2+panel_width/2 -generic_cigar_shift), teflon_closing_panel_logic_temp, "TEFLON_FRONT", cigar_mat_inside_logic, true, 1, false);
 
 
