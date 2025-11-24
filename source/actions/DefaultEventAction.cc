@@ -153,19 +153,27 @@ REGISTER_CLASS(DefaultEventAction, G4UserEventAction)
       G4bool hasGasHits = false;
       G4double gasEdep = 0.;
 
-      // Try to get the hits collection for /Cigar/GasIonInside
-      G4int hcid = sdmgr->GetCollectionID("/Cigar/GasIonInside/IonizationHitsCollection");
-      if (hcid >= 0 && hce) {
-        G4VHitsCollection* hc = hce->GetHC(hcid);
-        IonizationHitsCollection* hits = dynamic_cast<IonizationHitsCollection*>(hc);
+      // Cache the collection ID to avoid repeated lookups and warnings
+      static G4int cached_hcid = -1;
+      
+      if (hce) {
+        // Only call GetCollectionID once (on first event)
+        if (cached_hcid == -1) {
+          cached_hcid = sdmgr->GetCollectionID("/Cigar/GasIonInside/IonizationHitsCollection");
+        }
         
-        if (hits && hits->entries() > 0) {
-          hasGasHits = true;
-          // Sum energy deposited in the gas volume
-          for (size_t i=0; i<hits->entries(); i++) {
-            IonizationHit* hit = dynamic_cast<IonizationHit*>(hits->GetHit(i));
-            if (hit) {
-              gasEdep += hit->GetEnergyDeposit();
+        if (cached_hcid >= 0) {
+          G4VHitsCollection* hc = hce->GetHC(cached_hcid);
+          IonizationHitsCollection* hits = dynamic_cast<IonizationHitsCollection*>(hc);
+          
+          if (hits && hits->entries() > 0) {
+            hasGasHits = true;
+            // Sum energy deposited in the gas volume
+            for (size_t i=0; i<hits->entries(); i++) {
+              IonizationHit* hit = dynamic_cast<IonizationHit*>(hits->GetHit(i));
+              if (hit) {
+                gasEdep += hit->GetEnergyDeposit();
+              }
             }
           }
         }
@@ -189,8 +197,8 @@ REGISTER_CLASS(DefaultEventAction, G4UserEventAction)
       
       if (shouldStore) {
         pm->StoreCurrentEvent(true);
-        G4cout << "[DefaultEventAction] Storing event " << nevt_-1 
-               << " with " << gasEdep/keV << " keV deposited in gas volume" << G4endl;
+        // G4cout << "[DefaultEventAction] Storing event " << nevt_-1 
+        //        << " with " << gasEdep/keV << " keV deposited in gas volume" << G4endl;
       } else {
         pm->StoreCurrentEvent(false);
       }
