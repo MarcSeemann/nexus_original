@@ -149,7 +149,7 @@ G4double RealisticMuonGenerator::GenerateZenithAngle() const
 
 G4double RealisticMuonGenerator::GenerateRealisticMuonEnergy() const
 {
-  G4cout << "DEBUG: ENTERED GenerateRealisticMuonEnergy()" << G4endl;
+  // G4cout << "DEBUG: ENTERED GenerateRealisticMuonEnergy()" << G4endl;
 
   //------------------------------------------------------------------
   // Energy range and spectral index
@@ -226,7 +226,7 @@ G4double RealisticMuonGenerator::GenerateRealisticMuonEnergy() const
     E = E_min + (E_max - E_min) * G4UniformRand();
   } while (G4UniformRand() * max_value > FluxTang(E));
 
-  G4cout << "DEBUG: Generated Tang muon energy = " << E/GeV << " GeV" << G4endl;
+  // G4cout << "DEBUG: Generated Tang muon energy = " << E/GeV << " GeV" << G4endl;
 
   return E;
 }
