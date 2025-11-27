@@ -157,10 +157,10 @@ namespace nexus {
     // inside_cigar_ = new CylinderPointSampler(7.5*mm/2, 0.1*mm, 0, 0, G4ThreeVector(source_position_cylinder_x,source_position_cylinder_y, source_position_cylinder_z-generic_cigar_shift), temp_rot);
 
 
-    // Barium source position - keep it within reasonable geometry bounds
+    // Barium source position - INSIDE the gas chamber at center
     double source_position_barium_x = 0.0;
-    double source_position_barium_y = 3.0 * cm;  // Changed from 11.0 cm to 0.0 to keep within chamber
-    double source_position_barium_z = -31.0 * cm;  // Changed from -8.0 cm to 0.0 for center position
+    double source_position_barium_y = 0.0;  // Center of chamber radially
+    double source_position_barium_z = 0.0;  // Center of chamber longitudinally
     
     // Create a separate rotation matrix for the Barium source to avoid conflicts
     G4RotationMatrix* barium_rot = new G4RotationMatrix();
