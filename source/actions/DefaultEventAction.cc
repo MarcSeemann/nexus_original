@@ -160,16 +160,16 @@ REGISTER_CLASS(DefaultEventAction, G4UserEventAction)
         // Only call GetCollectionID once (on first event)
         if (cached_hcid == -1) {
           // First, let's see what collections are available
-          G4cout << "[DEBUG] Total hits collections in this event: " << hce->GetNumberOfCollections() << G4endl;
+          // G4cout << "[DEBUG] Total hits collections in this event: " << hce->GetNumberOfCollections() << G4endl;
           for (G4int i = 0; i < hce->GetNumberOfCollections(); i++) {
             G4VHitsCollection* hc = hce->GetHC(i);
             if (hc) {
-              G4cout << "[DEBUG] Collection " << i << ": " << hc->GetName() << " (SD: " << hc->GetSDname() << ")" << G4endl;
+              // G4cout << "[DEBUG] Collection " << i << ": " << hc->GetName() << " (SD: " << hc->GetSDname() << ")" << G4endl;
             }
           }
           
           cached_hcid = sdmgr->GetCollectionID("GasIonInside/IonizationHitsCollection");
-          G4cout << "[DEBUG] Collection ID for 'GasIonInside/IonizationHitsCollection': " << cached_hcid << G4endl;
+          // G4cout << "[DEBUG] Collection ID for 'GasIonInside/IonizationHitsCollection': " << cached_hcid << G4endl;
         }
         
         if (cached_hcid >= 0) {
@@ -177,7 +177,7 @@ REGISTER_CLASS(DefaultEventAction, G4UserEventAction)
           IonizationHitsCollection* hits = dynamic_cast<IonizationHitsCollection*>(hc);
           
           if (hits) {
-            G4cout << "[DEBUG] Found hits collection with " << hits->entries() << " hits" << G4endl;
+            // G4cout << "[DEBUG] Found hits collection with " << hits->entries() << " hits" << G4endl;
             if (hits->entries() > 0) {
               hasGasHits = true;
               // Sum energy deposited in the gas volume
@@ -189,10 +189,10 @@ REGISTER_CLASS(DefaultEventAction, G4UserEventAction)
               }
             }
           } else {
-            G4cout << "[DEBUG] Hits collection is null or cast failed" << G4endl;
+            // G4cout << "[DEBUG] Hits collection is null or cast failed" << G4endl;
           }
         } else {
-          G4cout << "[DEBUG] Collection ID is invalid: " << cached_hcid << G4endl;
+          // G4cout << "[DEBUG] Collection ID is invalid: " << cached_hcid << G4endl;
         }
       }
 
@@ -214,13 +214,13 @@ REGISTER_CLASS(DefaultEventAction, G4UserEventAction)
       
       if (shouldStore) {
         pm->StoreCurrentEvent(true);
-        G4cout << "[DefaultEventAction] STORING event " << nevt_-1 
-               << " with " << gasEdep/keV << " keV deposited in gas volume" << G4endl;
+        // G4cout << "[DefaultEventAction] STORING event " << nevt_-1 
+        //        << " with " << gasEdep/keV << " keV deposited in gas volume" << G4endl;
       } else {
         pm->StoreCurrentEvent(false);
         if ((nevt_-1) % 100 == 0) {  // Print every 100th discarded event
-          G4cout << "[DefaultEventAction] DISCARDING event " << nevt_-1 
-                 << " - hasGasHits=" << hasGasHits << ", gasEdep=" << gasEdep/keV << " keV" << G4endl;
+          // G4cout << "[DefaultEventAction] DISCARDING event " << nevt_-1 
+          //        << " - hasGasHits=" << hasGasHits << ", gasEdep=" << gasEdep/keV << " keV" << G4endl;
         }
       }
       // ========================================================================
