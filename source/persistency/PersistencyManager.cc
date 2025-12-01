@@ -47,7 +47,7 @@ PersistencyManagerBase(), msg_(0), output_file_("nexus_out"), ready_(false),
   interacting_evt_(false), save_ie_numb_(false), event_type_("other"),
   saved_evts_(0), interacting_evts_(0), pmt_bin_size_(-1), sipm_bin_size_(-1),
   nevt_(0), start_id_(0), first_evt_(true), h5writer_(0),
-  str_counter_(0), save_str_(true), particles_(true)
+  str_counter_(0), save_str_(true), particles_(true), only_primary_gammas_(false)
 {
   msg_ = new G4GenericMessenger(this, "/nexus/persistency/");
   msg_->DeclareProperty("output_file", output_file_, "Path of output file.");
@@ -156,6 +156,12 @@ void PersistencyManager::StoreTrajectories(G4TrajectoryContainer* tc)
   for (size_t i=0; i<tc->entries(); ++i) {
     Trajectory* trj = dynamic_cast<Trajectory*>((*tc)[i]);
     if (!trj) continue;
+
+    // Filter: if only_primary_gammas is true, skip non-primary or non-gamma particles
+    if (only_primary_gammas_) {
+      if (trj->GetParentID() != 0) continue;  // Skip non-primary particles
+      if (trj->GetParticleName() != "gamma") continue;  // Skip non-gamma particles
+    }
 
     G4int trackid = trj->GetTrackID();
 

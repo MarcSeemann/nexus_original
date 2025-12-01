@@ -157,10 +157,10 @@ namespace nexus {
     // inside_cigar_ = new CylinderPointSampler(7.5*mm/2, 0.1*mm, 0, 0, G4ThreeVector(source_position_cylinder_x,source_position_cylinder_y, source_position_cylinder_z-generic_cigar_shift), temp_rot);
 
 
-    // Barium source position - INSIDE the gas chamber at center
-    double source_position_barium_x = 0.0;
-    double source_position_barium_y = 0.0;  // Center of chamber radially
-    double source_position_barium_z = 0.0;  // Center of chamber longitudinally
+    // Barium source position - ON TOP of vacuum chamber (radially at edge)
+    double source_position_barium_x = 0.0 * cm;
+    double source_position_barium_y = chamber_diameter;  // On top of chamber (radial edge = full diameter)
+    double source_position_barium_z = 0.0 * cm;  // Centered longitudinally
     
     // Create a separate rotation matrix for the Barium source to avoid conflicts
     G4RotationMatrix* barium_rot = new G4RotationMatrix();
@@ -177,7 +177,7 @@ namespace nexus {
     // G4double muon_plane_y = chamber_diameter + 10*cm;  // Position above chamber
     G4double muon_plane_y = 2*chamber_diameter;  // Position above chamber
     G4ThreeVector muon_plane_center(0., muon_plane_y, 0.);
-    muon_plane_ = new RealisticMuonPlaneSampler(muon_plane_width, muon_plane_height, muon_plane_center);
+    // muon_plane_ = new RealisticMuonPlaneSampler(muon_plane_width, muon_plane_height, muon_plane_center);
     
 
     // Inside cigar at the centre

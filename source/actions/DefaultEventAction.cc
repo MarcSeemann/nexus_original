@@ -53,6 +53,7 @@ REGISTER_CLASS(DefaultEventAction, G4UserEventAction)
       (G4VPersistencyManager::GetPersistencyManager());
 
     pm->SaveNumbOfInteractingEvents(true);
+    pm->OnlyStorePrimaryGammas(true);  // Enable filtering to save only primary gammas
   }
 
 
@@ -209,19 +210,30 @@ REGISTER_CLASS(DefaultEventAction, G4UserEventAction)
       // Only store events that have hits in the gas volume with energy above threshold
       G4bool shouldStore = false;
       if (!event->IsAborted() && hasGasHits && gasEdep > energy_min_ && gasEdep < energy_max_) {
-        shouldStore = true;
+        // Additional check: event must have interacted with a primary gamma
+        G4bool hasPrimaryGamma = false;
+        
+        G4TrajectoryContainer* tc = event->GetTrajectoryContainer();
+        if (tc) {
+          for (unsigned int i=0; i<tc->size(); ++i) {
+            Trajectory* trj = dynamic_cast<Trajectory*>((*tc)[i]);
+            if (trj && trj->GetParentID() == 0) {  // Primary particle
+              // Check if it's a gamma ray
+              if (trj->GetParticleName() == "gamma") {
+                hasPrimaryGamma = true;
+                break;
+              }
+            }
+          }
+        }
+        
+        shouldStore = hasPrimaryGamma;
       }
       
       if (shouldStore) {
         pm->StoreCurrentEvent(true);
-        // G4cout << "[DefaultEventAction] STORING event " << nevt_-1 
-        //        << " with " << gasEdep/keV << " keV deposited in gas volume" << G4endl;
       } else {
         pm->StoreCurrentEvent(false);
-        if ((nevt_-1) % 100 == 0) {  // Print every 100th discarded event
-          // G4cout << "[DefaultEventAction] DISCARDING event " << nevt_-1 
-          //        << " - hasGasHits=" << hasGasHits << ", gasEdep=" << gasEdep/keV << " keV" << G4endl;
-        }
       }
       // ========================================================================
 

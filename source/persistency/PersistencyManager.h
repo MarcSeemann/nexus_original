@@ -45,6 +45,7 @@ namespace nexus {
     void InteractingEvent(G4bool);
     void StoreSteps(G4bool);
     void SaveNumbOfInteractingEvents(G4bool);
+    void OnlyStorePrimaryGammas(G4bool);  // Filter to save only primary gammas
 
     ///
     virtual G4bool Store(const G4Event*);
@@ -104,6 +105,7 @@ namespace nexus {
     G4int str_counter_; ///< incrementing counter for string map
     G4bool save_str_; ///< Should we store strings as volume names etc.?
     G4bool particles_; ///< Store particles table
+    G4bool only_primary_gammas_; ///< If true, only save primary gamma trajectories
 
     std::map<G4String, G4double> sensdet_bin_;
   };
@@ -119,6 +121,8 @@ namespace nexus {
   { interacting_evt_ = ie; }
   inline void PersistencyManager::SaveNumbOfInteractingEvents(G4bool sie)
   {save_ie_numb_ = sie;}
+  inline void PersistencyManager::OnlyStorePrimaryGammas(G4bool osp)
+  { only_primary_gammas_ = osp; }
   inline G4bool PersistencyManager::Store(const G4VPhysicalVolume*)
   { return false; }
   inline G4bool PersistencyManager::Retrieve(G4Event*&)
