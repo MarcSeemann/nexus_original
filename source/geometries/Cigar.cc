@@ -161,7 +161,12 @@ namespace nexus {
     double source_position_barium_x = 0.0 * cm;
     double source_position_barium_y = chamber_diameter;  // On top of chamber (radial edge = full diameter)
     double source_position_barium_z = 0.0 * cm;  // Centered longitudinally
-    
+
+    // // Barium source position - At the back of vacuum chamber (radially at edge)
+    // double source_position_barium_x = 0.0 * cm;
+    // double source_position_barium_y = 0.0 * cm;  // On top of chamber (radial edge = full diameter)
+    // // double source_position_barium_z = - (generic_cigar_shift * cigar_length_);  // Centered longitudinally
+    // double source_position_barium_z = - (generic_cigar_shift + cigar_length_/2 + 5 * cm);
     // Create a separate rotation matrix for the Barium source to avoid conflicts
     G4RotationMatrix* barium_rot = new G4RotationMatrix();
     barium_rot->rotateY(0 * deg);
@@ -275,20 +280,21 @@ namespace nexus {
                       true, 0, false);
     
     // Create a disk object to close the ends of the cylinder
+    G4double end_cap_thickness = 0.8*cm; 
 
     G4Tubs* vacuum_chamber_end =
-      new G4Tubs("VACUUM_CHAMBER_END", 0, chamber_diameter+5*cm, 2*cm, 0, 2*pi);
+      new G4Tubs("VACUUM_CHAMBER_END", 0, chamber_diameter+5*cm, end_cap_thickness, 0, 2*pi);
     G4LogicalVolume* vacuum_chamber_end_logic =
       new G4LogicalVolume(vacuum_chamber_end, steel, "CHAMBER_END");
 
     vacuum_chamber_end_logic->SetVisAttributes(nexus::DarkGrey());
     // vacuum_chamber_end_logic->SetVisAttributes(G4VisAttributes::GetInvisible());
   
-    new G4PVPlacement(0, G4ThreeVector(0, 0, cigar_length_*3/4+2.0*cm),
+    new G4PVPlacement(0, G4ThreeVector(0, 0, cigar_length_*3/4+end_cap_thickness),
                       vacuum_chamber_end_logic, "VAC_CHAMBER_END_FRONT", world_logic_vol,
                       true, 0, false);
-    
-    new G4PVPlacement(0, G4ThreeVector(0, 0, -cigar_length_*3/4-2.0*cm),
+
+    new G4PVPlacement(0, G4ThreeVector(0, 0, -cigar_length_*3/4-end_cap_thickness),
                       vacuum_chamber_end_logic, "VAC_CHAMBER_END_BACK", world_logic_vol,
                       true, 0, false);
 

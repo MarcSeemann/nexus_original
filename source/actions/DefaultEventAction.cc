@@ -24,6 +24,7 @@
 #include <G4MuonMinus.hh>
 #include <globals.hh>
 #include <G4SystemOfUnits.hh>
+#include <set>
 
 
 namespace nexus {
@@ -83,160 +84,70 @@ REGISTER_CLASS(DefaultEventAction, G4UserEventAction)
     // detectors is above threshold
     if (energy_min_ >= 0.) {
 
-      // ========================================================================
-      // OLD CODE - Filter based on total energy deposit across all volumes
-      // ========================================================================
-      // // Get the trajectories stored for this event and loop through them
-      // // to calculate the total energy deposit and check for primary muons
-      //
-      // G4double edep = 0.;
-      // G4bool hasPrimaryMuon = false;
-      //
-      // G4TrajectoryContainer* tc = event->GetTrajectoryContainer();
-      // if (tc) {
-      //   // in interactive mode, a G4TrajectoryContainer would exist
-      //   // but the trajectories will not cast to Trajectory
-      //   Trajectory* trj = dynamic_cast<Trajectory*>((*tc)[0]);
-      //   if (trj == nullptr){
-      //     G4Exception("[DefaultEventAction]", "EndOfEventAction()", FatalException,
-      //                 "DefaultTrackingAction is required when using DefaultEventAction");
-      //   }
-      //   for (unsigned int i=0; i<tc->size(); ++i) {
-      //     Trajectory* tr = dynamic_cast<Trajectory*>((*tc)[i]);
-      //     edep += tr->GetEnergyDeposit();
-      //     
-      //     // Check if this is a primary muon (parent ID == 0 and is muon)
-      //     if (tr->GetParentID() == 0) {
-      //       G4String particleName = tr->GetParticleName();
-      //       if (particleName == "mu+" || particleName == "mu-") {
-      //         hasPrimaryMuon = true;
-      //       }
-      //     }
-      //   }
-      // }
-      // else {
-      //   G4Exception("[DefaultEventAction]", "EndOfEventAction()", FatalException,
-      //               "DefaultTrackingAction is required when using DefaultEventAction");
-      // }
-      //
-      // PersistencyManager* pm = dynamic_cast<PersistencyManager*>
-      //   (G4VPersistencyManager::GetPersistencyManager());
-      //
-      // if (!event->IsAborted() && edep>0) {
-      // 	pm->InteractingEvent(true);
-      // } else {
-      // 	pm->InteractingEvent(false);
-      // }
-      // 
-      // // CRITICAL: Always store events with primary muons, even if they deposit no energy!
-      // G4bool shouldStore = false;
-      // if (hasPrimaryMuon) {
-      //   shouldStore = true;
-      // } else if (!event->IsAborted() && edep > energy_min_ && edep < energy_max_) {
-      //   shouldStore = true;
-      // }
-      // 
-      // if (shouldStore) {
-      // 	pm->StoreCurrentEvent(true);
-      // } else {
-      // 	pm->StoreCurrentEvent(false);
-      // }
-      // ========================================================================
-
-
-      // ========================================================================
-      // NEW CODE - Filter based on hits in /Cigar/GasIonInside ONLY
-      // ========================================================================
-      // Check if there are hits specifically in /Cigar/GasIonInside
-      G4HCofThisEvent* hce = event->GetHCofThisEvent();
-      G4SDManager* sdmgr = G4SDManager::GetSDMpointer();
-      
-      G4bool hasGasHits = false;
-      G4double gasEdep = 0.;
-
-      // Cache the collection ID to avoid repeated lookups and warnings
-      static G4int cached_hcid = -1;
-      
-      if (hce) {
-        // Only call GetCollectionID once (on first event)
-        if (cached_hcid == -1) {
-          // First, let's see what collections are available
-          // G4cout << "[DEBUG] Total hits collections in this event: " << hce->GetNumberOfCollections() << G4endl;
-          for (G4int i = 0; i < hce->GetNumberOfCollections(); i++) {
-            G4VHitsCollection* hc = hce->GetHC(i);
-            if (hc) {
-              // G4cout << "[DEBUG] Collection " << i << ": " << hc->GetName() << " (SD: " << hc->GetSDname() << ")" << G4endl;
-            }
-          }
-          
-          cached_hcid = sdmgr->GetCollectionID("GasIonInside/IonizationHitsCollection");
-          // G4cout << "[DEBUG] Collection ID for 'GasIonInside/IonizationHitsCollection': " << cached_hcid << G4endl;
-        }
-        
-        if (cached_hcid >= 0) {
-          G4VHitsCollection* hc = hce->GetHC(cached_hcid);
-          IonizationHitsCollection* hits = dynamic_cast<IonizationHitsCollection*>(hc);
-          
-          if (hits) {
-            // G4cout << "[DEBUG] Found hits collection with " << hits->entries() << " hits" << G4endl;
-            if (hits->entries() > 0) {
-              hasGasHits = true;
-              // Sum energy deposited in the gas volume
-              for (size_t i=0; i<hits->entries(); i++) {
-                IonizationHit* hit = dynamic_cast<IonizationHit*>(hits->GetHit(i));
-                if (hit) {
-                  gasEdep += hit->GetEnergyDeposit();
-                }
-              }
-            }
-          } else {
-            // G4cout << "[DEBUG] Hits collection is null or cast failed" << G4endl;
-          }
-        } else {
-          // G4cout << "[DEBUG] Collection ID is invalid: " << cached_hcid << G4endl;
-        }
-      }
-
       PersistencyManager* pm = dynamic_cast<PersistencyManager*>
         (G4VPersistencyManager::GetPersistencyManager());
 
-      // Mark if event interacted in the gas volume
-      if (!event->IsAborted() && hasGasHits && gasEdep > 0) {
-        pm->InteractingEvent(true);
-      } else {
-        pm->InteractingEvent(false);
-      }
-      
-      // Only store events that have hits in the gas volume with energy above threshold
+      // Enable trajectory filtering to only save primary gammas
+      pm->OnlyStorePrimaryGammas(true);
+
       G4bool shouldStore = false;
-      if (!event->IsAborted() && hasGasHits && gasEdep > energy_min_ && gasEdep < energy_max_) {
-        // Additional check: event must have interacted with a primary gamma
+
+      // Check if event has primary gamma with interaction in gas volume
+      if (!event->IsAborted()) {
+        // First, find primary gammas
         G4bool hasPrimaryGamma = false;
+        std::set<G4int> primary_gamma_ids;
         
         G4TrajectoryContainer* tc = event->GetTrajectoryContainer();
         if (tc) {
           for (unsigned int i=0; i<tc->size(); ++i) {
             Trajectory* trj = dynamic_cast<Trajectory*>((*tc)[i]);
-            if (trj && trj->GetParentID() == 0) {  // Primary particle
-              // Check if it's a gamma ray
-              if (trj->GetParticleName() == "gamma") {
-                hasPrimaryGamma = true;
-                break;
+            if (trj && trj->GetParentID() == 0 && trj->GetParticleName() == "gamma") {
+              hasPrimaryGamma = true;
+              primary_gamma_ids.insert(trj->GetTrackID());
+            }
+          }
+        }
+
+        // If we have primary gammas, check if they created hits in gas volume
+        if (hasPrimaryGamma) {
+          G4HCofThisEvent* hce = event->GetHCofThisEvent();
+          G4SDManager* sdmgr = G4SDManager::GetSDMpointer();
+          
+          if (hce) {
+            // Get the gas ionization hits collection
+            static G4int cached_hcid = -1;
+            if (cached_hcid == -1) {
+              cached_hcid = sdmgr->GetCollectionID("GasIonInside/IonizationHitsCollection");
+            }
+            
+            if (cached_hcid >= 0) {
+              G4VHitsCollection* hc = hce->GetHC(cached_hcid);
+              IonizationHitsCollection* hits = dynamic_cast<IonizationHitsCollection*>(hc);
+              
+              if (hits && hits->entries() > 0) {
+                // Check if any hits came from a primary gamma
+                for (size_t i=0; i<hits->entries(); i++) {
+                  IonizationHit* hit = dynamic_cast<IonizationHit*>(hits->GetHit(i));
+                  if (hit && primary_gamma_ids.find(hit->GetTrackID()) != primary_gamma_ids.end()) {
+                    shouldStore = true;
+                    break;
+                  }
+                }
               }
             }
           }
         }
-        
-        shouldStore = hasPrimaryGamma;
       }
-      
+
+      // Store or reject the event
       if (shouldStore) {
         pm->StoreCurrentEvent(true);
+        pm->InteractingEvent(true);
       } else {
         pm->StoreCurrentEvent(false);
+        pm->InteractingEvent(false);
       }
-      // ========================================================================
-
     }
   }
 

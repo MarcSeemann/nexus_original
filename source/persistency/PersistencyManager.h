@@ -15,6 +15,7 @@
 #include <G4VPersistencyManager.hh>
 #include <map>
 #include <vector>
+#include <set>
 
 
 class G4GenericMessenger;
@@ -106,6 +107,7 @@ namespace nexus {
     G4bool save_str_; ///< Should we store strings as volume names etc.?
     G4bool particles_; ///< Store particles table
     G4bool only_primary_gammas_; ///< If true, only save primary gamma trajectories
+    std::set<G4int> valid_track_ids_; ///< Track IDs to save (primary gammas only when filtering)
 
     std::map<G4String, G4double> sensdet_bin_;
   };

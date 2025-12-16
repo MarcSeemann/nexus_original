@@ -11,6 +11,7 @@
 #define BARIUM133_GENERATOR_H
 
 #include <vector>
+#include <map>
 #include <G4VPrimaryGenerator.hh>
 
 class G4Event;
@@ -41,8 +42,24 @@ namespace nexus {
     G4GenericMessenger* msg_;
     const GeometryBase* geom_;
 
-    std::vector<G4double> gamma_energies_;        // Gamma ray energies in keV
-    std::vector<G4double> cumulative_intensities_; // Cumulative probabilities for energy selection
+    // Cascade decay data structures for both decay chains
+    struct Transition {
+      size_t destination_level;    // Index of the destination energy level
+      G4double transition_energy;  // Energy of the emitted gamma ray
+      G4double branching_ratio;    // Probability of this transition
+    };
+
+    // Chain 1: Ground State (1/2+) - Primary decay branch
+    std::vector<G4double> chain1_levels_;  // Energy levels in keV
+    std::map<size_t, std::vector<Transition>> chain1_branches_;  // Transitions from each level
+
+    // Chain 2: Isomeric State (11/2-) - Secondary decay branch
+    std::vector<G4double> chain2_levels_;  // Energy levels in keV
+    std::map<size_t, std::vector<Transition>> chain2_branches_;  // Transitions from each level
+
+    // Relative weights for selecting between chains
+    G4double chain1_weight_;  // Weight for ground state chain
+    G4double chain2_weight_;  // Weight for isomeric state chain
     
     G4String region_;
     G4ParticleDefinition* gamma_particle_;

@@ -28,6 +28,7 @@
 #include <G4SDManager.hh>
 #include <G4HCtable.hh>
 #include <G4RunManager.hh>
+#include <iostream>
 #include <G4Run.hh>
 
 #include <string>
@@ -151,19 +152,30 @@ void PersistencyManager::StoreTrajectories(G4TrajectoryContainer* tc)
   // If the pointer is null, no trajectories were stored in this event
   if (!tc) return;
 
+  // Clear the valid track IDs set for this event
+  valid_track_ids_.clear();
+
+  // If filtering primary gammas, first pass: collect valid track IDs
+  if (only_primary_gammas_) {
+    for (size_t i=0; i<tc->entries(); ++i) {
+      Trajectory* trj = dynamic_cast<Trajectory*>((*tc)[i]);
+      if (!trj) continue;
+      
+      // Only add track IDs for primary gammas
+      if (trj->GetParentID() == 0 && trj->GetParticleName() == "gamma") {
+        valid_track_ids_.insert(trj->GetTrackID());
+      }
+    }
+  }
+
   // Loop through the trajectories stored in the container
 
   for (size_t i=0; i<tc->entries(); ++i) {
     Trajectory* trj = dynamic_cast<Trajectory*>((*tc)[i]);
     if (!trj) continue;
 
-    // Filter: if only_primary_gammas is true, skip non-primary or non-gamma particles
-    if (only_primary_gammas_) {
-      if (trj->GetParentID() != 0) continue;  // Skip non-primary particles
-      if (trj->GetParticleName() != "gamma") continue;  // Skip non-gamma particles
-    }
-
     G4int trackid = trj->GetTrackID();
+    G4String p_name = trj->GetParticleName();
 
     G4double length = trj->GetTrackLength();
 
@@ -177,8 +189,6 @@ void PersistencyManager::StoreTrajectories(G4TrajectoryContainer* tc)
     G4ThreeVector ini_mom   = trj->GetInitialMomentum();
     G4double energy         = sqrt(ini_mom.mag2() + mass*mass);
     G4ThreeVector final_mom = trj->GetFinalMomentum();
-
-    G4String p_name = trj->GetParticleName();
 
     G4String ini_volume   = trj->GetInitialVolume();
     G4String final_volume = trj->GetFinalVolume();
