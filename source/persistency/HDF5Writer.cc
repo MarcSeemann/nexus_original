@@ -21,7 +21,7 @@ using namespace nexus;
 
 HDF5Writer::HDF5Writer():
   file_(0), irun_(0), ismp_(0), ihit_(0),
-  ipart_(0), ipos_(0), istep_(0), istrmap_(0)
+  ipart_(0), ipos_(0), istep_(0), istrmap_(0), iphoton_(0)
 {
 }
 
@@ -29,7 +29,7 @@ HDF5Writer::~HDF5Writer()
 {
 }
 
-void HDF5Writer::Open(std::string fileName, bool debug, bool save_str)
+void HDF5Writer::Open(std::string fileName, bool debug, bool save_str, bool photon_summary_only)
 {
   firstEvent_= true;
 
@@ -43,34 +43,42 @@ void HDF5Writer::Open(std::string fileName, bool debug, bool save_str)
   memtypeRun_ = createRunType();
   runTable_ = createTable(group, run_table_name, memtypeRun_);
 
-  std::string sns_data_table_name = "sns_response";
-  memtypeSnsData_ = createSensorDataType();
-  snsDataTable_ = createTable(group, sns_data_table_name, memtypeSnsData_);
+  // Photon summary table (always created)
+  std::string photon_summary_table_name = "photon_summary";
+  memtypePhotonSummary_ = createPhotonSummaryType();
+  photonSummaryTable_ = createTable(group, photon_summary_table_name, memtypePhotonSummary_);
 
-  std::string hit_info_table_name = "hits";
-  memtypeHitInfo_ = createHitInfoType(save_str);
-  hitInfoTable_ = createTable(group, hit_info_table_name, memtypeHitInfo_);
+  // Skip creating detailed tables in photon_summary_only mode
+  if (!photon_summary_only) {
+    std::string sns_data_table_name = "sns_response";
+    memtypeSnsData_ = createSensorDataType();
+    snsDataTable_ = createTable(group, sns_data_table_name, memtypeSnsData_);
 
-  std::string particle_info_table_name = "particles";
-  memtypeParticleInfo_ = createParticleInfoType(save_str);
-  particleInfoTable_ = createTable(group, particle_info_table_name, memtypeParticleInfo_);
+    std::string hit_info_table_name = "hits";
+    memtypeHitInfo_ = createHitInfoType(save_str);
+    hitInfoTable_ = createTable(group, hit_info_table_name, memtypeHitInfo_);
 
-  std::string sns_pos_table_name = "sns_positions";
-  memtypeSnsPos_ = createSensorPosType();
-  snsPosTable_ = createTable(group, sns_pos_table_name, memtypeSnsPos_);
+    std::string particle_info_table_name = "particles";
+    memtypeParticleInfo_ = createParticleInfoType(save_str);
+    particleInfoTable_ = createTable(group, particle_info_table_name, memtypeParticleInfo_);
 
-  if (!save_str) {
-    std::string str_map_table_name = "string_map";
-    memtypeStringMap_ = createStringMapType();
-    stringMapTable_ = createTable(group, str_map_table_name, memtypeStringMap_);
-  }
+    std::string sns_pos_table_name = "sns_positions";
+    memtypeSnsPos_ = createSensorPosType();
+    snsPosTable_ = createTable(group, sns_pos_table_name, memtypeSnsPos_);
 
-  if (debug) {
-    std::string debug_group_name = "/DEBUG";
-    size_t debug_group = createGroup(file_, debug_group_name);
-    std::string step_table_name = "steps";
-    memtypeStep_ = createStepType();
-    stepTable_   = createTable(debug_group, step_table_name, memtypeStep_);
+    if (!save_str) {
+      std::string str_map_table_name = "string_map";
+      memtypeStringMap_ = createStringMapType();
+      stringMapTable_ = createTable(group, str_map_table_name, memtypeStringMap_);
+    }
+
+    if (debug) {
+      std::string debug_group_name = "/DEBUG";
+      size_t debug_group = createGroup(file_, debug_group_name);
+      std::string step_table_name = "steps";
+      memtypeStep_ = createStepType();
+      stepTable_   = createTable(debug_group, step_table_name, memtypeStep_);
+    }
   }
 
   isOpen_ = true;
@@ -239,4 +247,16 @@ void HDF5Writer::WriteStringMapInfo(const char* name, int name_id)
 
   writeStringMap(&strmap, stringMapTable_, memtypeStringMap_, istrmap_);
   istrmap_++;
+}
+
+void HDF5Writer::WritePhotonSummary(int64_t evt_number, int photons_created, int teflon_hits, int source_hits)
+{
+  photon_summary_t photonSummary;
+  photonSummary.event_id = evt_number;
+  photonSummary.photons_created = photons_created;
+  photonSummary.teflon_hits = teflon_hits;
+  photonSummary.source_hits = source_hits;
+
+  writePhotonSummary(&photonSummary, photonSummaryTable_, memtypePhotonSummary_, iphoton_);
+  iphoton_++;
 }

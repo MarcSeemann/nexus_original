@@ -48,6 +48,9 @@ namespace nexus {
     void SaveNumbOfInteractingEvents(G4bool);
     void OnlyStorePrimaryGammas(G4bool);  // Filter to save only primary gammas
 
+    /// Get the output filename
+    G4String GetOutputFilename() const { return output_file_; }
+
     ///
     virtual G4bool Store(const G4Event*);
     virtual G4bool Store(const G4Run*);
@@ -107,6 +110,7 @@ namespace nexus {
     G4bool save_str_; ///< Should we store strings as volume names etc.?
     G4bool particles_; ///< Store particles table
     G4bool only_primary_gammas_; ///< If true, only save primary gamma trajectories
+    G4bool photon_summary_only_; ///< If true, only save photon_summary table (minimal output)
     std::set<G4int> valid_track_ids_; ///< Track IDs to save (primary gammas only when filtering)
 
     std::map<G4String, G4double> sensdet_bin_;

@@ -347,3 +347,36 @@ void writeStringMap(string_map_t* strmap, hid_t dataset, hid_t memtype, hsize_t 
   H5Sclose(file_space);
   H5Sclose(memspace);
 }
+
+
+hsize_t createPhotonSummaryType()
+{
+  //Create compound datatype for the photon summary table
+  hsize_t memtype = H5Tcreate (H5T_COMPOUND, sizeof (photon_summary_t));
+  H5Tinsert (memtype, "event_id", HOFFSET (photon_summary_t, event_id), H5T_NATIVE_INT64);
+  H5Tinsert (memtype, "photons_created", HOFFSET (photon_summary_t, photons_created), H5T_NATIVE_INT32);
+  H5Tinsert (memtype, "teflon_hits", HOFFSET (photon_summary_t, teflon_hits), H5T_NATIVE_INT32);
+  H5Tinsert (memtype, "source_hits", HOFFSET (photon_summary_t, source_hits), H5T_NATIVE_INT32);
+  return memtype;
+}
+
+
+void writePhotonSummary(photon_summary_t* photonSummary, hid_t dataset, hid_t memtype, hsize_t counter)
+{
+  hid_t memspace, file_space;
+
+  const hsize_t n_dims = 1;
+  hsize_t dims[n_dims] = {1};
+  memspace = H5Screate_simple(n_dims, dims, NULL);
+
+  dims[0] = counter + 1;
+  H5Dset_extent(dataset, dims);
+
+  file_space = H5Dget_space(dataset);
+  hsize_t start[1] = {counter};
+  hsize_t count[1] = {1};
+  H5Sselect_hyperslab(file_space, H5S_SELECT_SET, start, NULL, count, NULL);
+  H5Dwrite(dataset, memtype, memspace, file_space, H5P_DEFAULT, photonSummary);
+  H5Sclose(file_space);
+  H5Sclose(memspace);
+}

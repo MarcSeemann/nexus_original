@@ -103,6 +103,13 @@ typedef struct{
   int32_t name_id;
 } string_map_t;
 
+typedef struct{
+  int64_t event_id;
+  int32_t photons_created;
+  int32_t teflon_hits;
+  int32_t source_hits;
+} photon_summary_t;
+
   hsize_t createRunType();
   hsize_t createSensorDataType();
   hsize_t createHitInfoType(bool str);
@@ -110,6 +117,7 @@ typedef struct{
   hsize_t createSensorPosType();
   hsize_t createStepType();
   hsize_t createStringMapType();
+  hsize_t createPhotonSummaryType();
 
   hid_t createTable(hid_t group, std::string& table_name, hsize_t memtype);
   hid_t createGroup(hid_t file, std::string& groupName);
@@ -121,6 +129,7 @@ typedef struct{
   void writeSnsPos(sns_pos_t* snsPos, hid_t dataset, hid_t memtype, hsize_t counter);
   void writeStep(step_info_t* step, hid_t dataset, hid_t memtype, hsize_t counter);
   void writeStringMap(string_map_t* strmap, hid_t dataset, hid_t memtype, hsize_t counter);
+  void writePhotonSummary(photon_summary_t* photonSummary, hid_t dataset, hid_t memtype, hsize_t counter);
 
 
 #endif

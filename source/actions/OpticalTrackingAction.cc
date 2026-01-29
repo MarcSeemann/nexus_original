@@ -25,6 +25,11 @@ using namespace nexus;
 
 REGISTER_CLASS(OpticalTrackingAction, G4UserTrackingAction)
 
+// Static member initialization
+int OpticalTrackingAction::evt_photons_created_ = 0;
+int OpticalTrackingAction::evt_teflon_hits_ = 0;
+int OpticalTrackingAction::evt_source_hits_ = 0;
+
 // Constructor: Initialize the photon counter
 OpticalTrackingAction::OpticalTrackingAction(): G4UserTrackingAction(), total_photons_(0), sensor_photons_(0), teflon_photons_(0)
 , aluminum_photons_(0), fiber_scint_photons_(0), fiber_wls_photons_(0), vacuum_chamber_photons_(0)
@@ -43,6 +48,14 @@ OpticalTrackingAction::~OpticalTrackingAction()
   G4cout << "Total vacuum chamber photon hits: " << vacuum_chamber_photons_ << G4endl;
 }
 
+// Static methods for per-event counting
+void OpticalTrackingAction::ResetEventCounters()
+{
+  evt_photons_created_ = 0;
+  evt_teflon_hits_ = 0;
+  evt_source_hits_ = 0;
+}
+
 void OpticalTrackingAction::PreUserTrackingAction(const G4Track* track)
 {
   // Create a new trajectory associated to the track
@@ -55,6 +68,7 @@ void OpticalTrackingAction::PreUserTrackingAction(const G4Track* track)
   // Check if the track is an optical photon and increment the counter if so
   if ((track->GetDefinition() == G4OpticalPhoton::Definition()) && (track->GetCreatorProcess()->GetProcessName() == "Scintillation")) {
     total_photons_++;
+    evt_photons_created_++;  // Also increment per-event counter
   }
 
 }
@@ -93,9 +107,11 @@ void OpticalTrackingAction::PostUserTrackingAction(const G4Track* track)
   if ((trj->GetFinalVolume() == "TEFLON1") || (trj->GetFinalVolume() == "TEFLON2") || (trj->GetFinalVolume() == "TEFLON3")
   || (trj->GetFinalVolume() == "TEFLON4") || (trj->GetFinalVolume() == "TEFLON_FRONT") || (trj->GetFinalVolume() == "TEFLON_BACK")) {
     teflon_photons_++;
+    evt_teflon_hits_++;  // Also increment per-event counter
   }
   if ((trj->GetFinalVolume() == "SOURCEPLATE1") || (trj->GetFinalVolume() == "SOURCE_PLATE_SENSAREA")) {
     sensor_photons_++;
+    evt_source_hits_++;  // Also increment per-event counter
   }
   // Thirty aluminum plates per panel and four panels
   for (int panel = 1; panel <= 4; ++panel) {

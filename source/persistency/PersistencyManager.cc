@@ -20,6 +20,7 @@
 #include "HDF5Writer.h"
 #include "PersistencyManagerBase.h"
 #include "FactoryBase.h"
+#include "OpticalTrackingAction.h"
 
 #include <G4GenericMessenger.hh>
 #include <G4Event.hh>
@@ -48,7 +49,8 @@ PersistencyManagerBase(), msg_(0), output_file_("nexus_out"), ready_(false),
   interacting_evt_(false), save_ie_numb_(false), event_type_("other"),
   saved_evts_(0), interacting_evts_(0), pmt_bin_size_(-1), sipm_bin_size_(-1),
   nevt_(0), start_id_(0), first_evt_(true), h5writer_(0),
-  str_counter_(0), save_str_(true), particles_(true), only_primary_gammas_(false)
+  str_counter_(0), save_str_(true), particles_(true), only_primary_gammas_(false),
+  photon_summary_only_(false)
 {
   msg_ = new G4GenericMessenger(this, "/nexus/persistency/");
   msg_->DeclareProperty("output_file", output_file_, "Path of output file.");
@@ -60,6 +62,8 @@ PersistencyManagerBase(), msg_(0), output_file_("nexus_out"), ready_(false),
                         "True if volume, process... names are saved as strings.");
   msg_->DeclareProperty("save_particles", particles_,
                         "True if particles table is saved.");
+  msg_->DeclareProperty("photon_summary_only", photon_summary_only_,
+                        "If true, only save photon_summary table (minimal output for optical studies).");
 
   init_macro_ = "";
   macros_.clear();
@@ -83,7 +87,7 @@ void PersistencyManager::OpenFile()
   if (!h5writer_) {
     h5writer_ = new HDF5Writer();
     G4String hdf5file = output_file_ + ".h5";
-    h5writer_->Open(hdf5file, store_steps_, save_str_);
+    h5writer_->Open(hdf5file, store_steps_, save_str_, photon_summary_only_);
     return;
   } else {
     G4Exception("[PersistencyManager]", "OpenFile()",
@@ -125,18 +129,27 @@ G4bool PersistencyManager::Store(const G4Event* event)
     nevt_ = start_id_;
   }
 
-  if (store_steps_)
-    StoreSteps();
+  // Write per-event optical photon summary (always, regardless of mode)
+  h5writer_->WritePhotonSummary(nevt_,
+    OpticalTrackingAction::GetEventPhotonsCreated(),
+    OpticalTrackingAction::GetEventTeflonHits(),
+    OpticalTrackingAction::GetEventSourceHits());
 
-  // Store the trajectories of the event
-  if (particles_) {
-    StoreTrajectories(event->GetTrajectoryContainer());
+  // Skip storing detailed data if photon_summary_only mode is enabled
+  if (!photon_summary_only_) {
+    if (store_steps_)
+      StoreSteps();
+
+    // Store the trajectories of the event
+    if (particles_) {
+      StoreTrajectories(event->GetTrajectoryContainer());
+    }
+
+    // Store ionization hits and sensor hits
+    ihits_ = nullptr;
+    hit_map_.clear();
+    StoreHits(event->GetHCofThisEvent());
   }
-
-  // Store ionization hits and sensor hits
-  ihits_ = nullptr;
-  hit_map_.clear();
-  StoreHits(event->GetHCofThisEvent());
 
   nevt_++;
 
