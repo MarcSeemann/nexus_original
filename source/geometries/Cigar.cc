@@ -154,25 +154,26 @@ namespace nexus {
     // Inside
     double source_position_cylinder_z = -cigar_length_/2 - panel_width + 4.5*mm;
     // Source placement
-    // inside_cigar_ = new CylinderPointSampler(7.5*mm/2, 0.1*mm, 0, 0, G4ThreeVector(source_position_cylinder_x,source_position_cylinder_y, source_position_cylinder_z-generic_cigar_shift), temp_rot);
+    inside_cigar_ = new CylinderPointSampler(7.5*mm/2, 0.1*mm, 0, 0, G4ThreeVector(source_position_cylinder_x,source_position_cylinder_y, source_position_cylinder_z-generic_cigar_shift), temp_rot);
 
 
-    // Barium source position - ON TOP of vacuum chamber (radially at edge)
-    double source_position_barium_x = 0.0 * cm;
-    double source_position_barium_y = chamber_diameter;  // On top of chamber (radial edge = full diameter)
-    double source_position_barium_z = 0.0 * cm;  // Centered longitudinally
-
-    // // Barium source position - At the back of vacuum chamber (radially at edge)
+    // // Barium source position - ON TOP of vacuum chamber (radially at edge)
     // double source_position_barium_x = 0.0 * cm;
-    // double source_position_barium_y = 0.0 * cm;  // On top of chamber (radial edge = full diameter)
-    // // double source_position_barium_z = - (generic_cigar_shift * cigar_length_);  // Centered longitudinally
-    // double source_position_barium_z = - (generic_cigar_shift + cigar_length_/2 + 5 * cm);
-    // Create a separate rotation matrix for the Barium source to avoid conflicts
-    G4RotationMatrix* barium_rot = new G4RotationMatrix();
-    barium_rot->rotateY(0 * deg);
+    // double source_position_barium_y = chamber_diameter;  // On top of chamber (radial edge = full diameter)
+    // // double source_position_barium_y = 0.0;  // On top of chamber (radial edge = full diameter)
+    // double source_position_barium_z = 0.0 * cm;  // Centered longitudinally
+
+    // // // Barium source position - At the back of vacuum chamber (radially at edge)
+    // // double source_position_barium_x = 0.0 * cm;
+    // // double source_position_barium_y = 0.0 * cm;  // On top of chamber (radial edge = full diameter)
+    // // // double source_position_barium_z = - (generic_cigar_shift * cigar_length_);  // Centered longitudinally
+    // // double source_position_barium_z = - (generic_cigar_shift + cigar_length_/2 + 5 * cm);
+    // // Create a separate rotation matrix for the Barium source to avoid conflicts
+    // G4RotationMatrix* barium_rot = new G4RotationMatrix();
+    // barium_rot->rotateY(0 * deg);
     
-    // Source placement with smaller, more reasonable dimensions
-    inside_cigar_ = new CylinderPointSampler(2.0*mm, 1.0*mm, 0, 0, G4ThreeVector(source_position_barium_x,source_position_barium_y, source_position_barium_z-generic_cigar_shift), barium_rot);
+    // // Source placement with smaller, more reasonable dimensions
+    // inside_cigar_ = new CylinderPointSampler(2.0*mm, 1.0*mm, 0, 0, G4ThreeVector(source_position_barium_x,source_position_barium_y, source_position_barium_z-generic_cigar_shift), barium_rot);
 
 
     // Muon plane sampler - positioned above the chamber for realistic muon generation

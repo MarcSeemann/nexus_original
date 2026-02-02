@@ -18,6 +18,11 @@
 #include <G4TrackingManager.hh>
 #include <G4Trajectory.hh>
 #include <G4OpticalPhoton.hh>
+#include <G4Step.hh>
+#include <G4StepPoint.hh>
+#include <G4VProcess.hh>
+#include <G4OpBoundaryProcess.hh>
+#include <G4ProcessManager.hh>
 
 
 
@@ -87,15 +92,81 @@ void OpticalTrackingAction::PostUserTrackingAction(const G4Track* track)
   trj->SetTrackLength(track->GetTrackLength());
   trj->SetFinalMomentum(track->GetMomentum());
 
+  // Get final volume name - need special handling for optical photons at boundaries
+  G4String final_vol_name = "";
+  
   // In case of optical photons
   if (track->GetDefinition() == G4OpticalPhoton::Definition()) {
-    // If optical-photon has no NextVolume (escaping from the world)
-    // Assign current volume as the decay one
-    if (track->GetNextVolume()) trj->SetFinalVolume(track->GetNextVolume()->GetName());
-    else                        trj->SetFinalVolume(track->GetVolume()->GetName());
+    // For optical photons, we need to carefully determine where they ended up
+    // especially for boundary absorptions
+    
+    const G4Step* step = track->GetStep();
+    if (step) {
+      G4StepPoint* postPoint = step->GetPostStepPoint();
+      
+      // Get the boundary process to check absorption status
+      static G4OpBoundaryProcess* boundary = nullptr;
+      if (!boundary) {
+        G4ProcessVector* pv = track->GetDefinition()->GetProcessManager()->GetProcessList();
+        for (size_t i = 0; i < pv->size(); i++) {
+          if ((*pv)[i]->GetProcessName() == "OpBoundary") {
+            boundary = (G4OpBoundaryProcess*)(*pv)[i];
+            break;
+          }
+        }
+      }
+      
+      // Check if at geometry boundary
+      if (postPoint->GetStepStatus() == fGeomBoundary && boundary) {
+        G4OpBoundaryProcessStatus status = boundary->GetStatus();
+        
+        if (status == Absorption) {
+          // Photon was absorbed at boundary
+          // The absorbing volume is the one the photon was trying to enter
+          if (track->GetNextVolume()) {
+            final_vol_name = track->GetNextVolume()->GetName();
+          } else {
+            // NextVolume is NULL - this shouldn't happen for Absorption
+            // Fall back to checking the touchable
+            G4TouchableHandle touch = postPoint->GetTouchableHandle();
+            if (touch && touch->GetVolume()) {
+              final_vol_name = touch->GetVolume()->GetName();
+            } else {
+              final_vol_name = track->GetVolume()->GetName();
+            }
+          }
+        } else {
+          // Not absorbed at boundary - use standard logic
+          if (track->GetNextVolume()) {
+            final_vol_name = track->GetNextVolume()->GetName();
+          } else {
+            final_vol_name = track->GetVolume()->GetName();
+          }
+        }
+      } else {
+        // Not at geometry boundary - use standard logic
+        if (track->GetNextVolume()) {
+          final_vol_name = track->GetNextVolume()->GetName();
+        } else {
+          final_vol_name = track->GetVolume()->GetName();
+        }
+      }
+    } else {
+      // No step available - fallback
+      if (track->GetNextVolume()) {
+        final_vol_name = track->GetNextVolume()->GetName();
+      } else {
+        final_vol_name = track->GetVolume()->GetName();
+      }
+    }
+    
+    trj->SetFinalVolume(final_vol_name);
   }
   // Final Volume of non optical photons
-  else trj->SetFinalVolume(track->GetVolume()->GetName());
+  else {
+    final_vol_name = track->GetVolume()->GetName();
+    trj->SetFinalVolume(final_vol_name);
+  }
 
   // Record last process of the track
   G4String final_process = track->GetStep()->GetPostStepPoint()
@@ -103,53 +174,44 @@ void OpticalTrackingAction::PostUserTrackingAction(const G4Track* track)
 
   trj->SetFinalProcess(final_process);
 
-  // ['TEFLON4' 'TEFLON3' 'TEFLON2' 'TEFLON1' 'TEFLON_FRONT' 'TEFLON_BACK']
-  if ((trj->GetFinalVolume() == "TEFLON1") || (trj->GetFinalVolume() == "TEFLON2") || (trj->GetFinalVolume() == "TEFLON3")
-  || (trj->GetFinalVolume() == "TEFLON4") || (trj->GetFinalVolume() == "TEFLON_FRONT") || (trj->GetFinalVolume() == "TEFLON_BACK")) {
+  // Count teflon hits - check all teflon volume names
+  if ((final_vol_name == "TEFLON1") || (final_vol_name == "TEFLON2") || 
+      (final_vol_name == "TEFLON3") || (final_vol_name == "TEFLON4") || 
+      (final_vol_name == "TEFLON_FRONT") || (final_vol_name == "TEFLON_BACK") ||
+      (final_vol_name.find("TEFLON") != std::string::npos)) {
     teflon_photons_++;
-    evt_teflon_hits_++;  // Also increment per-event counter
+    evt_teflon_hits_++;
   }
-  if ((trj->GetFinalVolume() == "SOURCEPLATE1") || (trj->GetFinalVolume() == "SOURCE_PLATE_SENSAREA")) {
+  
+  // Count source hits
+  if ((final_vol_name == "SOURCEPLATE1") || (final_vol_name == "SOURCE_PLATE_SENSAREA") ||
+      (final_vol_name.find("SOURCE") != std::string::npos)) {
     sensor_photons_++;
-    evt_source_hits_++;  // Also increment per-event counter
+    evt_source_hits_++;
   }
-  // Thirty aluminum plates per panel and four panels
-  for (int panel = 1; panel <= 4; ++panel) {
-    for (int i = 0; i < 30; ++i) {
-      std::string volumeName = "ALUMINUM" + std::to_string(panel) + "-" + std::to_string(i);
-      if (trj->GetFinalVolume() == volumeName) {
-        aluminum_photons_++;
-        break; // Exit the loop once a match is found
-      }
+  
+  // Count aluminum hits
+  if (final_vol_name.find("ALUMINUM") != std::string::npos) {
+    aluminum_photons_++;
+  }
+
+  // Count fiber hits (scintillation photons absorbed in fibers)
+  if (final_vol_name.find("FIBER") != std::string::npos && 
+      final_vol_name.find("FIBER_SENSOR") == std::string::npos) {
+    if (trj->GetCreatorProcess() == "Scintillation" && 
+        (final_process == "OpWLS" || final_process == "OpAbsorption")) {
+      fiber_scint_photons_++;
+    }
+    if (trj->GetCreatorProcess() == "OpWLS") {
+      fiber_wls_photons_++;
     }
   }
 
-  // Thirty fibers per panel and four panels
-  for (int panel = 1; panel <= 4; ++panel) {
-    for (int i = 0; i < 30; ++i) {
-      std::string volumeName = "FIBER" + std::to_string(panel) + "-" + std::to_string(i);
-      if ((trj->GetFinalVolume() == volumeName) && (trj->GetCreatorProcess() == "Scintillation") && ((trj->GetFinalProcess() == "OpWLS") || (trj->GetFinalProcess() == "OpAbsorption"))) {
-        fiber_scint_photons_++;
-        break; // Exit the loop once a match is found
-      }
-    }
-  }
-
-  // Thirty fibers per panel and four panels
-  for (int panel = 1; panel <= 4; ++panel) {
-    for (int i = 0; i < 30; ++i) {
-      std::string volumeName = "FIBER" + std::to_string(panel) + "-" + std::to_string(i);
-      if ((trj->GetFinalVolume() == volumeName) && (trj->GetCreatorProcess() == "OpWLS")) {
-        fiber_wls_photons_++;
-        break; // Exit the loop once a match is found
-      }
-    }
-  }
-
-  if ((trj->GetFinalVolume() == "VAC_CHAMBER_END_FRONT") || (trj->GetFinalVolume() == "VAC_CHAMBER_END_BACK") || (trj->GetFinalVolume() == "VAC_CHAMBER")) {
+  // Count vacuum chamber hits
+  if ((final_vol_name == "VAC_CHAMBER_END_FRONT") || 
+      (final_vol_name == "VAC_CHAMBER_END_BACK") || 
+      (final_vol_name == "VAC_CHAMBER") ||
+      (final_vol_name.find("CHAMBER") != std::string::npos)) {
     vacuum_chamber_photons_++;
   }
-
-
-
 }
