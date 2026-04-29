@@ -1,14 +1,11 @@
 ### --------------------------------------------------------
-### This init macro simulates the response of a SensL SiPM DICE
-### board in the black box.
+### Test macro for Cigar geometry
 ### --------------------------------------------------------
 
 /control/execute macros/physics/DefaultPhysicsList.mac
 /tracking/verbose 0
 /nexus/RegisterGeometry Cigar
 /nexus/RegisterGenerator SingleParticleGenerator
-#/nexus/RegisterGenerator Kr83mGenerator
-#/nexus/RegisterGenerator Na22Generator
 /nexus/RegisterPersistencyManager PersistencyManager
 
 /PhysicsList/RegisterPhysics G4EmStandardPhysics_option4
@@ -17,12 +14,12 @@
 /PhysicsList/RegisterPhysics G4OpticalPhysics
 /PhysicsList/RegisterPhysics NexusPhysics
 /PhysicsList/RegisterPhysics G4StepLimiterPhysics
-### ACTIONS
 
+### ACTIONS
 /nexus/RegisterRunAction DefaultRunAction
 /nexus/RegisterEventAction DefaultEventAction
 /nexus/RegisterTrackingAction DefaultTrackingAction
 /nexus/RegisterTrackingAction OpticalTrackingAction
 /nexus/RegisterSteppingAction AnalysisSteppingAction
 
-/nexus/RegisterMacro macros/Cigar.config.mac
+/nexus/RegisterMacro macros/test_cigar.config.mac

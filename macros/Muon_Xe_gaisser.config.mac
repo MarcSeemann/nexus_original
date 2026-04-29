@@ -1,9 +1,13 @@
 ## Realistic atmospheric muon generator configuration with cos²θ distribution
 ## Generates muons on a plane above the detector with realistic angular distribution
+## Tests the new Gaisser energy spectrum implementation
 
-# Realistic muon generator settings
-/Generator/RealisticMuon/min_energy 3 GeV
-/Generator/RealisticMuon/max_energy 4 GeV
+# Register the RealisticMuonGenerator
+/nexus/RegisterGenerator RealisticMuonGenerator
+
+# Realistic muon generator settings - Wider range for Gaisser spectrum
+/Generator/RealisticMuon/min_energy 1 GeV
+/Generator/RealisticMuon/max_energy 1000 GeV
 /Generator/RealisticMuon/region MUON_PLANE
 
 # Geometry configuration
@@ -23,9 +27,9 @@
 /tracking/storeTrajectory 2
 
 ### JOB CONTROL
-/nexus/random_seed            1
+/nexus/random_seed            3
 /nexus/persistency/start_id   0
-/nexus/persistency/output_file Cigar_5.5_Xe_muons_500k.next
+/nexus/persistency/output_file Muon_Xe_gaisser_optical.next
 
 ### PERSISTENCY CONFIGURATION - Ensure all particles are saved
 /nexus/persistency/save_particles true

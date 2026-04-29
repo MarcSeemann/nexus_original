@@ -25,7 +25,7 @@
 ### JOB CONTROL
 /nexus/random_seed            1
 /nexus/persistency/start_id   0
-/nexus/persistency/output_file Cigar_5.5_Xe_muons_500k.next
+/nexus/persistency/output_file test_fixed_muon_positions.next.h5
 
 ### PERSISTENCY CONFIGURATION - Ensure all particles are saved
 /nexus/persistency/save_particles true

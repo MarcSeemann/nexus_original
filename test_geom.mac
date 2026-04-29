@@ -1,23 +1,14 @@
-### --------------------------------------------------------
-### This init macro simulates the response of a SensL SiPM DICE
-### board in the black box.
-### --------------------------------------------------------
-
 /control/execute macros/physics/DefaultPhysicsList.mac
 /tracking/verbose 0
 /nexus/RegisterGeometry Cigar
-/nexus/RegisterGenerator SingleParticleGenerator
-#/nexus/RegisterGenerator Kr83mGenerator
-#/nexus/RegisterGenerator Na22Generator
+/nexus/RegisterGenerator Barium133Generator
 /nexus/RegisterPersistencyManager PersistencyManager
 
 /PhysicsList/RegisterPhysics G4EmStandardPhysics_option4
 /PhysicsList/RegisterPhysics G4DecayPhysics
 /PhysicsList/RegisterPhysics G4RadioactiveDecayPhysics
-/PhysicsList/RegisterPhysics G4OpticalPhysics
 /PhysicsList/RegisterPhysics NexusPhysics
 /PhysicsList/RegisterPhysics G4StepLimiterPhysics
-### ACTIONS
 
 /nexus/RegisterRunAction DefaultRunAction
 /nexus/RegisterEventAction DefaultEventAction
@@ -25,4 +16,22 @@
 /nexus/RegisterTrackingAction OpticalTrackingAction
 /nexus/RegisterSteppingAction AnalysisSteppingAction
 
-/nexus/RegisterMacro macros/Cigar.config.mac
+/Generator/Barium133Generator/region INSIDE_CIGAR
+/Generator/Barium133Generator/use_hemisphere_emission true
+/Generator/Barium133Generator/emission_direction 0. -1. 0.
+
+/Geometry/Cigar/pressure 5.5 bar
+/Geometry/Cigar/fiber_diameter 1 mm
+/Geometry/Cigar/coating TPB
+/Geometry/Cigar/fiber_type Y11
+/Geometry/Cigar/gas Xe
+
+/run/verbose 1
+/event/verbose 0
+/tracking/verbose 0
+/process/em/verbose 0
+
+/nexus/random_seed 1
+/nexus/persistency/output_file test_barium.next
+
+/run/beamOn 5

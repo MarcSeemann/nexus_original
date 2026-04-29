@@ -238,16 +238,16 @@ namespace nexus {
     G4Material* world_mat = nullptr;
     if (gas_ == "Ar") {
       world_mat = materials::GAr(pressure_);
-      world_mat->SetMaterialPropertiesTable(opticalprops::GAr(10/keV));
+      world_mat->SetMaterialPropertiesTable(opticalprops::GAr(20/MeV));
     } else if (gas_ == "Xe") {
       world_mat = materials::GXe(pressure_);
-      world_mat->SetMaterialPropertiesTable(opticalprops::GXe(pressure_, 273.15, 10/keV, 1000.*ms));
+      world_mat->SetMaterialPropertiesTable(opticalprops::GXe(pressure_, 273.15, 20/MeV, 1000.*ms));
     } else if (gas_ == "ArXe") {
       world_mat = materials::GXeAr(pressure_, 273.15, 0.01);
-      world_mat->SetMaterialPropertiesTable(opticalprops::GArXe(10/keV, 1000.*ms, 1000, pressure_));
+      world_mat->SetMaterialPropertiesTable(opticalprops::GArXe(20/MeV, 1000.*ms, 1000, pressure_));
     } else if (gas_ == "GTest") {
       world_mat = materials::GXe(pressure_);
-      world_mat->SetMaterialPropertiesTable(opticalprops::GTest(pressure_, 273.15, 10/keV, 1000.*ms));
+      world_mat->SetMaterialPropertiesTable(opticalprops::GTest(pressure_, 273.15, 20/MeV, 1000.*ms));
     } else {
       G4cout << "Invalid gas = " << gas_ << G4endl;
       G4Exception("[Cigar]", "Construct()",
@@ -315,7 +315,7 @@ namespace nexus {
     
     if (gas_ == "Ar") {
       cigar_mat = materials::GAr(pressure_);
-      cigar_mat->SetMaterialPropertiesTable(opticalprops::GAr(10/keV));
+      cigar_mat->SetMaterialPropertiesTable(opticalprops::GAr(20/MeV));
       // cigar_mat->SetMaterialPropertiesTable(opticalprops::GAr(1. / (6 * eV)));
       // https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=1263927
       // cigar_mat->SetMaterialPropertiesTable(opticalprops::GAr(19841/MeV));
@@ -324,7 +324,7 @@ namespace nexus {
     } else if (gas_ == "Xe") {
       cigar_mat = materials::GXe(pressure_);
       // cigar_mat->SetMaterialPropertiesTable(opticalprops::GXe(pressure_));
-      cigar_mat->SetMaterialPropertiesTable(opticalprops::GXe(pressure_, 273.15, 10/keV, 1000.*ms));
+      cigar_mat->SetMaterialPropertiesTable(opticalprops::GXe(pressure_, 273.15, 20/MeV, 1000.*ms));
       std::cout << "Cigar Xe gas pressure: " << pressure_ << " bar" << std::endl;
     } else if (gas_ == "ArXe") {
       cigar_mat = materials::GXeAr(pressure_, 273.15, 0.1);
@@ -737,13 +737,13 @@ namespace nexus {
 
 
     teflon_closing_panel_logic_temp->SetVisAttributes(nexus::White());
-    rot_x->rotateZ(10090 * deg);
+    rot_x->rotateZ(90 * deg);
     G4VPhysicalVolume *teflon_front = new G4PVPlacement(rot_x, G4ThreeVector(0, 0, cigar_length_/2+panel_width/2 -generic_cigar_shift), teflon_closing_panel_logic_temp, "TEFLON_FRONT", cigar_mat_inside_logic, true, 1, false);
 
 
     // Optical surface on teflon
     G4OpticalSurface* opsur_teflon =
-      new G4OpticalSurface("TEFLON_OPSURF", glisur, ground, dielectric_metal, .01);
+      new G4OpticalSurface("TEFLON_OPSURF", glisur, ground, dielectric_dielectric, .01);
     opsur_teflon->SetMaterialPropertiesTable(opticalprops::PTFE());
 
     // Teflon skin surface
@@ -756,7 +756,7 @@ namespace nexus {
         // Optical surface between gas and TPB 
 
     G4OpticalSurface* opsur_teflon_tpb =
-        new G4OpticalSurface("TEFLON_TPB", glisur, groundteflonair, dielectric_metal, .01);
+        new G4OpticalSurface("TEFLON_TPB", glisur, groundteflonair, dielectric_dielectric, .01);
     opsur_teflon_tpb->SetMaterialPropertiesTable(opticalprops::TPB());
 
     // // TPB skin surface

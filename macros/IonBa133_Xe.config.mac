@@ -1,0 +1,34 @@
+## Realistic Barium-133 generator configuration using IonGenerator
+## Generates Ba-133 ions which decay with realistic cascade branching ratios
+## Uses Geant4's built-in radioactive decay database (ENSDF data)
+
+# Ion Generator settings for Ba-133
+/Generator/IonGenerator/atomic_number 56
+/Generator/IonGenerator/mass_number 133
+/Generator/IonGenerator/energy_level 0 MeV
+/Generator/IonGenerator/decay_at_time_zero true
+/Generator/IonGenerator/region INSIDE_CIGAR
+
+# Geometry configuration  
+/Geometry/Cigar/pressure 5.5 bar
+/Geometry/Cigar/fiber_diameter 1 mm
+/Geometry/Cigar/coating TPB
+/Geometry/Cigar/fiber_type Y11
+/Geometry/Cigar/gas Xe
+
+# Verbosity settings
+/run/verbose 1
+/event/verbose 0
+/tracking/verbose 0
+/process/em/verbose 0
+
+# Tracking configuration - FORCE ALL TRAJECTORIES TO BE STORED
+#/tracking/storeTrajectory 2
+
+### JOB CONTROL
+/nexus/random_seed            1
+/nexus/persistency/start_id   0
+/nexus/persistency/output_file IonBa133_Xe_5.5bar.next
+
+### PERSISTENCY CONFIGURATION - Ensure all particles are saved
+#/nexus/persistency/save_particles true

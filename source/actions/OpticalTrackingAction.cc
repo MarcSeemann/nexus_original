@@ -66,16 +66,23 @@ void OpticalTrackingAction::PreUserTrackingAction(const G4Track* track)
   // Create a new trajectory associated to the track
   G4VTrajectory* trj = new Trajectory(track);
 
-  // Set the trajectory in the tracking manager
-  fpTrackingManager->SetStoreTrajectory(true);
-  fpTrackingManager->SetTrajectory(trj);
-
-  // Check if the track is an optical photon and increment the counter if so
-  if ((track->GetDefinition() == G4OpticalPhoton::Definition()) && (track->GetCreatorProcess()->GetProcessName() == "Scintillation")) {
-    total_photons_++;
-    evt_photons_created_++;  // Also increment per-event counter
+  // Set the trajectory in the tracking manager (guard pointer)
+  if (fpTrackingManager) {
+    fpTrackingManager->SetStoreTrajectory(true);
+    fpTrackingManager->SetTrajectory(trj);
   }
 
+  // Only inspect creator process if this is an optical photon
+  if (track && track->GetDefinition() == G4OpticalPhoton::Definition()) {
+    const G4VProcess* creator = track->GetCreatorProcess();
+    if (creator) {
+      // Safe to call GetProcessName() now
+      if (creator->GetProcessName() == "Scintillation") {
+        total_photons_++;
+        evt_photons_created_++;  // Also increment per-event counter
+      }
+    }
+  }
 }
 
 
@@ -179,15 +186,21 @@ void OpticalTrackingAction::PostUserTrackingAction(const G4Track* track)
       (final_vol_name == "TEFLON3") || (final_vol_name == "TEFLON4") || 
       (final_vol_name == "TEFLON_FRONT") || (final_vol_name == "TEFLON_BACK") ||
       (final_vol_name.find("TEFLON") != std::string::npos)) {
-    teflon_photons_++;
-    evt_teflon_hits_++;
+    // Only count if this photon was created by Scintillation process
+    if (trj->GetCreatorProcess() == "Scintillation") {
+      teflon_photons_++;
+      evt_teflon_hits_++;
+    }
   }
   
-  // Count source hits
+  // Count source hits - only scintillation photons
   if ((final_vol_name == "SOURCEPLATE1") || (final_vol_name == "SOURCE_PLATE_SENSAREA") ||
       (final_vol_name.find("SOURCE") != std::string::npos)) {
-    sensor_photons_++;
-    evt_source_hits_++;
+    // Only count if this photon was created by Scintillation process
+    if (trj->GetCreatorProcess() == "Scintillation") {
+      sensor_photons_++;
+      evt_source_hits_++;
+    }
   }
   
   // Count aluminum hits
